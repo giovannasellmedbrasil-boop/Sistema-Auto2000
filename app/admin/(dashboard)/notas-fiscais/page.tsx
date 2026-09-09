@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Notas Fiscais", robots: { index: fal
 
 export default async function AdminNotasFiscaisPage() {
   const session = await getAdminSession();
-  if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) redirect("/admin");
+  if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) redirect("/admin");
 
   const profile = getCompanyFiscalProfile();
   // O CPF/CNPJ do comprador nunca deve sair do servidor sem máscara — mascara
@@ -30,7 +30,12 @@ export default async function AdminNotasFiscaisPage() {
           Registro de emissão de NF-e para as vendas de veículos.
         </p>
       </div>
-      <InvoiceManager profile={profile} invoices={invoices} vehicles={vehicles} />
+      <InvoiceManager
+        profile={profile}
+        invoices={invoices}
+        vehicles={vehicles}
+        canEditFiscalProfile={hasRole(session.role, ["MANAGER", "ADMIN"])}
+      />
     </div>
   );
 }

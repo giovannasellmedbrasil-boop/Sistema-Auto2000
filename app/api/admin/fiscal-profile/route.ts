@@ -21,12 +21,15 @@ const fiscalProfileSchema = z.object({
 
 export async function GET() {
   const session = await getAdminSession();
-  if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) {
+  if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
   return NextResponse.json({ profile: getCompanyFiscalProfile() });
 }
 
+// Só gerente/admin pode alterar os dados fiscais da loja (CNPJ, regime
+// tributário etc.) — vendedor pode registrar/ver notas, não reconfigurar
+// o cadastro fiscal da empresa.
 export async function PUT(request: Request) {
   const session = await getAdminSession();
   if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) {

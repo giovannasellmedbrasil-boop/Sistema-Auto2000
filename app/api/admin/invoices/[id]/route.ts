@@ -4,7 +4,7 @@ import { cancelInvoice, getInvoiceById } from "@/lib/server/db";
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
-  if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) {
+  if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 

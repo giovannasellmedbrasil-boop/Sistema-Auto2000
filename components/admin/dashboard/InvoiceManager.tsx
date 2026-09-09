@@ -34,10 +34,12 @@ export function InvoiceManager({
   profile,
   invoices,
   vehicles,
+  canEditFiscalProfile,
 }: {
   profile: CompanyFiscalProfile | null;
   invoices: Invoice[];
   vehicles: VehicleOption[];
+  canEditFiscalProfile: boolean;
 }) {
   const router = useRouter();
   const [editingProfile, setEditingProfile] = useState(false);
@@ -138,9 +140,11 @@ export function InvoiceManager({
       <Card className="flex flex-col gap-4 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-base font-semibold text-accent-400">Dados fiscais da loja</h3>
-          <Button size="sm" variant="outline" onClick={() => setEditingProfile(true)}>
-            <Pencil className="h-4 w-4" /> {profile ? "Editar" : "Configurar"}
-          </Button>
+          {canEditFiscalProfile && (
+            <Button size="sm" variant="outline" onClick={() => setEditingProfile(true)}>
+              <Pencil className="h-4 w-4" /> {profile ? "Editar" : "Configurar"}
+            </Button>
+          )}
         </div>
         {profile ? (
           <div className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
@@ -166,7 +170,9 @@ export function InvoiceManager({
           </div>
         ) : (
           <p className="text-sm text-ink-500">
-            Configure os dados fiscais da loja antes de registrar notas fiscais.
+            {canEditFiscalProfile
+              ? "Configure os dados fiscais da loja antes de registrar notas fiscais."
+              : "Um gerente ou administrador ainda precisa configurar os dados fiscais da loja antes de registrar notas fiscais."}
           </p>
         )}
       </Card>

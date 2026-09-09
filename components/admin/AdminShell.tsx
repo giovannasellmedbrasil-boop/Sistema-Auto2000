@@ -39,7 +39,7 @@ const NAV: { href: string; label: string; icon: typeof LayoutDashboard; roles: U
   { href: "/admin/leads", label: "Leads", icon: Users, roles: ["MANAGER", "ADMIN"] },
   { href: "/admin/vendedores", label: "Vendedores", icon: Contact, roles: ["MANAGER", "ADMIN"] },
   { href: "/admin/marketing", label: "Marketing", icon: Megaphone, roles: ["MANAGER", "ADMIN"] },
-  { href: "/admin/notas-fiscais", label: "Notas Fiscais", icon: Receipt, roles: ["MANAGER", "ADMIN"] },
+  { href: "/admin/notas-fiscais", label: "Notas Fiscais", icon: Receipt, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/usuarios", label: "Usuários", icon: ShieldCheck, roles: ["ADMIN"] },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings, roles: ["ADMIN"] },
 ];

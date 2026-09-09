@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAdminSession, hasRole } from "@/lib/server/auth";
 import { createInvoice, getVehicleById, listInvoices } from "@/lib/server/db";
-import { onlyDigits } from "@/lib/utils";
+import { maskDocument, onlyDigits } from "@/lib/utils";
 
 const invoiceSchema = z.object({
   saleId: z.string().optional().nullable(),
@@ -18,15 +18,16 @@ const invoiceSchema = z.object({
 
 export async function GET() {
   const session = await getAdminSession();
-  if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) {
+  if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
-  return NextResponse.json({ invoices: listInvoices() });
+  const invoices = listInvoices().map((inv) => ({ ...inv, buyerDocument: maskDocument(inv.buyerDocument) }));
+  return NextResponse.json({ invoices });
 }
 
 export async function POST(request: Request) {
   const session = await getAdminSession();
-  if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) {
+  if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 
