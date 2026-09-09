@@ -1,26 +1,130 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050505;
+  --foreground: #f5f5f5;
+
+  /* Brand — true black theme, matching the Auto2000 emblem.
+     Scale is inverted relative to a light theme: low steps are darkest
+     (surfaces), high steps are lightest (text on dark surfaces). */
+  --color-ink-50: #0a0a0a;
+  --color-ink-100: #141414;
+  --color-ink-200: #1f1f1f;
+  --color-ink-300: #333333;
+  --color-ink-400: #4a4a4a;
+  --color-ink-500: #7a7a7a;
+  --color-ink-600: #979797;
+  --color-ink-700: #bdbdbd;
+  --color-ink-800: #dcdcdc;
+  --color-ink-900: #efefef;
+  --color-ink-950: #fafafa;
+
+  /* Accent — gold, sampled directly from the Auto2000 logo (#FFB000) */
+  --color-accent-50: #fffaf0;
+  --color-accent-100: #fff2d6;
+  --color-accent-200: #ffe6ad;
+  --color-accent-300: #ffd67a;
+  --color-accent-400: #ffc33d;
+  --color-accent-500: #ffb000;
+  --color-accent-600: #cc8d00;
+  --color-accent-700: #946600;
+  --color-accent-800: #755100;
+  --color-accent-900: #5c3f00;
+  --color-accent-950: #3d2a00;
+
+  /* Signal colors — kept distinct from the gold brand accent */
+  --color-success-500: #16a34a;
+  --color-success-600: #15803d;
+  --color-warning-500: #c2410c;
+  --color-danger-500: #dc2626;
+  --color-whatsapp: #25d366;
+  --color-whatsapp-dark: #1ebc59;
+
+  --radius-card: 1rem;
+  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+  --shadow-card-hover: 0 0 0 1px rgba(255, 176, 0, 0.25), 0 16px 40px -14px rgba(0, 0, 0, 0.8);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-ink-50: var(--color-ink-50);
+  --color-ink-100: var(--color-ink-100);
+  --color-ink-200: var(--color-ink-200);
+  --color-ink-300: var(--color-ink-300);
+  --color-ink-400: var(--color-ink-400);
+  --color-ink-500: var(--color-ink-500);
+  --color-ink-600: var(--color-ink-600);
+  --color-ink-700: var(--color-ink-700);
+  --color-ink-800: var(--color-ink-800);
+  --color-ink-900: var(--color-ink-900);
+  --color-ink-950: var(--color-ink-950);
+
+  --color-accent-50: var(--color-accent-50);
+  --color-accent-100: var(--color-accent-100);
+  --color-accent-200: var(--color-accent-200);
+  --color-accent-300: var(--color-accent-300);
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-500: var(--color-accent-500);
+  --color-accent-600: var(--color-accent-600);
+  --color-accent-700: var(--color-accent-700);
+  --color-accent-800: var(--color-accent-800);
+  --color-accent-900: var(--color-accent-900);
+  --color-accent-950: var(--color-accent-950);
+
+  --color-success-500: var(--color-success-500);
+  --color-success-600: var(--color-success-600);
+  --color-warning-500: var(--color-warning-500);
+  --color-danger-500: var(--color-danger-500);
+  --color-whatsapp: var(--color-whatsapp);
+  --color-whatsapp-dark: var(--color-whatsapp-dark);
+
+  --radius-card: var(--radius-card);
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease both;
+}
+
+::selection {
+  background: var(--color-accent-500);
+  color: #0a0a0a;
+}
+
+/* Fixed full-page glow layer — the "blur amarelo" behind every screen.
+   Sits behind all content (z-index handled by stacking order + isolate
+   on the layout wrapper), stays put while the page scrolls. */
+.page-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 900px 600px at 12% -10%, rgba(255, 176, 0, 0.20), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 20%, rgba(255, 176, 0, 0.14), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 8% 70%, rgba(255, 176, 0, 0.12), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 100% 100%, rgba(255, 176, 0, 0.16), transparent 60%);
 }

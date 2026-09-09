@@ -1,0 +1,734 @@
+// Schema de referência da plataforma — cobre TODAS as fases (1, 2 e 3).
+// Somente as entidades usadas pela Fase 1 (vehicles, vehicle_photos, leads,
+// lead_interactions, consent_records) estão de fato "vivas" no MVP atual.
+// O restante já está modelado para não exigir migrações destrutivas
+// quando CRM, financiamento, avaliação de usados e IA forem implementados.
+//
+// Este projeto ainda não está conectado a um Postgres real: o app roda em
+// modo demonstração usando um armazenamento mock em `data/db.json`
+// (ver lib/server/db.ts). Defina DATABASE_URL e rode `prisma migrate dev`
+// quando um banco Postgres estiver disponível.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identidade e acesso (seção 16/23)
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  SALES
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(SALES)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee Employee?
+
+  leadsOwned        Lead[]             @relation("LeadOwner")
+  interactions      LeadInteraction[]
+  appointments      Appointment[]
+  proposals         Proposal[]
+  sales             Sale[]
+  aiRecommendations AiRecommendation[]
+  studioScenarios   StudioScenario[] @relation("StudioScenarioCreatedBy")
+  generatedPhotos   GeneratedPhoto[] @relation("GeneratedPhotoCreatedBy")
+
+  @@map("users")
+}
+
+model Employee {
+  id       String  @id @default(cuid())
+  userId   String  @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     String? // cargo livre (ex: "Consultor de vendas")
+  phone    String?
+  photoUrl String?
+
+  @@map("employees")
+}
+
+// ---------------------------------------------------------------------------
+// Clientes e consentimento (LGPD — seções 10 e 25)
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String
+  cpf       String? // coletado apenas quando estritamente necessário
+  birthDate DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads                  Lead[]
+  favorites              Favorite[]
+  financingRequests      FinancingRequest[]
+  creditAnalysisRequests CreditAnalysisRequest[]
+  tradeInRequests        TradeInRequest[]
+  appointments           Appointment[]
+  proposals              Proposal[]
+  sales                  Sale[]
+  consentRecords         ConsentRecord[]
+
+  @@map("customers")
+}
+
+enum ConsentType {
+  DATA_PROCESSING
+  CREDIT_CHECK
+  MARKETING
+}
+
+model ConsentRecord {
+  id         String      @id @default(cuid())
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type       ConsentType
+  granted    Boolean
+  text       String // texto exato apresentado ao titular no momento do consentimento
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime    @default(now())
+
+  @@map("consent_records")
+}
+
+// ---------------------------------------------------------------------------
+// Estoque de veículos (seções 6, 7, 20, 21)
+// ---------------------------------------------------------------------------
+
+enum VehicleStatus {
+  AVAILABLE // Disponível
+  RESERVED // Reservado
+  SOLD // Vendido
+  PREPARING // Em preparação
+}
+
+enum Transmission {
+  MANUAL
+  AUTOMATIC
+  CVT
+  AUTOMATED
+}
+
+enum FuelType {
+  FLEX
+  GASOLINE
+  ETHANOL
+  DIESEL
+  HYBRID
+  ELECTRIC
+}
+
+enum BodyType {
+  HATCH
+  SEDAN
+  SUV
+  PICKUP
+  MINIVAN
+  COUPE
+  CONVERTIBLE
+}
+
+model Vehicle {
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  brand            String
+  model            String
+  version          String
+  bodyType         BodyType
+  manufactureYear  Int
+  modelYear        Int
+  mileageKm        Int
+  price            Decimal       @db.Decimal(12, 2)
+  costPrice        Decimal?      @db.Decimal(12, 2) // interno — nunca exposto no frontend
+  transmission     Transmission
+  fuel             FuelType
+  color            String
+  plateEnding      String? // final da placa
+  doors            Int           @default(4)
+  engine           String?
+  powerHp          Int?
+  trunkLiters      Int?
+  fuelConsumption  String?
+  licensePlate     String? // placa completa — uso interno
+  features         String[] // principais equipamentos
+  description      String?
+  videoUrl         String?
+  status           VehicleStatus @default(AVAILABLE)
+  enteredStockAt   DateTime      @default(now())
+  soldAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  photos            VehiclePhoto[]
+  favorites         Favorite[]
+  leads             Lead[]
+  financingRequests FinancingRequest[]
+  tradeInRequests   TradeInRequest[] @relation("DesiredVehicle")
+  appointments      Appointment[]
+  proposals         Proposal[]
+  sale              Sale?
+  aiRecommendations AiRecommendation[]
+  photoJobs         PhotoJob[]
+  generatedPhotos   GeneratedPhoto[]
+  photoBatches      PhotoBatch[]
+
+  @@index([status])
+  @@index([brand, model])
+  @@map("vehicles")
+}
+
+model VehiclePhoto {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int      @default(0)
+  isCover   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("vehicle_photos")
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sessionId  String? // visitante anônimo (antes do cadastro)
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([sessionId, vehicleId])
+  @@map("favorites")
+}
+
+// ---------------------------------------------------------------------------
+// Marketing e origem de leads (seção 22)
+// ---------------------------------------------------------------------------
+
+model MarketingSource {
+  id        String   @id @default(cuid())
+  channel   String // Google Ads, Meta Ads, Instagram, WhatsApp, Indicação...
+  utmSource String?
+  utmMedium String?
+  utmCampaign String?
+  costCents Int? // custo atribuído, quando disponível
+  createdAt DateTime @default(now())
+
+  leads Lead[]
+
+  @@map("marketing_sources")
+}
+
+// ---------------------------------------------------------------------------
+// CRM / Funil comercial (seções 6→19)
+// ---------------------------------------------------------------------------
+
+enum LeadStage {
+  NEW // Novo Lead
+  CONTACTED // Contato realizado
+  QUALIFIED // Qualificado
+  VISIT // Visita/Test-drive
+  PROPOSAL // Proposta
+  FINANCING // Financiamento
+  SOLD // Venda
+  LOST // Perdido
+}
+
+enum LeadOrigin {
+  SITE
+  WHATSAPP
+  IA_RECOMMENDATION
+  TRADE_IN
+  FINANCING_SIMULATOR
+  CREDIT_PREANALYSIS
+  MARKETPLACE
+  REFERRAL
+  OTHER
+}
+
+model Lead {
+  id                String     @id @default(cuid())
+  customerId        String?
+  customer          Customer?  @relation(fields: [customerId], references: [id])
+  name              String
+  email             String?
+  phone             String
+  vehicleId         String?
+  vehicle           Vehicle?   @relation(fields: [vehicleId], references: [id])
+  origin            LeadOrigin @default(SITE)
+  marketingSourceId String?
+  marketingSource   MarketingSource? @relation(fields: [marketingSourceId], references: [id])
+  stage             LeadStage  @default(NEW)
+  ownerId           String?
+  owner             User?      @relation("LeadOwner", fields: [ownerId], references: [id])
+  message           String?
+  leadScore         Int?       // Lead Score comercial (0-100) — seção 18, distinto de score de crédito
+  nextActionAt      DateTime?
+  nextActionNote    String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  interactions      LeadInteraction[]
+  appointments      Appointment[]
+  proposals         Proposal[]
+  financingRequests FinancingRequest[]
+  aiRecommendations AiRecommendation[]
+
+  @@index([stage])
+  @@map("leads")
+}
+
+enum InteractionChannel {
+  WHATSAPP
+  PHONE
+  EMAIL
+  SITE
+  IN_PERSON
+  SYSTEM
+}
+
+model LeadInteraction {
+  id        String              @id @default(cuid())
+  leadId    String
+  lead      Lead                @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?               @relation(fields: [userId], references: [id])
+  channel   InteractionChannel
+  note      String
+  createdAt DateTime            @default(now())
+
+  @@map("lead_interactions")
+}
+
+model Appointment {
+  id         String   @id @default(cuid())
+  leadId     String?
+  lead       Lead?    @relation(fields: [leadId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  vehicleId  String?
+  vehicle    Vehicle? @relation(fields: [vehicleId], references: [id])
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  scheduledFor DateTime
+  kind       String   @default("visit") // visit | test_drive
+  status     String   @default("scheduled") // scheduled | done | canceled | no_show
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  @@map("appointments")
+}
+
+model Proposal {
+  id         String   @id @default(cuid())
+  leadId     String?
+  lead       Lead?    @relation(fields: [leadId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  vehicleId  String?
+  vehicle    Vehicle? @relation(fields: [vehicleId], references: [id])
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  offeredPrice Decimal @db.Decimal(12, 2)
+  downPayment  Decimal? @db.Decimal(12, 2)
+  status       String   @default("open") // open | accepted | rejected | expired
+  createdAt    DateTime @default(now())
+
+  sale Sale?
+
+  @@map("proposals")
+}
+
+model Sale {
+  id          String   @id @default(cuid())
+  vehicleId   String   @unique
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id])
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  proposalId  String?  @unique
+  proposal    Proposal? @relation(fields: [proposalId], references: [id])
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  finalPrice  Decimal  @db.Decimal(12, 2)
+  soldAt      DateTime @default(now())
+
+  @@map("sales")
+}
+
+// ---------------------------------------------------------------------------
+// Financiamento e crédito (seções 9, 10)
+// ---------------------------------------------------------------------------
+
+model FinancingRequest {
+  id             String   @id @default(cuid())
+  leadId         String?
+  lead           Lead?    @relation(fields: [leadId], references: [id])
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  vehicleId      String?
+  vehicle        Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehiclePrice   Decimal  @db.Decimal(12, 2)
+  downPayment    Decimal  @db.Decimal(12, 2)
+  financedAmount Decimal  @db.Decimal(12, 2)
+  termMonths     Int
+  monthlyIncome  Decimal? @db.Decimal(12, 2)
+  estimatedInstallment Decimal? @db.Decimal(12, 2) // simulação estimada — nunca uma oferta real
+  status         String   @default("simulated") // simulated | submitted | in_review | approved | denied
+  createdAt      DateTime @default(now())
+
+  @@map("financing_requests")
+}
+
+enum CreditAnalysisStatus {
+  PENDING_CONSENT
+  AWAITING_PROVIDER // aguardando integração com bureau/instituição autorizada
+  UNAVAILABLE_DEMO // ambiente de demonstração, sem integração ativa
+  COMPLETED
+  FAILED
+}
+
+// Status comercial do funil pós-consulta (seção 11 do briefing) — distinto
+// de CreditAnalysisStatus, que descreve só o ciclo de vida da CHAMADA à
+// Serasa. Mock store em lib/server/db.ts já implementa esse fluxo completo
+// sobre data/db.json; os campos abaixo espelham exatamente o que está lá.
+enum CommercialStatus {
+  NEW
+  CREDIT_CHECKED
+  SIMULATING
+  PROPOSAL_SENT
+  AWAITING_BANK
+  APPROVED_BY_FINANCIER
+  REJECTED_BY_FINANCIER
+  SALE_COMPLETED
+}
+
+model CreditAnalysisRequest {
+  id            String                @id @default(cuid())
+  customerId    String
+  customer      Customer              @relation(fields: [customerId], references: [id])
+  vehicleId     String?
+  vehicleInterest String? // texto livre informado no formulário (pode não bater com o estoque)
+  vehiclePrice  Decimal?              @db.Decimal(12, 2)
+  monthlyIncome Decimal?              @db.Decimal(12, 2)
+  downPayment   Decimal?              @db.Decimal(12, 2)
+  desiredInstallment Decimal?         @db.Decimal(12, 2)
+  hasTradeIn    Boolean               @default(false)
+  consentRecordId String?
+  status        CreditAnalysisStatus  @default(PENDING_CONSENT)
+  commercialStatus CommercialStatus   @default(NEW)
+  sellerId      String? // User.id do vendedor que solicitou a consulta
+  providerName  String? // nome do bureau/financeira quando integrado ("SERASA_EXPERIAN" | "DEMO")
+  providerRefId String? // referência externa da consulta — nunca o score bruto exposto sem necessidade
+  score         Int? // score retornado (0-1000) — null quando indisponível
+  scoreClassification String? // faixa/classificação retornada pelo provedor contratado, nunca inventada
+  riskIndicator String?
+  indicatorsJson Json? // restrições, pendências, protestos, cheques, negativações, consultas, cadastro positivo
+  factorsJson   Json? // fatores que impactam o score, conforme retornados pela consulta
+  aiSummary     String? // texto gerado pela camada de interpretação (lib/creditAI.ts) — nunca "aprovado"
+  aiScenario    String? // FAVORABLE | INTERMEDIATE | RISK
+  resultSummary String? // preenchido somente após integração real
+  consultedAt   DateTime?
+  createdAt     DateTime              @default(now())
+
+  @@map("credit_analysis_requests")
+}
+
+// ---------------------------------------------------------------------------
+// Avaliação / troca de usados (seção 11)
+// ---------------------------------------------------------------------------
+
+model TradeInRequest {
+  id              String   @id @default(cuid())
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id])
+  plate           String
+  brand           String
+  model           String
+  version         String?
+  year            Int
+  mileageKm       Int
+  color           String
+  hasFinancing    Boolean  @default(false)
+  expectedValue   Decimal? @db.Decimal(12, 2)
+  desiredVehicleId String?
+  desiredVehicle  Vehicle? @relation("DesiredVehicle", fields: [desiredVehicleId], references: [id])
+  photos          String[] // urls (frente, traseira, laterais, interior, painel)
+  status          String   @default("submitted") // submitted | evaluating | offered | accepted | rejected
+  offeredValue    Decimal? @db.Decimal(12, 2)
+  createdAt       DateTime @default(now())
+
+  @@map("trade_in_requests")
+}
+
+// ---------------------------------------------------------------------------
+// IA (seções 8, 12, 18, 19)
+// ---------------------------------------------------------------------------
+
+enum AiRecommendationKind {
+  VEHICLE_MATCH // "encontre seu carro com IA"
+  COMPARISON // comparador com IA
+  LEAD_COPILOT // resumo/copiloto de vendedor
+}
+
+model AiRecommendation {
+  id          String               @id @default(cuid())
+  kind        AiRecommendationKind
+  leadId      String?
+  lead        Lead?                @relation(fields: [leadId], references: [id])
+  userId      String?              // vendedor que solicitou (copiloto)
+  user        User?                @relation(fields: [userId], references: [id])
+  vehicleId   String?              // veículo avaliado/recomendado
+  vehicle     Vehicle?             @relation(fields: [vehicleId], references: [id])
+  inputPrompt String // texto livre do usuário / contexto do lead
+  outputJson  Json // resultado estruturado — sempre restrito a veículos do estoque real
+  createdAt   DateTime             @default(now())
+
+  @@map("ai_recommendations")
+}
+
+// ---------------------------------------------------------------------------
+// Estúdio de Fotos com IA (simulado)
+// ---------------------------------------------------------------------------
+//
+// Diferente do restante deste schema (modelado antes de implementado), o
+// Estúdio JÁ está vivo hoje sobre o mock store (lib/server/db.ts / data/
+// uploads), com as mesmas entidades abaixo. O "pipeline de IA" (remoção de
+// fundo, iluminação, ocultação de placa, composição de cenário, sombra) é
+// uma implementação HEURÍSTICA/DETERMINÍSTICA com a biblioteca `sharp` —
+// não um modelo de IA treinado — ver lib/server/studio/ para os pontos de
+// troca planejados por um modelo real no futuro.
+
+enum StudioFloorType {
+  CONCRETE // cimento queimado
+  CYCLORAMA_WHITE // cinza claro / ciclorama branco
+  CYCLORAMA_DARK // cinza escuro
+  ASPHALT
+  PAVER
+  GRASS
+}
+
+enum StudioLightingStyle {
+  SOFT_DAYLIGHT // natural
+  STUDIO_NEUTRAL // estúdio
+  DRAMATIC_CONTRAST // dramática
+  GOLDEN_HOUR // premium
+  SHOWROOM_SPOT // showroom
+}
+
+enum LogoPosition {
+  LEFT_WALL
+  RIGHT_WALL
+  CENTER
+  WATERMARK
+  CUSTOM
+}
+
+enum PlateMode {
+  ORIGINAL
+  BLUR
+  NEUTRAL
+  STORE_LOGO
+}
+
+enum ShadowIntensity {
+  SOFT
+  MEDIUM
+  STRONG
+}
+
+enum PhotoFraming {
+  CENTERED
+  CLOSE
+  FULL
+  MARKETPLACE
+  INSTAGRAM
+}
+
+enum PhotoAspectRatio {
+  SQUARE_1_1
+  LANDSCAPE_4_3
+  LANDSCAPE_16_9
+  PORTRAIT_4_5
+  STORY_9_16
+}
+
+enum AlbumPosition {
+  FRONT
+  REAR
+  LEFT_SIDE
+  RIGHT_SIDE
+  FRONT_3_4
+  REAR_3_4
+  INTERIOR
+  DASHBOARD
+  TRUNK
+  ENGINE
+  OTHER
+}
+
+enum JobStep {
+  IDENTIFYING_VEHICLE
+  REMOVING_BACKGROUND
+  ADJUSTING_LIGHT
+  HIDING_PLATE
+  COMPOSITING_SCENE
+  GENERATING_FINAL
+}
+
+enum JobStatus {
+  QUEUED
+  PROCESSING
+  DONE
+  FAILED
+}
+
+enum GeneratedPhotoStatus {
+  DRAFT
+  SAVED
+}
+
+enum BatchStatus {
+  QUEUED
+  PROCESSING
+  DONE
+  PARTIAL_FAILURE
+}
+
+model StudioScenario {
+  id                String              @id @default(cuid())
+  name              String
+  slug              String              @unique
+  description       String?
+  referenceImageUrl String
+  previewImageUrl   String
+  floorType         StudioFloorType
+  lightingStyle     StudioLightingStyle
+  isSystemSeed      Boolean             @default(false)
+  isStoreDefault    Boolean             @default(false)
+  isActive          Boolean             @default(true)
+  createdByUserId   String?
+  createdByUser     User?               @relation("StudioScenarioCreatedBy", fields: [createdByUserId], references: [id])
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  photoJobs       PhotoJob[]
+  generatedPhotos GeneratedPhoto[]
+  photoBatches    PhotoBatch[]
+
+  @@map("studio_scenarios")
+}
+
+model StudioSettings {
+  id                 String            @id @default("default")
+  logoUrl            String?
+  logoPosition       LogoPosition      @default(WATERMARK)
+  logoOpacity        Float             @default(0.8)
+  logoCustomX        Float?
+  logoCustomY        Float?
+  defaultScenarioId  String?
+  defaultScenario    StudioScenario?   @relation(fields: [defaultScenarioId], references: [id])
+  defaultAspectRatio PhotoAspectRatio  @default(SQUARE_1_1)
+  updatedAt          DateTime          @updatedAt
+
+  @@map("studio_settings")
+}
+
+model PhotoBatch {
+  id                  String              @id @default(cuid())
+  vehicleId           String?
+  vehicle             Vehicle?            @relation(fields: [vehicleId], references: [id])
+  totalCount          Int
+  completedCount      Int                 @default(0)
+  failedCount         Int                 @default(0)
+  status              BatchStatus         @default(QUEUED)
+  sharedScenarioId    String?
+  sharedScenario      StudioScenario?     @relation(fields: [sharedScenarioId], references: [id])
+  sharedLightingStyle StudioLightingStyle?
+  zipUrl              String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  jobs PhotoJob[]
+
+  @@map("photo_batches")
+}
+
+model PhotoJob {
+  id                   String          @id @default(cuid())
+  batchId              String?
+  batch                PhotoBatch?     @relation(fields: [batchId], references: [id])
+  vehicleId            String?
+  vehicle              Vehicle?        @relation(fields: [vehicleId], references: [id])
+  originalPhotoUrl     String
+  albumPosition        AlbumPosition?
+  sourceGeneratedPhotoId String?
+  scenarioId           String?
+  scenario             StudioScenario? @relation(fields: [scenarioId], references: [id])
+  lightingStyle        StudioLightingStyle?
+  shadowIntensity      ShadowIntensity @default(MEDIUM)
+  framing              PhotoFraming    @default(CENTERED)
+  aspectRatio          PhotoAspectRatio @default(SQUARE_1_1)
+  plateMode            PlateMode       @default(BLUR)
+  showLogo             Boolean         @default(true)
+  variantSeed          Int             @default(0)
+  status               JobStatus       @default(QUEUED)
+  currentStep          JobStep?
+  errorMessage         String?
+  resultPhotoId        String?
+  startedAt            DateTime?
+  completedAt          DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  generatedPhoto GeneratedPhoto?
+
+  @@map("photo_jobs")
+}
+
+model GeneratedPhoto {
+  id                String               @id @default(cuid())
+  jobId             String               @unique
+  job               PhotoJob             @relation(fields: [jobId], references: [id])
+  vehicleId         String?
+  vehicle           Vehicle?             @relation(fields: [vehicleId], references: [id])
+  originalPhotoUrl  String
+  processedPhotoUrl String
+  thumbnailUrl      String?
+  scenarioId        String?
+  scenario          StudioScenario?      @relation(fields: [scenarioId], references: [id])
+  plateMode         PlateMode
+  shadowIntensity   ShadowIntensity
+  framing           PhotoFraming
+  aspectRatio       PhotoAspectRatio
+  showLogo          Boolean
+  albumPosition     AlbumPosition?
+  status            GeneratedPhotoStatus @default(DRAFT)
+  isCover           Boolean              @default(false)
+  savedAt           DateTime?
+  createdByUserId   String?
+  createdByUser     User?                @relation("GeneratedPhotoCreatedBy", fields: [createdByUserId], references: [id])
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@map("generated_photos")
+}
