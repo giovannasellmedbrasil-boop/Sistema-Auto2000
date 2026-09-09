@@ -890,3 +890,82 @@ export interface VehiclePricingSnapshot {
   fipeHistory: FipeQuote[];
   marketSamples: MarketPriceSample[];
 }
+
+// ---------------------------------------------------------------------------
+// Notas Fiscais (NF-e) — seção "emissor de NF"
+// ---------------------------------------------------------------------------
+//
+// Emitir uma NF-e de verdade exige assinatura com certificado digital (A1/A3)
+// e comunicação com o webservice da SEFAZ do estado da loja — não é algo que
+// se simula. Enquanto essa integração não existe, o sistema só registra a
+// intenção de emissão (status PENDING_INTEGRATION) com os dados reais que já
+// temos (veículo, comprador, valor) — nunca fabrica chave de acesso, número,
+// protocolo ou XML/DANFE como se a nota tivesse sido emitida de verdade.
+
+export type TaxRegime = "SIMPLES_NACIONAL" | "LUCRO_PRESUMIDO" | "LUCRO_REAL";
+
+export const TAX_REGIME_LABELS: Record<TaxRegime, string> = {
+  SIMPLES_NACIONAL: "Simples Nacional",
+  LUCRO_PRESUMIDO: "Lucro Presumido",
+  LUCRO_REAL: "Lucro Real",
+};
+
+export interface CompanyFiscalProfile {
+  cnpj: string; // apenas dígitos
+  razaoSocial: string;
+  nomeFantasia?: string | null;
+  inscricaoEstadual: string;
+  regimeTributario: TaxRegime;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  municipio: string;
+  ibgeMunicipioCode?: string | null; // código IBGE — exigido pelo layout da NF-e, preenchido quando disponível
+  uf: string;
+  updatedAt: string;
+}
+
+export type CompanyFiscalProfileInput = Omit<CompanyFiscalProfile, "updatedAt">;
+
+export type InvoiceStatus =
+  | "PENDING_INTEGRATION" // nenhuma integração com a SEFAZ configurada ainda
+  | "CANCELLED";
+
+export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
+  PENDING_INTEGRATION: "Pendente de integração",
+  CANCELLED: "Cancelada",
+};
+
+export interface Invoice {
+  id: string;
+  saleId?: string | null;
+  vehicleId: string;
+  buyerName: string;
+  buyerDocument: string; // CPF ou CNPJ — apenas dígitos; UI sempre mascara (maskCpf/maskCnpj)
+  value: number; // em reais
+  status: InvoiceStatus;
+  notes?: string | null;
+  requestedBy: string; // nome de quem solicitou a emissão
+  createdAt: string;
+  cancelledAt?: string | null;
+
+  // Preenchidos apenas quando uma integração real de emissão existir —
+  // hoje sempre null.
+  accessKey?: string | null;
+  series?: string | null;
+  number?: string | null;
+  protocol?: string | null;
+  xmlUrl?: string | null;
+  danfeUrl?: string | null;
+  issuedAt?: string | null;
+}
+
+export type InvoiceInput = {
+  saleId?: string | null;
+  vehicleId: string;
+  buyerName: string;
+  buyerDocument: string;
+  value: number;
+  notes?: string | null;
+};

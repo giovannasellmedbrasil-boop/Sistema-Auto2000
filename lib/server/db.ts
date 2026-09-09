@@ -4,10 +4,14 @@ import type {
   AuditLogEntry,
   ChecklistItem,
   CommercialStatus,
+  CompanyFiscalProfile,
+  CompanyFiscalProfileInput,
   CreditAnalysis,
   CreditConsentRecord,
   CreditCustomer,
   DashboardGoals,
+  Invoice,
+  InvoiceInput,
   Lead,
   LeadManualInput,
   MarketingCampaign,
@@ -79,6 +83,8 @@ interface DbShape {
   fipeLinks: FipeVehicleLink[];
   fipeQuotes: FipeQuote[];
   marketPriceSamples: MarketPriceSample[];
+  companyFiscalProfile: CompanyFiscalProfile | null;
+  invoices: Invoice[];
 }
 
 // Em hospedagem serverless (ex: Vercel) o diretório do projeto é somente
@@ -110,6 +116,8 @@ function emptyDb(): DbShape {
     fipeLinks: [],
     fipeQuotes: [],
     marketPriceSamples: [],
+    companyFiscalProfile: null,
+    invoices: [],
   };
 }
 
@@ -134,6 +142,8 @@ function normalize(parsed: Partial<DbShape>): DbShape {
     fipeLinks: parsed.fipeLinks ?? [],
     fipeQuotes: parsed.fipeQuotes ?? [],
     marketPriceSamples: parsed.marketPriceSamples ?? [],
+    companyFiscalProfile: parsed.companyFiscalProfile ?? null,
+    invoices: parsed.invoices ?? [],
   };
 }
 
@@ -1160,4 +1170,62 @@ export function deleteMarketPriceSample(id: string): boolean {
   db.marketPriceSamples = db.marketPriceSamples.filter((s) => s.id !== id);
   writeDb(db);
   return db.marketPriceSamples.length < before;
+}
+
+// --- Notas Fiscais (NF-e) — emissão real pendente de integração com a SEFAZ
+
+export function getCompanyFiscalProfile(): CompanyFiscalProfile | null {
+  return readDb().companyFiscalProfile;
+}
+
+export function updateCompanyFiscalProfile(input: CompanyFiscalProfileInput): CompanyFiscalProfile {
+  const db = readDb();
+  const profile: CompanyFiscalProfile = { ...input, updatedAt: new Date().toISOString() };
+  db.companyFiscalProfile = profile;
+  writeDb(db);
+  return profile;
+}
+
+export function createInvoice(input: InvoiceInput & { requestedBy: string }): Invoice {
+  const db = readDb();
+  const invoice: Invoice = {
+    id: genId("nfe"),
+    saleId: input.saleId ?? null,
+    vehicleId: input.vehicleId,
+    buyerName: input.buyerName,
+    buyerDocument: input.buyerDocument,
+    value: input.value,
+    notes: input.notes ?? null,
+    requestedBy: input.requestedBy,
+    status: "PENDING_INTEGRATION",
+    createdAt: new Date().toISOString(),
+    cancelledAt: null,
+    accessKey: null,
+    series: null,
+    number: null,
+    protocol: null,
+    xmlUrl: null,
+    danfeUrl: null,
+    issuedAt: null,
+  };
+  db.invoices.unshift(invoice);
+  writeDb(db);
+  return invoice;
+}
+
+export function listInvoices(): Invoice[] {
+  return readDb().invoices;
+}
+
+export function getInvoiceById(id: string): Invoice | undefined {
+  return readDb().invoices.find((i) => i.id === id);
+}
+
+export function cancelInvoice(id: string): Invoice | undefined {
+  const db = readDb();
+  const idx = db.invoices.findIndex((i) => i.id === id);
+  if (idx === -1) return undefined;
+  db.invoices[idx] = { ...db.invoices[idx], status: "CANCELLED", cancelledAt: new Date().toISOString() };
+  writeDb(db);
+  return db.invoices[idx];
 }

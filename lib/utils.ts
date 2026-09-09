@@ -77,6 +77,18 @@ export function formatCpfInput(value: string): string {
     .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 }
 
+// Mascara CPF (11 dígitos) ou CNPJ (14 dígitos) do comprador — usado nas
+// notas fiscais (seção "emissor de NF"), mesmo princípio de nunca mostrar o
+// documento completo na interface.
+export function maskDocument(document: string): string {
+  const digits = onlyDigits(document);
+  if (digits.length > 11) {
+    const last2 = digits.slice(-2).padStart(2, "*");
+    return `**.***.***/****-${last2}`;
+  }
+  return maskCpf(digits);
+}
+
 // --- Assistente de Documentação --------------------------------------------
 
 export function documentRequestWhatsAppMessage(params: {
