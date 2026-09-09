@@ -1,13 +1,17 @@
-// Schema de referência da plataforma — cobre TODAS as fases (1, 2 e 3).
-// Somente as entidades usadas pela Fase 1 (vehicles, vehicle_photos, leads,
-// lead_interactions, consent_records) estão de fato "vivas" no MVP atual.
-// O restante já está modelado para não exigir migrações destrutivas
-// quando CRM, financiamento, avaliação de usados e IA forem implementados.
+// Schema de referência da plataforma — cobre as entidades centrais do
+// estoque/CRM (vehicles, vehicle_photos, leads, lead_interactions,
+// consent_records etc.). Ainda NÃO inclui os módulos adicionados depois
+// direto sobre o mock store (análise de crédito completa, negociações/
+// documentação, vendedores/marketing, precificação FIPE, nem os campos de
+// integração com o Mercado Livre em Vehicle) — trazer essas entidades para
+// cá é um passo futuro.
 //
-// Este projeto ainda não está conectado a um Postgres real: o app roda em
-// modo demonstração usando um armazenamento mock em `data/db.json`
-// (ver lib/server/db.ts). Defina DATABASE_URL e rode `prisma migrate dev`
-// quando um banco Postgres estiver disponível.
+// DATABASE_URL (usada pelo Prisma Migrate — ver prisma.config.ts) já aponta
+// para um Postgres real no Supabase, e as tabelas abaixo foram criadas lá
+// via `npx prisma migrate dev`. O app em si (lib/server/db.ts) ainda lê e
+// grava no mock store em `data/db.json` em tempo de execução — migrar de
+// fato a camada de dados para consultar este banco via Prisma Client é um
+// passo separado, ainda não feito.
 
 generator client {
   provider = "prisma-client-js"
@@ -15,7 +19,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ---------------------------------------------------------------------------
@@ -46,8 +49,6 @@ model User {
   proposals         Proposal[]
   sales             Sale[]
   aiRecommendations AiRecommendation[]
-  studioScenarios   StudioScenario[] @relation("StudioScenarioCreatedBy")
-  generatedPhotos   GeneratedPhoto[] @relation("GeneratedPhotoCreatedBy")
 
   @@map("users")
 }
@@ -187,9 +188,6 @@ model Vehicle {
   proposals         Proposal[]
   sale              Sale?
   aiRecommendations AiRecommendation[]
-  photoJobs         PhotoJob[]
-  generatedPhotos   GeneratedPhoto[]
-  photoBatches      PhotoBatch[]
 
   @@index([status])
   @@index([brand, model])
@@ -504,231 +502,4 @@ model AiRecommendation {
   createdAt   DateTime             @default(now())
 
   @@map("ai_recommendations")
-}
-
-// ---------------------------------------------------------------------------
-// Estúdio de Fotos com IA (simulado)
-// ---------------------------------------------------------------------------
-//
-// Diferente do restante deste schema (modelado antes de implementado), o
-// Estúdio JÁ está vivo hoje sobre o mock store (lib/server/db.ts / data/
-// uploads), com as mesmas entidades abaixo. O "pipeline de IA" (remoção de
-// fundo, iluminação, ocultação de placa, composição de cenário, sombra) é
-// uma implementação HEURÍSTICA/DETERMINÍSTICA com a biblioteca `sharp` —
-// não um modelo de IA treinado — ver lib/server/studio/ para os pontos de
-// troca planejados por um modelo real no futuro.
-
-enum StudioFloorType {
-  CONCRETE // cimento queimado
-  CYCLORAMA_WHITE // cinza claro / ciclorama branco
-  CYCLORAMA_DARK // cinza escuro
-  ASPHALT
-  PAVER
-  GRASS
-}
-
-enum StudioLightingStyle {
-  SOFT_DAYLIGHT // natural
-  STUDIO_NEUTRAL // estúdio
-  DRAMATIC_CONTRAST // dramática
-  GOLDEN_HOUR // premium
-  SHOWROOM_SPOT // showroom
-}
-
-enum LogoPosition {
-  LEFT_WALL
-  RIGHT_WALL
-  CENTER
-  WATERMARK
-  CUSTOM
-}
-
-enum PlateMode {
-  ORIGINAL
-  BLUR
-  NEUTRAL
-  STORE_LOGO
-}
-
-enum ShadowIntensity {
-  SOFT
-  MEDIUM
-  STRONG
-}
-
-enum PhotoFraming {
-  CENTERED
-  CLOSE
-  FULL
-  MARKETPLACE
-  INSTAGRAM
-}
-
-enum PhotoAspectRatio {
-  SQUARE_1_1
-  LANDSCAPE_4_3
-  LANDSCAPE_16_9
-  PORTRAIT_4_5
-  STORY_9_16
-}
-
-enum AlbumPosition {
-  FRONT
-  REAR
-  LEFT_SIDE
-  RIGHT_SIDE
-  FRONT_3_4
-  REAR_3_4
-  INTERIOR
-  DASHBOARD
-  TRUNK
-  ENGINE
-  OTHER
-}
-
-enum JobStep {
-  IDENTIFYING_VEHICLE
-  REMOVING_BACKGROUND
-  ADJUSTING_LIGHT
-  HIDING_PLATE
-  COMPOSITING_SCENE
-  GENERATING_FINAL
-}
-
-enum JobStatus {
-  QUEUED
-  PROCESSING
-  DONE
-  FAILED
-}
-
-enum GeneratedPhotoStatus {
-  DRAFT
-  SAVED
-}
-
-enum BatchStatus {
-  QUEUED
-  PROCESSING
-  DONE
-  PARTIAL_FAILURE
-}
-
-model StudioScenario {
-  id                String              @id @default(cuid())
-  name              String
-  slug              String              @unique
-  description       String?
-  referenceImageUrl String
-  previewImageUrl   String
-  floorType         StudioFloorType
-  lightingStyle     StudioLightingStyle
-  isSystemSeed      Boolean             @default(false)
-  isStoreDefault    Boolean             @default(false)
-  isActive          Boolean             @default(true)
-  createdByUserId   String?
-  createdByUser     User?               @relation("StudioScenarioCreatedBy", fields: [createdByUserId], references: [id])
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-
-  photoJobs       PhotoJob[]
-  generatedPhotos GeneratedPhoto[]
-  photoBatches    PhotoBatch[]
-
-  @@map("studio_scenarios")
-}
-
-model StudioSettings {
-  id                 String            @id @default("default")
-  logoUrl            String?
-  logoPosition       LogoPosition      @default(WATERMARK)
-  logoOpacity        Float             @default(0.8)
-  logoCustomX        Float?
-  logoCustomY        Float?
-  defaultScenarioId  String?
-  defaultScenario    StudioScenario?   @relation(fields: [defaultScenarioId], references: [id])
-  defaultAspectRatio PhotoAspectRatio  @default(SQUARE_1_1)
-  updatedAt          DateTime          @updatedAt
-
-  @@map("studio_settings")
-}
-
-model PhotoBatch {
-  id                  String              @id @default(cuid())
-  vehicleId           String?
-  vehicle             Vehicle?            @relation(fields: [vehicleId], references: [id])
-  totalCount          Int
-  completedCount      Int                 @default(0)
-  failedCount         Int                 @default(0)
-  status              BatchStatus         @default(QUEUED)
-  sharedScenarioId    String?
-  sharedScenario      StudioScenario?     @relation(fields: [sharedScenarioId], references: [id])
-  sharedLightingStyle StudioLightingStyle?
-  zipUrl              String?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-
-  jobs PhotoJob[]
-
-  @@map("photo_batches")
-}
-
-model PhotoJob {
-  id                   String          @id @default(cuid())
-  batchId              String?
-  batch                PhotoBatch?     @relation(fields: [batchId], references: [id])
-  vehicleId            String?
-  vehicle              Vehicle?        @relation(fields: [vehicleId], references: [id])
-  originalPhotoUrl     String
-  albumPosition        AlbumPosition?
-  sourceGeneratedPhotoId String?
-  scenarioId           String?
-  scenario             StudioScenario? @relation(fields: [scenarioId], references: [id])
-  lightingStyle        StudioLightingStyle?
-  shadowIntensity      ShadowIntensity @default(MEDIUM)
-  framing              PhotoFraming    @default(CENTERED)
-  aspectRatio          PhotoAspectRatio @default(SQUARE_1_1)
-  plateMode            PlateMode       @default(BLUR)
-  showLogo             Boolean         @default(true)
-  variantSeed          Int             @default(0)
-  status               JobStatus       @default(QUEUED)
-  currentStep          JobStep?
-  errorMessage         String?
-  resultPhotoId        String?
-  startedAt            DateTime?
-  completedAt          DateTime?
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
-
-  generatedPhoto GeneratedPhoto?
-
-  @@map("photo_jobs")
-}
-
-model GeneratedPhoto {
-  id                String               @id @default(cuid())
-  jobId             String               @unique
-  job               PhotoJob             @relation(fields: [jobId], references: [id])
-  vehicleId         String?
-  vehicle           Vehicle?             @relation(fields: [vehicleId], references: [id])
-  originalPhotoUrl  String
-  processedPhotoUrl String
-  thumbnailUrl      String?
-  scenarioId        String?
-  scenario          StudioScenario?      @relation(fields: [scenarioId], references: [id])
-  plateMode         PlateMode
-  shadowIntensity   ShadowIntensity
-  framing           PhotoFraming
-  aspectRatio       PhotoAspectRatio
-  showLogo          Boolean
-  albumPosition     AlbumPosition?
-  status            GeneratedPhotoStatus @default(DRAFT)
-  isCover           Boolean              @default(false)
-  savedAt           DateTime?
-  createdByUserId   String?
-  createdByUser     User?                @relation("GeneratedPhotoCreatedBy", fields: [createdByUserId], references: [id])
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
-
-  @@map("generated_photos")
 }
