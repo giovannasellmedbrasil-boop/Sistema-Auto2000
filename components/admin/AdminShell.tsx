@@ -10,9 +10,6 @@ import {
   Users,
   LogOut,
   ExternalLink,
-  FilePlus2,
-  UserSquare2,
-  Search,
   ShieldCheck,
   Settings,
   ClipboardCheck,
@@ -30,9 +27,6 @@ import { USER_ROLE_LABELS } from "@/lib/types";
 
 const NAV: { href: string; label: string; icon: typeof LayoutDashboard; roles: UserRole[] }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ["SALES", "MANAGER", "ADMIN"] },
-  { href: "/admin/credito/nova", label: "Nova Análise", icon: FilePlus2, roles: ["SALES", "MANAGER", "ADMIN"] },
-  { href: "/admin/clientes", label: "Clientes", icon: UserSquare2, roles: ["SALES", "MANAGER", "ADMIN"] },
-  { href: "/admin/credito", label: "Consultas", icon: Search, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/documentacao", label: "Documentação", icon: ClipboardCheck, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/veiculos", label: "Estoque", icon: Car, roles: ["MANAGER", "ADMIN"] },
   { href: "/admin/precificacao", label: "Precificação", icon: Tag, roles: ["MANAGER", "ADMIN"] },

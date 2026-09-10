@@ -38,11 +38,12 @@ export default async function EstoquePage({
     fuel: sp.fuel as FuelType | undefined,
     color: sp.color,
     sort: (sp.sort as VehicleFilters["sort"]) ?? "recent",
-    includeSold: true,
   };
 
+  // Um carro marcado como vendido no estoque sai da vitrine automaticamente
+  // na próxima renderização — listVehiclesPublic() já exclui SOLD por
+  // padrão quando includeSold não é passado.
   const vehicles = listVehiclesPublic(filters);
-  const availableCount = vehicles.filter((v) => v.status !== "SOLD").length;
   const brands = listBrands();
   const colors = Array.from(new Set(listVehiclesPublic().map((v) => v.color))).sort();
 
@@ -55,8 +56,7 @@ export default async function EstoquePage({
         <p className="text-ink-500">
           {vehicles.length === 0
             ? "Nenhum veículo encontrado com esses filtros."
-            : `Encontramos ${availableCount} ${availableCount === 1 ? "veículo disponível" : "veículos disponíveis"}` +
-              (vehicles.length > availableCount ? ` (+ ${vehicles.length - availableCount} vendido(s) recentemente)` : "")}
+            : `Encontramos ${vehicles.length} ${vehicles.length === 1 ? "veículo" : "veículos"}`}
         </p>
       </div>
 

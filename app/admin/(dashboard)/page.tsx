@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
-import { getCreditDashboardMetrics, getDashboardMetrics } from "@/lib/server/db";
+import { getDashboardMetrics } from "@/lib/server/db";
 import { getDashboardData, parseDashboardFilters, filtersToQueryString } from "@/lib/server/dashboard";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
-import {
-  FileText,
-  TrendingUp,
-  Percent,
-  Package,
-  Clock,
-  AlertTriangle,
-  ShieldCheck,
-  BarChart3,
-} from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { FilterBar } from "@/components/admin/dashboard/FilterBar";
 import { StatCard } from "@/components/admin/dashboard/StatCard";
 import { FunnelChart } from "@/components/admin/dashboard/FunnelChart";
@@ -44,7 +35,6 @@ export default async function AdminDashboardPage({
   const filtersQuery = filtersToQueryString(filters);
 
   const m = getDashboardMetrics();
-  const credit = getCreditDashboardMetrics();
 
   const stockHealth = [
     { label: "0–30 dias", value: m.stock0to30, tone: "text-success-600" },
@@ -277,83 +267,6 @@ export default async function AdminDashboardPage({
         )}
       </div>
 
-      {/* Análise Inteligente de Crédito — já existia, mantido */}
-      <div>
-        <div className="mb-4 flex items-center gap-2">
-          <ShieldCheck className="h-4.5 w-4.5 text-ink-600" />
-          <h2 className="text-base font-semibold text-accent-400">Análise Inteligente de Crédito</h2>
-        </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <Card className="flex flex-col gap-2 p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-100 text-accent-700">
-              <FileText className="h-4.5 w-4.5" strokeWidth={1.6} />
-            </span>
-            <span className="text-2xl font-semibold text-ink-950">{credit.totalQueries}</span>
-            <span className="text-xs text-ink-500">Consultas realizadas</span>
-          </Card>
-          <Card className="flex flex-col gap-2 p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-100 text-accent-700">
-              <TrendingUp className="h-4.5 w-4.5" strokeWidth={1.6} />
-            </span>
-            <span className="text-2xl font-semibold text-ink-950">{credit.forwarded}</span>
-            <span className="text-xs text-ink-500">Encaminhados para financiamento</span>
-          </Card>
-          <Card className="flex flex-col gap-2 p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-100 text-accent-700">
-              <ShieldCheck className="h-4.5 w-4.5" strokeWidth={1.6} />
-            </span>
-            <span className="text-2xl font-semibold text-ink-950">{credit.approved}</span>
-            <span className="text-xs text-ink-500">Aprovados pelas financeiras</span>
-          </Card>
-          <Card className="flex flex-col gap-2 p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-100 text-accent-700">
-              <Percent className="h-4.5 w-4.5" strokeWidth={1.6} />
-            </span>
-            <span className="text-2xl font-semibold text-ink-950">
-              {credit.approvalRate != null ? `${credit.approvalRate}%` : "—"}
-            </span>
-            <span className="text-xs text-ink-500">Taxa de aprovação</span>
-          </Card>
-          <Card className="flex flex-col gap-2 p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-100 text-accent-700">
-              <BarChart3 className="h-4.5 w-4.5" strokeWidth={1.6} />
-            </span>
-            <span className="text-2xl font-semibold text-ink-950">
-              {credit.averageFinancedTicket != null ? formatCurrency(credit.averageFinancedTicket) : "—"}
-            </span>
-            <span className="text-xs text-ink-500">Ticket médio financiado</span>
-          </Card>
-          <Card className="flex flex-col gap-2 p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-100 text-accent-700">
-              <TrendingUp className="h-4.5 w-4.5" strokeWidth={1.6} />
-            </span>
-            <span className="text-2xl font-semibold text-ink-950">{credit.salesCompleted}</span>
-            <span className="text-xs text-ink-500">Vendas originadas após consulta</span>
-          </Card>
-        </div>
-        {credit.totalQueries === 0 && (
-          <p className="mt-3 text-xs text-ink-600">
-            Nenhuma consulta registrada ainda — os indicadores aparecem assim que a equipe começar a
-            usar &quot;Nova Análise&quot;.
-          </p>
-        )}
-        {credit.totalQueries > 0 && (
-          <div className="mt-4 grid grid-cols-3 gap-4">
-            <Card className="flex flex-col gap-1 p-4">
-              <span className="text-lg font-semibold text-danger-500">{credit.byScoreRange.ate500}</span>
-              <span className="text-xs text-ink-500">Consultas com score até 499</span>
-            </Card>
-            <Card className="flex flex-col gap-1 p-4">
-              <span className="text-lg font-semibold text-accent-400">{credit.byScoreRange.de500a700}</span>
-              <span className="text-xs text-ink-500">Consultas com score 500–699</span>
-            </Card>
-            <Card className="flex flex-col gap-1 p-4">
-              <span className="text-lg font-semibold text-success-500">{credit.byScoreRange.acima700}</span>
-              <span className="text-xs text-ink-500">Consultas com score 700+</span>
-            </Card>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
