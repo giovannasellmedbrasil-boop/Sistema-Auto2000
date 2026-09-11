@@ -11,13 +11,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const { id, docId } = await params;
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
   if (session.role === "SALES" && negotiation.sellerId !== session.id) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
   }
 
-  const document = getNegotiationDocumentById(docId);
+  const document = await getNegotiationDocumentById(docId);
   if (!document || document.negotiationId !== id) {
     return NextResponse.json({ error: "Documento não encontrado" }, { status: 404 });
   }
@@ -27,7 +27,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Arquivo não encontrado no armazenamento" }, { status: 404 });
   }
 
-  appendAuditLog({
+  await appendAuditLog({
     type: "DOCUMENT_ACCESS",
     userEmail: session.email,
     detail: `${session.name} visualizou "${document.fileName}" (venda ${negotiation.code})`,

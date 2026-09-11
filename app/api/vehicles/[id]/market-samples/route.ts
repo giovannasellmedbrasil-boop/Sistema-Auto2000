@@ -18,7 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const vehicle = getVehicleById(id);
+  const vehicle = await getVehicleById(id);
   if (!vehicle) return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
 
   const body = await request.json().catch(() => null);
@@ -27,6 +27,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const sample = addMarketPriceSample({ vehicleId: id, ...parsed.data, createdBy: session.name });
+  const sample = await addMarketPriceSample({ vehicleId: id, ...parsed.data, createdBy: session.name });
   return NextResponse.json({ sample }, { status: 201 });
 }

@@ -10,7 +10,7 @@ export default async function AdminMarketingPage() {
   const session = await getAdminSession();
   if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) redirect("/admin");
 
-  const campaigns = listMarketingCampaigns();
+  const campaigns = await listMarketingCampaigns();
 
   return (
     <div className="flex flex-col gap-6">

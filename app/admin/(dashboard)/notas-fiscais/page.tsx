@@ -11,12 +11,16 @@ export default async function AdminNotasFiscaisPage() {
   const session = await getAdminSession();
   if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) redirect("/admin");
 
-  const profile = getCompanyFiscalProfile();
+  const [profile, allInvoices, allVehicles] = await Promise.all([
+    getCompanyFiscalProfile(),
+    listInvoices(),
+    listVehiclesAdmin(),
+  ]);
   // O CPF/CNPJ do comprador nunca deve sair do servidor sem máscara — mascara
   // aqui, antes de virar prop de um Client Component, em vez de mandar o
   // documento completo pro navegador e só esconder visualmente lá.
-  const invoices = listInvoices().map((inv) => ({ ...inv, buyerDocument: maskDocument(inv.buyerDocument) }));
-  const vehicles = listVehiclesAdmin().map((v) => ({
+  const invoices = allInvoices.map((inv) => ({ ...inv, buyerDocument: maskDocument(inv.buyerDocument) }));
+  const vehicles = allVehicles.map((v) => ({
     id: v.id,
     label: `${v.brand} ${v.model} ${v.version} ${v.modelYear}`,
     price: v.price,

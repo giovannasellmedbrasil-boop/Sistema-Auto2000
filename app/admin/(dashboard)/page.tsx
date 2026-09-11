@@ -31,10 +31,8 @@ export default async function AdminDashboardPage({
   const sp = await searchParams;
   const urlParams = new URLSearchParams(Object.entries(sp).filter(([, v]) => v != null) as [string, string][]);
   const filters = parseDashboardFilters(urlParams);
-  const data = getDashboardData(filters);
+  const [data, m] = await Promise.all([getDashboardData(filters), getDashboardMetrics()]);
   const filtersQuery = filtersToQueryString(filters);
-
-  const m = getDashboardMetrics();
 
   const stockHealth = [
     { label: "0–30 dias", value: m.stock0to30, tone: "text-success-600" },

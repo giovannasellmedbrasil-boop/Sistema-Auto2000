@@ -12,10 +12,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   }
 
   const { id, docId } = await params;
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
 
-  const document = getNegotiationDocumentById(docId);
+  const document = await getNegotiationDocumentById(docId);
   if (!document || document.negotiationId !== id) {
     return NextResponse.json({ error: "Documento não encontrado" }, { status: 404 });
   }
@@ -25,6 +25,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const absolutePath = absoluteDocumentPath(document.storagePath);
   fs.rmSync(absolutePath, { force: true });
 
-  deleteNegotiationDocument(docId, session.name);
+  await deleteNegotiationDocument(docId, session.name);
   return NextResponse.json({ ok: true });
 }

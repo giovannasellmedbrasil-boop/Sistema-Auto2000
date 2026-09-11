@@ -3,7 +3,7 @@ import { listVehiclesPublic } from "@/lib/server/db";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.auto2000.com.br";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     "",
     "/estoque",
@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Veículos vendidos ficam de fora do sitemap (seção 29) para não indexar
   // páginas que deixaram de representar um produto disponível.
-  const vehicleRoutes = listVehiclesPublic().map((v) => ({
+  const vehicleRoutes = (await listVehiclesPublic()).map((v) => ({
     url: `${SITE_URL}/veiculos/${v.slug}`,
     lastModified: v.updatedAt,
   }));

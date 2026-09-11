@@ -420,13 +420,15 @@ function groupCount<T>(items: T[], keyFn: (item: T) => string): Map<string, numb
   return map;
 }
 
-export function getDashboardData(filters: DashboardFilters): DashboardData {
-  const allLeads = listLeads();
-  const allSales = listSales();
-  const salespeople = listSalespeople();
-  const campaigns = listMarketingCampaigns();
-  const vehicles = listVehiclesAdmin();
-  const goals = getDashboardGoals();
+export async function getDashboardData(filters: DashboardFilters): Promise<DashboardData> {
+  const [allLeads, allSales, salespeople, campaigns, vehicles, goals] = await Promise.all([
+    listLeads(),
+    listSales(),
+    listSalespeople(),
+    listMarketingCampaigns(),
+    listVehiclesAdmin(),
+    getDashboardGoals(),
+  ]);
 
   const vehiclesById = new Map(vehicles.map((v) => [v.id, v]));
   const campaignsById = new Map(campaigns.map((c) => [c.id, c]));
@@ -806,10 +808,8 @@ const DRILL_FIELD: Partial<Record<DrillMetric, keyof Lead>> = {
   sold: "soldAt",
 };
 
-export function getDrilldownLeads(filters: DashboardFilters, metric: DrillMetric): Lead[] {
-  const allLeads = listLeads();
-  const vehicles = listVehiclesAdmin();
-  const campaigns = listMarketingCampaigns();
+export async function getDrilldownLeads(filters: DashboardFilters, metric: DrillMetric): Promise<Lead[]> {
+  const [allLeads, vehicles, campaigns] = await Promise.all([listLeads(), listVehiclesAdmin(), listMarketingCampaigns()]);
   const vehiclesById = new Map(vehicles.map((v) => [v.id, v]));
   const campaignsById = new Map(campaigns.map((c) => [c.id, c]));
   const period = resolvePeriod(filters);
@@ -826,10 +826,8 @@ export function getDrilldownLeads(filters: DashboardFilters, metric: DrillMetric
   return leads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-export function getDrilldownSales(filters: DashboardFilters): Sale[] {
-  const allSales = listSales();
-  const vehicles = listVehiclesAdmin();
-  const campaigns = listMarketingCampaigns();
+export async function getDrilldownSales(filters: DashboardFilters): Promise<Sale[]> {
+  const [allSales, vehicles, campaigns] = await Promise.all([listSales(), listVehiclesAdmin(), listMarketingCampaigns()]);
   const vehiclesById = new Map(vehicles.map((v) => [v.id, v]));
   const campaignsById = new Map(campaigns.map((c) => [c.id, c]));
   const period = resolvePeriod(filters);

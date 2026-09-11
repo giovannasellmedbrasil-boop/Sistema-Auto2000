@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import type { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/server/prisma";
 import type {
   AuditLogEntry,
   ChecklistItem,
@@ -16,8 +16,6 @@ import type {
   LeadManualInput,
   MarketingCampaign,
   MarketingCampaignInput,
-  MercadoLivreIntegrationSettings,
-  MercadoLivreSyncReport,
   Negotiation,
   NegotiationDocument,
   NegotiationFilters,
@@ -56,13 +54,13 @@ const initialVehicles: Vehicle[] = [...mercadoLivreSeedVehicles];
 const DEFAULT_DASHBOARD_GOALS: DashboardGoals = { salesUnitsTarget: 0, revenueTarget: 0 };
 
 // ---------------------------------------------------------------------------
-// MOCK STORE — ambiente de demonstração.
-//
-// Persiste em data/db.json (arquivo local, gitignored). Isso permite que o
-// CRUD administrativo funcione de ponta a ponta sem depender de um Postgres
-// real. O schema em prisma/schema.prisma já modela as mesmas entidades;
-// quando DATABASE_URL estiver configurada, esta camada deve ser substituída
-// por chamadas ao Prisma Client mantendo as mesmas assinaturas de função.
+// MOCK STORE — persistido como uma linha JSON no Postgres (tabela MockStore,
+// ver prisma/schema.prisma), não mais num arquivo local. Um arquivo local
+// funcionava em desenvolvimento, mas na Vercel cada requisição pode cair
+// numa instância serverless diferente sem disco compartilhado — uma escrita
+// não ficava visível na leitura seguinte. Toda a lógica de domínio abaixo
+// (as ~70 funções exportadas) continua igual; só o "readDb"/"writeDb" que
+// mudou de backend.
 // ---------------------------------------------------------------------------
 
 interface DbShape {
@@ -87,15 +85,7 @@ interface DbShape {
   invoices: Invoice[];
 }
 
-// Em hospedagem serverless (ex: Vercel) o diretório do projeto é somente
-// leitura — apenas /tmp aceita escrita, e não é compartilhado de forma
-// confiável entre instâncias/deploys. Nesse caso o mock store funciona,
-// mas alterações do admin e leads capturados podem não persistir entre
-// requisições. Isso é esperado até um Postgres real ser conectado
-// (ver DATABASE_URL em prisma/schema.prisma).
-const DB_PATH = process.env.VERCEL
-  ? path.join("/tmp", "auto2000-db.json")
-  : path.join(process.cwd(), "data", "db.json");
+const MOCK_STORE_ID = "singleton";
 
 function emptyDb(): DbShape {
   return {
@@ -121,7 +111,7 @@ function emptyDb(): DbShape {
   };
 }
 
-// Tolera db.json gravado por uma versão anterior do app (sem os campos de
+// Tolera uma linha gravada por uma versão anterior do app (sem os campos de
 // crédito/dashboard executivo) sem perder os dados já persistidos.
 function normalize(parsed: Partial<DbShape>): DbShape {
   return {
@@ -147,25 +137,28 @@ function normalize(parsed: Partial<DbShape>): DbShape {
   };
 }
 
-function readDb(): DbShape {
-  if (!fs.existsSync(DB_PATH)) {
+async function readDb(): Promise<DbShape> {
+  const row = await prisma.mockStore.findUnique({ where: { id: MOCK_STORE_ID } });
+  if (!row) {
     const initial = emptyDb();
-    writeDb(initial);
+    await writeDb(initial);
     return initial;
   }
-  const raw = fs.readFileSync(DB_PATH, "utf-8");
   try {
-    return normalize(JSON.parse(raw) as Partial<DbShape>);
+    return normalize(row.data as Partial<DbShape>);
   } catch {
     const initial = emptyDb();
-    writeDb(initial);
+    await writeDb(initial);
     return initial;
   }
 }
 
-function writeDb(db: DbShape) {
-  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), "utf-8");
+async function writeDb(db: DbShape): Promise<void> {
+  await prisma.mockStore.upsert({
+    where: { id: MOCK_STORE_ID },
+    create: { id: MOCK_STORE_ID, data: db as unknown as Prisma.InputJsonValue },
+    update: { data: db as unknown as Prisma.InputJsonValue },
+  });
 }
 
 function genId(prefix: string) {
@@ -174,8 +167,8 @@ function genId(prefix: string) {
 
 // --- Veículos ---------------------------------------------------------------
 
-export function listVehiclesPublic(filters: VehicleFilters = {}): Vehicle[] {
-  const db = readDb();
+export async function listVehiclesPublic(filters: VehicleFilters = {}): Promise<Vehicle[]> {
+  const db = await readDb();
   // A vitrine pública mostra apenas veículos reais, importados da loja no
   // Mercado Livre (ver seed-mercadolivre.ts) — a frota de demonstração
   // (source "SITE") continua existindo para os outros módulos simulados do
@@ -195,8 +188,8 @@ export function listVehiclesPublic(filters: VehicleFilters = {}): Vehicle[] {
   return items;
 }
 
-export function listVehiclesAdmin(filters: VehicleFilters = {}): Vehicle[] {
-  const db = readDb();
+export async function listVehiclesAdmin(filters: VehicleFilters = {}): Promise<Vehicle[]> {
+  const db = await readDb();
   const items = applyFilters(db.vehicles, filters);
   return sortVehicles(items, filters.sort ?? "recent");
 }
@@ -242,23 +235,23 @@ function sortVehicles(items: Vehicle[], sort: VehicleFilters["sort"]): Vehicle[]
   }
 }
 
-export function getVehicleBySlug(slug: string): Vehicle | undefined {
-  const db = readDb();
+export async function getVehicleBySlug(slug: string): Promise<Vehicle | undefined> {
+  const db = await readDb();
   return db.vehicles.find((v) => v.slug === slug);
 }
 
-export function getVehicleById(id: string): Vehicle | undefined {
-  const db = readDb();
+export async function getVehicleById(id: string): Promise<Vehicle | undefined> {
+  const db = await readDb();
   return db.vehicles.find((v) => v.id === id);
 }
 
-export function listBrands(): string[] {
-  const db = readDb();
+export async function listBrands(): Promise<string[]> {
+  const db = await readDb();
   return Array.from(new Set(db.vehicles.map((v) => v.brand))).sort();
 }
 
-export function createVehicle(input: VehicleInput): Vehicle {
-  const db = readDb();
+export async function createVehicle(input: VehicleInput): Promise<Vehicle> {
+  const db = await readDb();
   const id = genId("veh");
   const now = new Date().toISOString();
   const vehicle: Vehicle = {
@@ -276,12 +269,12 @@ export function createVehicle(input: VehicleInput): Vehicle {
     })),
   };
   db.vehicles.unshift(vehicle);
-  writeDb(db);
+  await writeDb(db);
   return vehicle;
 }
 
-export function updateVehicle(id: string, input: Partial<VehicleInput>): Vehicle | undefined {
-  const db = readDb();
+export async function updateVehicle(id: string, input: Partial<VehicleInput>): Promise<Vehicle | undefined> {
+  const db = await readDb();
   const idx = db.vehicles.findIndex((v) => v.id === id);
   if (idx === -1) return undefined;
   const current = db.vehicles[idx];
@@ -299,15 +292,15 @@ export function updateVehicle(id: string, input: Partial<VehicleInput>): Vehicle
     updatedAt: new Date().toISOString(),
   };
   db.vehicles[idx] = merged;
-  writeDb(db);
+  await writeDb(db);
   return merged;
 }
 
-export function deleteVehicle(id: string): boolean {
-  const db = readDb();
+export async function deleteVehicle(id: string): Promise<boolean> {
+  const db = await readDb();
   const before = db.vehicles.length;
   db.vehicles = db.vehicles.filter((v) => v.id !== id);
-  writeDb(db);
+  await writeDb(db);
   return db.vehicles.length < before;
 }
 
@@ -315,8 +308,8 @@ export function deleteVehicle(id: string): boolean {
 // seed-mercadolivre.ts) para o estoque. Faz upsert por mercadoLivreId — um
 // anúncio já importado tem seus dados atualizados (inclui reprecificação)
 // em vez de duplicar; um anúncio novo é inserido.
-export function importMercadoLivreVehicles(): { imported: number; updated: number } {
-  const db = readDb();
+export async function importMercadoLivreVehicles(): Promise<{ imported: number; updated: number }> {
+  const db = await readDb();
   let imported = 0;
   let updated = 0;
 
@@ -340,7 +333,7 @@ export function importMercadoLivreVehicles(): { imported: number; updated: numbe
     }
   }
 
-  writeDb(db);
+  await writeDb(db);
   return { imported, updated };
 }
 
@@ -356,8 +349,10 @@ function uniqueSlug(existing: Vehicle[], slug: string): string {
 
 // --- Leads --------------------------------------------------------------
 
-export function createLead(input: Omit<Lead, "id" | "createdAt" | "stage"> & { stage?: Lead["stage"] }): Lead {
-  const db = readDb();
+export async function createLead(
+  input: Omit<Lead, "id" | "createdAt" | "stage"> & { stage?: Lead["stage"] }
+): Promise<Lead> {
+  const db = await readDb();
   const lead: Lead = {
     ...input,
     id: genId("lead"),
@@ -365,20 +360,20 @@ export function createLead(input: Omit<Lead, "id" | "createdAt" | "stage"> & { s
     createdAt: new Date().toISOString(),
   };
   db.leads.unshift(lead);
-  writeDb(db);
+  await writeDb(db);
   return lead;
 }
 
-export function listLeads(): Lead[] {
-  const db = readDb();
+export async function listLeads(): Promise<Lead[]> {
+  const db = await readDb();
   return db.leads;
 }
 
-export function getLeadById(id: string): Lead | undefined {
-  return readDb().leads.find((l) => l.id === id);
+export async function getLeadById(id: string): Promise<Lead | undefined> {
+  return (await readDb()).leads.find((l) => l.id === id);
 }
 
-export function createLeadManual(input: LeadManualInput): Lead {
+export async function createLeadManual(input: LeadManualInput): Promise<Lead> {
   return createLead({
     name: input.name,
     phone: input.phone,
@@ -393,27 +388,27 @@ export function createLeadManual(input: LeadManualInput): Lead {
   });
 }
 
-function touchLead(db: DbShape, id: string, patch: Partial<Lead>): Lead | undefined {
+async function touchLead(db: DbShape, id: string, patch: Partial<Lead>): Promise<Lead | undefined> {
   const idx = db.leads.findIndex((l) => l.id === id);
   if (idx === -1) return undefined;
   db.leads[idx] = { ...db.leads[idx], ...patch, updatedAt: new Date().toISOString() };
-  writeDb(db);
+  await writeDb(db);
   return db.leads[idx];
 }
 
-export function updateLead(id: string, patch: Partial<Lead>): Lead | undefined {
-  const db = readDb();
+export async function updateLead(id: string, patch: Partial<Lead>): Promise<Lead | undefined> {
+  const db = await readDb();
   return touchLead(db, id, patch);
 }
 
 // Avança o lead para uma etapa do funil, carimbando o timestamp da etapa
 // (seção 21 do briefing do Dashboard Executivo).
-export function advanceLeadStage(
+export async function advanceLeadStage(
   id: string,
   stage: "contacted" | "visit" | "testDrive" | "proposal",
   extra: { proposalValue?: number } = {}
-): Lead | undefined {
-  const db = readDb();
+): Promise<Lead | undefined> {
+  const db = await readDb();
   const now = new Date().toISOString();
   const STAGE_MAP: Record<typeof stage, { status: Lead["status"]; field: keyof Lead }> = {
     contacted: { status: "CONTACTED", field: "contactedAt" },
@@ -427,11 +422,11 @@ export function advanceLeadStage(
   return touchLead(db, id, patch);
 }
 
-export function markLeadSold(
+export async function markLeadSold(
   id: string,
   input: { finalPrice: number; paymentMethod: string }
-): { lead: Lead; sale: Sale } | undefined {
-  const db = readDb();
+): Promise<{ lead: Lead; sale: Sale } | undefined> {
+  const db = await readDb();
   const leadIdx = db.leads.findIndex((l) => l.id === id);
   if (leadIdx === -1) return undefined;
   const lead = db.leads[leadIdx];
@@ -458,106 +453,106 @@ export function markLeadSold(
     db.vehicles[vehicleIdx] = { ...db.vehicles[vehicleIdx], status: "SOLD", soldAt: now, updatedAt: now };
   }
 
-  writeDb(db);
+  await writeDb(db);
   return { lead: db.leads[leadIdx], sale };
 }
 
-export function markLeadLost(id: string, reason: NonNullable<Lead["lostReason"]>): Lead | undefined {
-  const db = readDb();
+export async function markLeadLost(id: string, reason: NonNullable<Lead["lostReason"]>): Promise<Lead | undefined> {
+  const db = await readDb();
   const now = new Date().toISOString();
   return touchLead(db, id, { status: "LOST", lostAt: now, lostReason: reason });
 }
 
 // --- Dashboard Executivo: vendedores, marketing e vendas -------------------
 
-export function listSalespeople(): Salesperson[] {
-  return readDb().salespeople;
+export async function listSalespeople(): Promise<Salesperson[]> {
+  return (await readDb()).salespeople;
 }
 
-export function getSalespersonById(id: string): Salesperson | undefined {
-  return readDb().salespeople.find((s) => s.id === id);
+export async function getSalespersonById(id: string): Promise<Salesperson | undefined> {
+  return (await readDb()).salespeople.find((s) => s.id === id);
 }
 
-export function createSalesperson(input: SalespersonInput): Salesperson {
-  const db = readDb();
+export async function createSalesperson(input: SalespersonInput): Promise<Salesperson> {
+  const db = await readDb();
   const salesperson: Salesperson = { ...input, id: genId("sp"), createdAt: new Date().toISOString() };
   db.salespeople.push(salesperson);
-  writeDb(db);
+  await writeDb(db);
   return salesperson;
 }
 
-export function updateSalesperson(id: string, input: Partial<SalespersonInput>): Salesperson | undefined {
-  const db = readDb();
+export async function updateSalesperson(id: string, input: Partial<SalespersonInput>): Promise<Salesperson | undefined> {
+  const db = await readDb();
   const idx = db.salespeople.findIndex((s) => s.id === id);
   if (idx === -1) return undefined;
   db.salespeople[idx] = { ...db.salespeople[idx], ...input };
-  writeDb(db);
+  await writeDb(db);
   return db.salespeople[idx];
 }
 
-export function deleteSalesperson(id: string): boolean {
-  const db = readDb();
+export async function deleteSalesperson(id: string): Promise<boolean> {
+  const db = await readDb();
   const before = db.salespeople.length;
   db.salespeople = db.salespeople.filter((s) => s.id !== id);
-  writeDb(db);
+  await writeDb(db);
   return db.salespeople.length < before;
 }
 
-export function listMarketingCampaigns(): MarketingCampaign[] {
-  return readDb().marketingCampaigns;
+export async function listMarketingCampaigns(): Promise<MarketingCampaign[]> {
+  return (await readDb()).marketingCampaigns;
 }
 
-export function getMarketingCampaignById(id: string): MarketingCampaign | undefined {
-  return readDb().marketingCampaigns.find((c) => c.id === id);
+export async function getMarketingCampaignById(id: string): Promise<MarketingCampaign | undefined> {
+  return (await readDb()).marketingCampaigns.find((c) => c.id === id);
 }
 
-export function createMarketingCampaign(input: MarketingCampaignInput): MarketingCampaign {
-  const db = readDb();
+export async function createMarketingCampaign(input: MarketingCampaignInput): Promise<MarketingCampaign> {
+  const db = await readDb();
   const campaign: MarketingCampaign = { ...input, id: genId("camp") };
   db.marketingCampaigns.push(campaign);
-  writeDb(db);
+  await writeDb(db);
   return campaign;
 }
 
-export function updateMarketingCampaign(
+export async function updateMarketingCampaign(
   id: string,
   input: Partial<MarketingCampaignInput>
-): MarketingCampaign | undefined {
-  const db = readDb();
+): Promise<MarketingCampaign | undefined> {
+  const db = await readDb();
   const idx = db.marketingCampaigns.findIndex((c) => c.id === id);
   if (idx === -1) return undefined;
   db.marketingCampaigns[idx] = { ...db.marketingCampaigns[idx], ...input };
-  writeDb(db);
+  await writeDb(db);
   return db.marketingCampaigns[idx];
 }
 
-export function deleteMarketingCampaign(id: string): boolean {
-  const db = readDb();
+export async function deleteMarketingCampaign(id: string): Promise<boolean> {
+  const db = await readDb();
   const before = db.marketingCampaigns.length;
   db.marketingCampaigns = db.marketingCampaigns.filter((c) => c.id !== id);
-  writeDb(db);
+  await writeDb(db);
   return db.marketingCampaigns.length < before;
 }
 
-export function listSales(): Sale[] {
-  return readDb().sales;
+export async function listSales(): Promise<Sale[]> {
+  return (await readDb()).sales;
 }
 
-export function getDashboardGoals(): DashboardGoals {
-  return readDb().dashboardGoals;
+export async function getDashboardGoals(): Promise<DashboardGoals> {
+  return (await readDb()).dashboardGoals;
 }
 
-export function updateDashboardGoals(input: DashboardGoals): DashboardGoals {
-  const db = readDb();
+export async function updateDashboardGoals(input: DashboardGoals): Promise<DashboardGoals> {
+  const db = await readDb();
   db.dashboardGoals = input;
-  writeDb(db);
+  await writeDb(db);
   return db.dashboardGoals;
 }
 
 // --- Métricas para o dashboard admin (seção 16) --------------------------
 
-export function getDashboardMetrics() {
-  const db = readDb();
+export async function getDashboardMetrics() {
+  const db = await readDb();
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
   const startOfMonth = new Date();
@@ -595,64 +590,64 @@ export function getDashboardMetrics() {
 
 // --- Análise Inteligente de Crédito (seções 1-12) ------------------------
 
-export function createCreditCustomer(input: Omit<CreditCustomer, "id" | "createdAt">): CreditCustomer {
-  const db = readDb();
+export async function createCreditCustomer(input: Omit<CreditCustomer, "id" | "createdAt">): Promise<CreditCustomer> {
+  const db = await readDb();
   const customer: CreditCustomer = { ...input, id: genId("cust"), createdAt: new Date().toISOString() };
   db.creditCustomers.unshift(customer);
-  writeDb(db);
+  await writeDb(db);
   return customer;
 }
 
-export function getCreditCustomerById(id: string): CreditCustomer | undefined {
-  return readDb().creditCustomers.find((c) => c.id === id);
+export async function getCreditCustomerById(id: string): Promise<CreditCustomer | undefined> {
+  return (await readDb()).creditCustomers.find((c) => c.id === id);
 }
 
-export function listCreditCustomers(): CreditCustomer[] {
-  return readDb().creditCustomers;
+export async function listCreditCustomers(): Promise<CreditCustomer[]> {
+  return (await readDb()).creditCustomers;
 }
 
-export function createConsentRecord(
+export async function createConsentRecord(
   input: Omit<CreditConsentRecord, "id" | "createdAt">
-): CreditConsentRecord {
-  const db = readDb();
+): Promise<CreditConsentRecord> {
+  const db = await readDb();
   const record: CreditConsentRecord = { ...input, id: genId("consent"), createdAt: new Date().toISOString() };
   db.consentRecords.unshift(record);
-  writeDb(db);
+  await writeDb(db);
   return record;
 }
 
-export function createCreditAnalysis(input: Omit<CreditAnalysis, "id" | "createdAt">): CreditAnalysis {
-  const db = readDb();
+export async function createCreditAnalysis(input: Omit<CreditAnalysis, "id" | "createdAt">): Promise<CreditAnalysis> {
+  const db = await readDb();
   const analysis: CreditAnalysis = { ...input, id: genId("credit"), createdAt: new Date().toISOString() };
   db.creditAnalyses.unshift(analysis);
-  writeDb(db);
+  await writeDb(db);
   return analysis;
 }
 
-export function getCreditAnalysisById(id: string): CreditAnalysis | undefined {
-  return readDb().creditAnalyses.find((a) => a.id === id);
+export async function getCreditAnalysisById(id: string): Promise<CreditAnalysis | undefined> {
+  return (await readDb()).creditAnalyses.find((a) => a.id === id);
 }
 
-export function listCreditAnalyses(filters: { sellerId?: string } = {}): CreditAnalysis[] {
-  const db = readDb();
+export async function listCreditAnalyses(filters: { sellerId?: string } = {}): Promise<CreditAnalysis[]> {
+  const db = await readDb();
   let items = db.creditAnalyses;
   if (filters.sellerId) items = items.filter((a) => a.sellerId === filters.sellerId);
   return items;
 }
 
-export function listCreditAnalysesByCustomer(customerId: string): CreditAnalysis[] {
-  return readDb().creditAnalyses.filter((a) => a.customerId === customerId);
+export async function listCreditAnalysesByCustomer(customerId: string): Promise<CreditAnalysis[]> {
+  return (await readDb()).creditAnalyses.filter((a) => a.customerId === customerId);
 }
 
-export function updateCreditAnalysisCommercialStatus(
+export async function updateCreditAnalysisCommercialStatus(
   id: string,
   status: CommercialStatus
-): CreditAnalysis | undefined {
-  const db = readDb();
+): Promise<CreditAnalysis | undefined> {
+  const db = await readDb();
   const idx = db.creditAnalyses.findIndex((a) => a.id === id);
   if (idx === -1) return undefined;
   db.creditAnalyses[idx] = { ...db.creditAnalyses[idx], commercialStatus: status };
-  writeDb(db);
+  await writeDb(db);
   return db.creditAnalyses[idx];
 }
 
@@ -660,15 +655,15 @@ export function updateCreditAnalysisCommercialStatus(
 
 const AUDIT_LOG_RETENTION = 500;
 
-export function appendAuditLog(entry: Omit<AuditLogEntry, "id" | "createdAt">): void {
-  const db = readDb();
+export async function appendAuditLog(entry: Omit<AuditLogEntry, "id" | "createdAt">): Promise<void> {
+  const db = await readDb();
   db.auditLogs.unshift({ ...entry, id: genId("log"), createdAt: new Date().toISOString() });
   db.auditLogs = db.auditLogs.slice(0, AUDIT_LOG_RETENTION);
-  writeDb(db);
+  await writeDb(db);
 }
 
-export function listAuditLogs(limit = 50): AuditLogEntry[] {
-  return readDb().auditLogs.slice(0, limit);
+export async function listAuditLogs(limit = 50): Promise<AuditLogEntry[]> {
+  return (await readDb()).auditLogs.slice(0, limit);
 }
 
 // --- Métricas do dashboard gerencial de crédito (seção 15) ---------------
@@ -678,8 +673,8 @@ export function listAuditLogs(limit = 50): AuditLogEntry[] {
 // dados suficientes para um cálculo (ex: taxa de aprovação sem nenhum caso
 // decidido ainda), em vez de mostrar um 0% enganoso.
 
-export function getCreditDashboardMetrics() {
-  const analyses = readDb().creditAnalyses;
+export async function getCreditDashboardMetrics() {
+  const analyses = (await readDb()).creditAnalyses;
 
   const totalQueries = analyses.length;
   const forwarded = analyses.filter((a) => a.commercialStatus !== "NEW").length;
@@ -729,8 +724,8 @@ function nextNegotiationCode(db: DbShape): string {
   return `#${max + 1}`;
 }
 
-export function createNegotiation(input: NegotiationInput): Negotiation {
-  const db = readDb();
+export async function createNegotiation(input: NegotiationInput): Promise<Negotiation> {
+  const db = await readDb();
   const id = genId("neg");
   const now = new Date().toISOString();
   const negotiation: Negotiation = {
@@ -769,12 +764,12 @@ export function createNegotiation(input: NegotiationInput): Negotiation {
     createdAt: now,
   });
 
-  writeDb(db);
+  await writeDb(db);
   return negotiation;
 }
 
-export function listNegotiations(filters: NegotiationFilters = {}): Negotiation[] {
-  const db = readDb();
+export async function listNegotiations(filters: NegotiationFilters = {}): Promise<Negotiation[]> {
+  const db = await readDb();
   return db.negotiations.filter((n) => {
     if (filters.q) {
       const q = filters.q.toLowerCase();
@@ -817,25 +812,25 @@ export function listNegotiations(filters: NegotiationFilters = {}): Negotiation[
   });
 }
 
-export function getNegotiationById(id: string): Negotiation | undefined {
-  return readDb().negotiations.find((n) => n.id === id);
+export async function getNegotiationById(id: string): Promise<Negotiation | undefined> {
+  return (await readDb()).negotiations.find((n) => n.id === id);
 }
 
-export function getChecklistItems(negotiationId: string): ChecklistItem[] {
-  return readDb().checklistItems.filter((i) => i.negotiationId === negotiationId);
+export async function getChecklistItems(negotiationId: string): Promise<ChecklistItem[]> {
+  return (await readDb()).checklistItems.filter((i) => i.negotiationId === negotiationId);
 }
 
-export function getNegotiationDocuments(negotiationId: string): NegotiationDocument[] {
-  return readDb().negotiationDocuments.filter((d) => d.negotiationId === negotiationId);
+export async function getNegotiationDocuments(negotiationId: string): Promise<NegotiationDocument[]> {
+  return (await readDb()).negotiationDocuments.filter((d) => d.negotiationId === negotiationId);
 }
 
-export function getNegotiationDocumentById(id: string): NegotiationDocument | undefined {
-  return readDb().negotiationDocuments.find((d) => d.id === id);
+export async function getNegotiationDocumentById(id: string): Promise<NegotiationDocument | undefined> {
+  return (await readDb()).negotiationDocuments.find((d) => d.id === id);
 }
 
-export function getNegotiationHistory(negotiationId: string): NegotiationHistoryEvent[] {
-  return readDb()
-    .negotiationHistory.filter((h) => h.negotiationId === negotiationId)
+export async function getNegotiationHistory(negotiationId: string): Promise<NegotiationHistoryEvent[]> {
+  return (await readDb()).negotiationHistory
+    .filter((h) => h.negotiationId === negotiationId)
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
@@ -849,7 +844,7 @@ function appendHistory(db: DbShape, negotiationId: string, message: string, acto
   });
 }
 
-export function updateNegotiation(
+export async function updateNegotiation(
   id: string,
   patch: Partial<
     Pick<
@@ -863,23 +858,23 @@ export function updateNegotiation(
     >
   >,
   opts: { actor: string; historyMessage?: string }
-): Negotiation | undefined {
-  const db = readDb();
+): Promise<Negotiation | undefined> {
+  const db = await readDb();
   const idx = db.negotiations.findIndex((n) => n.id === id);
   if (idx === -1) return undefined;
   db.negotiations[idx] = { ...db.negotiations[idx], ...patch, updatedAt: new Date().toISOString() };
   if (opts.historyMessage) appendHistory(db, id, opts.historyMessage, opts.actor);
-  writeDb(db);
+  await writeDb(db);
   return db.negotiations[idx];
 }
 
-export function updateChecklistItem(
+export async function updateChecklistItem(
   negotiationId: string,
   itemId: string,
   patch: { status?: ChecklistItem["status"]; responsible?: string | null; dueDate?: string | null; note?: string | null },
   actor: string
-): ChecklistItem | undefined {
-  const db = readDb();
+): Promise<ChecklistItem | undefined> {
+  const db = await readDb();
   const itemIdx = db.checklistItems.findIndex((i) => i.id === itemId && i.negotiationId === negotiationId);
   if (itemIdx === -1) return undefined;
 
@@ -915,12 +910,15 @@ export function updateChecklistItem(
     }
   }
 
-  writeDb(db);
+  await writeDb(db);
   return updated;
 }
 
-export function markNegotiationDelivered(id: string, actor: string): { ok: boolean; reason?: string; negotiation?: Negotiation } {
-  const db = readDb();
+export async function markNegotiationDelivered(
+  id: string,
+  actor: string
+): Promise<{ ok: boolean; reason?: string; negotiation?: Negotiation }> {
+  const db = await readDb();
   const idx = db.negotiations.findIndex((n) => n.id === id);
   if (idx === -1) return { ok: false, reason: "Venda não encontrada." };
   const negotiation = db.negotiations[idx];
@@ -936,7 +934,7 @@ export function markNegotiationDelivered(id: string, actor: string): { ok: boole
     updatedAt: new Date().toISOString(),
   };
   appendHistory(db, id, "Veículo entregue ao cliente", actor);
-  writeDb(db);
+  await writeDb(db);
   return { ok: true, negotiation: db.negotiations[idx] };
 }
 
@@ -953,10 +951,10 @@ export function isAcceptedDocumentFile(mimeType: string, sizeBytes: number): { o
   return { ok: true };
 }
 
-export function addNegotiationDocument(
+export async function addNegotiationDocument(
   input: Omit<NegotiationDocument, "id" | "uploadedAt">
-): { document: NegotiationDocument; duplicate: boolean } {
-  const db = readDb();
+): Promise<{ document: NegotiationDocument; duplicate: boolean }> {
+  const db = await readDb();
   const duplicate = db.negotiationDocuments.some(
     (d) => d.negotiationId === input.negotiationId && d.sha256 === input.sha256
   );
@@ -985,12 +983,12 @@ export function addNegotiationDocument(
     input.uploadedBy
   );
 
-  writeDb(db);
+  await writeDb(db);
   return { document, duplicate };
 }
 
-export function deleteNegotiationDocument(id: string, actor: string): NegotiationDocument | undefined {
-  const db = readDb();
+export async function deleteNegotiationDocument(id: string, actor: string): Promise<NegotiationDocument | undefined> {
+  const db = await readDb();
   const idx = db.negotiationDocuments.findIndex((d) => d.id === id);
   if (idx === -1) return undefined;
   const [removed] = db.negotiationDocuments.splice(idx, 1);
@@ -1008,7 +1006,7 @@ export function deleteNegotiationDocument(id: string, actor: string): Negotiatio
   }
 
   appendHistory(db, removed.negotiationId, `${removed.fileName} excluído`, actor);
-  writeDb(db);
+  await writeDb(db);
   return removed;
 }
 
@@ -1018,8 +1016,8 @@ export function deleteNegotiationDocument(id: string, actor: string): Negotiatio
 // store — nenhum número fixo. Cada negociação ativa cai em exatamente um
 // balde de prioridade (classifyNegotiation), como no exemplo do briefing.
 
-export function getNegotiationDashboardMetrics() {
-  const db = readDb();
+export async function getNegotiationDashboardMetrics() {
+  const db = await readDb();
   const active = db.negotiations.filter((n) => n.status === "IN_PROGRESS" || n.status === "READY_FOR_DELIVERY");
 
   const buckets = { CRITICAL: 0, AWAITING_BANK: 0, AWAITING_COURIER: 0, AWAITING_CLIENT: 0, PENDING: 0, READY: 0 };
@@ -1043,8 +1041,8 @@ export function getNegotiationDashboardMetrics() {
 // Indicadores administrativos (seção 21) — retornam `null` quando não há
 // dados suficientes (ex: nenhuma venda entregue ainda), em vez de um número
 // enganoso, mesma disciplina de getCreditDashboardMetrics.
-export function getNegotiationIndicators() {
-  const db = readDb();
+export async function getNegotiationIndicators() {
+  const db = await readDb();
   const delivered = db.negotiations.filter((n) => n.status === "DELIVERED");
   const avgDaysToComplete =
     delivered.length > 0
@@ -1118,76 +1116,76 @@ export function getNegotiationIndicators() {
 // integração real com a tabela FIPE; nada aqui é obtido por scraping).
 // ---------------------------------------------------------------------------
 
-export function getFipeLink(vehicleId: string): FipeVehicleLink | undefined {
-  return readDb().fipeLinks.find((l) => l.vehicleId === vehicleId);
+export async function getFipeLink(vehicleId: string): Promise<FipeVehicleLink | undefined> {
+  return (await readDb()).fipeLinks.find((l) => l.vehicleId === vehicleId);
 }
 
-export function setFipeLink(link: Omit<FipeVehicleLink, "updatedAt">): FipeVehicleLink {
-  const db = readDb();
+export async function setFipeLink(link: Omit<FipeVehicleLink, "updatedAt">): Promise<FipeVehicleLink> {
+  const db = await readDb();
   const record: FipeVehicleLink = { ...link, updatedAt: new Date().toISOString() };
   const idx = db.fipeLinks.findIndex((l) => l.vehicleId === link.vehicleId);
   if (idx === -1) db.fipeLinks.push(record);
   else db.fipeLinks[idx] = record;
-  writeDb(db);
+  await writeDb(db);
   return record;
 }
 
-export function addFipeQuote(input: Omit<FipeQuote, "id" | "queriedAt">): FipeQuote {
-  const db = readDb();
+export async function addFipeQuote(input: Omit<FipeQuote, "id" | "queriedAt">): Promise<FipeQuote> {
+  const db = await readDb();
   const quote: FipeQuote = { ...input, id: genId("fipe"), queriedAt: new Date().toISOString() };
   db.fipeQuotes.unshift(quote);
-  writeDb(db);
+  await writeDb(db);
   return quote;
 }
 
-export function getLatestFipeQuote(vehicleId: string): FipeQuote | undefined {
-  return readDb()
-    .fipeQuotes.filter((q) => q.vehicleId === vehicleId)
+export async function getLatestFipeQuote(vehicleId: string): Promise<FipeQuote | undefined> {
+  return (await readDb()).fipeQuotes
+    .filter((q) => q.vehicleId === vehicleId)
     .sort((a, b) => (a.queriedAt < b.queriedAt ? 1 : -1))[0];
 }
 
-export function listFipeQuoteHistory(vehicleId: string): FipeQuote[] {
-  return readDb()
-    .fipeQuotes.filter((q) => q.vehicleId === vehicleId)
+export async function listFipeQuoteHistory(vehicleId: string): Promise<FipeQuote[]> {
+  return (await readDb()).fipeQuotes
+    .filter((q) => q.vehicleId === vehicleId)
     .sort((a, b) => (a.queriedAt < b.queriedAt ? 1 : -1));
 }
 
-export function addMarketPriceSample(input: Omit<MarketPriceSample, "id" | "createdAt">): MarketPriceSample {
-  const db = readDb();
+export async function addMarketPriceSample(input: Omit<MarketPriceSample, "id" | "createdAt">): Promise<MarketPriceSample> {
+  const db = await readDb();
   const sample: MarketPriceSample = { ...input, id: genId("mkt"), createdAt: new Date().toISOString() };
   db.marketPriceSamples.unshift(sample);
-  writeDb(db);
+  await writeDb(db);
   return sample;
 }
 
-export function listMarketPriceSamples(vehicleId: string): MarketPriceSample[] {
-  return readDb().marketPriceSamples.filter((s) => s.vehicleId === vehicleId);
+export async function listMarketPriceSamples(vehicleId: string): Promise<MarketPriceSample[]> {
+  return (await readDb()).marketPriceSamples.filter((s) => s.vehicleId === vehicleId);
 }
 
-export function deleteMarketPriceSample(id: string): boolean {
-  const db = readDb();
+export async function deleteMarketPriceSample(id: string): Promise<boolean> {
+  const db = await readDb();
   const before = db.marketPriceSamples.length;
   db.marketPriceSamples = db.marketPriceSamples.filter((s) => s.id !== id);
-  writeDb(db);
+  await writeDb(db);
   return db.marketPriceSamples.length < before;
 }
 
 // --- Notas Fiscais (NF-e) — emissão real pendente de integração com a SEFAZ
 
-export function getCompanyFiscalProfile(): CompanyFiscalProfile | null {
-  return readDb().companyFiscalProfile;
+export async function getCompanyFiscalProfile(): Promise<CompanyFiscalProfile | null> {
+  return (await readDb()).companyFiscalProfile;
 }
 
-export function updateCompanyFiscalProfile(input: CompanyFiscalProfileInput): CompanyFiscalProfile {
-  const db = readDb();
+export async function updateCompanyFiscalProfile(input: CompanyFiscalProfileInput): Promise<CompanyFiscalProfile> {
+  const db = await readDb();
   const profile: CompanyFiscalProfile = { ...input, updatedAt: new Date().toISOString() };
   db.companyFiscalProfile = profile;
-  writeDb(db);
+  await writeDb(db);
   return profile;
 }
 
-export function createInvoice(input: InvoiceInput & { requestedBy: string }): Invoice {
-  const db = readDb();
+export async function createInvoice(input: InvoiceInput & { requestedBy: string }): Promise<Invoice> {
+  const db = await readDb();
   const invoice: Invoice = {
     id: genId("nfe"),
     saleId: input.saleId ?? null,
@@ -1209,23 +1207,23 @@ export function createInvoice(input: InvoiceInput & { requestedBy: string }): In
     issuedAt: null,
   };
   db.invoices.unshift(invoice);
-  writeDb(db);
+  await writeDb(db);
   return invoice;
 }
 
-export function listInvoices(): Invoice[] {
-  return readDb().invoices;
+export async function listInvoices(): Promise<Invoice[]> {
+  return (await readDb()).invoices;
 }
 
-export function getInvoiceById(id: string): Invoice | undefined {
-  return readDb().invoices.find((i) => i.id === id);
+export async function getInvoiceById(id: string): Promise<Invoice | undefined> {
+  return (await readDb()).invoices.find((i) => i.id === id);
 }
 
-export function cancelInvoice(id: string): Invoice | undefined {
-  const db = readDb();
+export async function cancelInvoice(id: string): Promise<Invoice | undefined> {
+  const db = await readDb();
   const idx = db.invoices.findIndex((i) => i.id === id);
   if (idx === -1) return undefined;
   db.invoices[idx] = { ...db.invoices[idx], status: "CANCELLED", cancelledAt: new Date().toISOString() };
-  writeDb(db);
+  await writeDb(db);
   return db.invoices[idx];
 }

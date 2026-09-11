@@ -20,8 +20,8 @@ function withCost(vehicle: Vehicle): Vehicle {
   return { ...vehicle, costPrice: getCostOverrideForVehicle(vehicle) };
 }
 
-export function getEnrichedVehicles(): { items: EnrichedVehicle[]; config: PricingConfig } {
-  const allVehicles = listVehiclesAdmin();
+export async function getEnrichedVehicles(): Promise<{ items: EnrichedVehicle[]; config: PricingConfig }> {
+  const allVehicles = await listVehiclesAdmin();
   ensureHistorySeeded(allVehicles);
 
   const config = getPricingConfig();
@@ -37,8 +37,8 @@ export function getEnrichedVehicles(): { items: EnrichedVehicle[]; config: Prici
   return { items, config };
 }
 
-export function getEnrichedVehicleById(id: string): { item: EnrichedVehicle; config: PricingConfig } | null {
-  const raw = listVehiclesAdmin().find((v) => v.id === id);
+export async function getEnrichedVehicleById(id: string): Promise<{ item: EnrichedVehicle; config: PricingConfig } | null> {
+  const raw = (await listVehiclesAdmin()).find((v) => v.id === id);
   if (!raw) return null;
   ensureHistorySeeded([raw]);
 

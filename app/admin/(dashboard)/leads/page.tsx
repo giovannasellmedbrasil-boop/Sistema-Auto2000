@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Users } from "lucide-react";
 import { getAdminSession, hasRole } from "@/lib/server/auth";
-import { listLeads, getVehicleById, listVehiclesAdmin, listSalespeople, listMarketingCampaigns } from "@/lib/server/db";
+import { listLeads, listVehiclesAdmin, listSalespeople, listMarketingCampaigns } from "@/lib/server/db";
 import { LEAD_CHANNEL_LABELS, LEAD_LOST_REASON_LABELS, LEAD_STATUS_LABELS, type LeadStatus } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -29,12 +29,17 @@ export default async function AdminLeadsPage() {
   const session = await getAdminSession();
   if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) redirect("/admin");
 
-  const leads = listLeads();
-  const salespeopleList = listSalespeople();
+  const [leads, salespeopleList, allVehicles, campaigns] = await Promise.all([
+    listLeads(),
+    listSalespeople(),
+    listVehiclesAdmin(),
+    listMarketingCampaigns(),
+  ]);
   const salespeopleById = new Map(salespeopleList.map((s) => [s.id, s]));
-  const vehicleOptions = listVehiclesAdmin().map((v) => ({ id: v.id, label: `${v.brand} ${v.model} ${v.version}` }));
+  const vehiclesById = new Map(allVehicles.map((v) => [v.id, v]));
+  const vehicleOptions = allVehicles.map((v) => ({ id: v.id, label: `${v.brand} ${v.model} ${v.version}` }));
   const salespeopleOptions = salespeopleList.map((s) => ({ id: s.id, name: s.name }));
-  const campaignOptions = listMarketingCampaigns().map((c) => ({ id: c.id, name: c.name }));
+  const campaignOptions = campaigns.map((c) => ({ id: c.id, name: c.name }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -68,7 +73,7 @@ export default async function AdminLeadsPage() {
             </thead>
             <tbody>
               {leads.map((lead) => {
-                const vehicle = lead.vehicleId ? getVehicleById(lead.vehicleId) : undefined;
+                const vehicle = lead.vehicleId ? vehiclesById.get(lead.vehicleId) : undefined;
                 const owner = lead.ownerId ? salespeopleById.get(lead.ownerId) : undefined;
                 const status = lead.status ?? "NEW_LEAD";
                 return (

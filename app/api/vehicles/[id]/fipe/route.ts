@@ -17,7 +17,7 @@ const linkSchema = z.object({
 async function queryAndStoreQuote(vehicleId: string, brandCode: string, modelCode: string, yearCode: string) {
   const result = await getFipeValue(brandCode, modelCode, yearCode);
   if (!result.ok) return { quote: null, error: result.error };
-  const quote = addFipeQuote({
+  const quote = await addFipeQuote({
     vehicleId,
     fipeCode: result.data.fipeCode,
     value: result.data.value,
@@ -39,7 +39,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const vehicle = getVehicleById(id);
+  const vehicle = await getVehicleById(id);
   if (!vehicle) return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
 
   const body = await request.json().catch(() => null);
@@ -48,7 +48,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const link = setFipeLink({
+  const link = await setFipeLink({
     vehicleId: id,
     fipeBrandCode: parsed.data.brandCode,
     fipeBrandName: parsed.data.brandName,
@@ -74,7 +74,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const { id } = await params;
-  const link = getFipeLink(id);
+  const link = await getFipeLink(id);
   if (!link) return NextResponse.json({ error: "Este veículo ainda não está vinculado à FIPE." }, { status: 400 });
 
   const { quote, error } = await queryAndStoreQuote(id, link.fipeBrandCode, link.fipeModelCode, link.fipeYearCode);

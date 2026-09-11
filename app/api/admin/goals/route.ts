@@ -20,6 +20,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const goals = updateDashboardGoals(parsed.data);
+  const goals = await updateDashboardGoals(parsed.data);
   return NextResponse.json({ goals });
 }

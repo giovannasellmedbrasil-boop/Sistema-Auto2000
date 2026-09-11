@@ -11,17 +11,18 @@ export default async function PrecificacaoPage() {
   const session = await getAdminSession();
   if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) redirect("/admin");
 
-  const vehicles = listVehiclesAdmin().filter((v) => v.status !== "SOLD");
+  const vehicles = (await listVehiclesAdmin()).filter((v) => v.status !== "SOLD");
 
-  const rows: PricingRow[] = vehicles.map((vehicle) => {
-    const quote = getLatestFipeQuote(vehicle.id);
-    const samples = listMarketPriceSamples(vehicle.id);
-    return {
-      vehicle,
-      fipeValue: quote?.value ?? null,
-      marketStats: computeMarketStats(samples.map((s) => s.price)),
-    };
-  });
+  const rows: PricingRow[] = await Promise.all(
+    vehicles.map(async (vehicle) => {
+      const [quote, samples] = await Promise.all([getLatestFipeQuote(vehicle.id), listMarketPriceSamples(vehicle.id)]);
+      return {
+        vehicle,
+        fipeValue: quote?.value ?? null,
+        marketStats: computeMarketStats(samples.map((s) => s.price)),
+      };
+    })
+  );
 
   return (
     <div className="flex flex-col gap-6">

@@ -4,9 +4,10 @@ import { NewNegotiationForm } from "@/components/documentacao/NewNegotiationForm
 
 export const metadata: Metadata = { title: "Nova venda — Documentação", robots: { index: false } };
 
-export default function NovaVendaDocumentacaoPage() {
-  const vehicles = listVehiclesAdmin().filter((v) => v.status !== "SOLD");
-  const sellers = listSalespeople()
+export default async function NovaVendaDocumentacaoPage() {
+  const [allVehicles, allSellers] = await Promise.all([listVehiclesAdmin(), listSalespeople()]);
+  const vehicles = allVehicles.filter((v) => v.status !== "SOLD");
+  const sellers = allSellers
     .filter((s) => s.active)
     .map((s) => ({ id: s.id, name: s.name }));
 

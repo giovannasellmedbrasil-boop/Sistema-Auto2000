@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { getAdminSession } from "@/lib/server/auth";
-import { getCreditCustomerById, listCreditAnalyses } from "@/lib/server/db";
+import { listCreditCustomers, listCreditAnalyses } from "@/lib/server/db";
 import { COMMERCIAL_STATUS_LABELS, type CommercialStatus } from "@/lib/types";
 import { maskCpf } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
@@ -46,7 +46,11 @@ export default async function ConsultasPage({
   const sp = await searchParams;
 
   const isSales = session.role === "SALES";
-  const all = listCreditAnalyses(isSales ? { sellerId: session.id } : {});
+  const [all, allCustomers] = await Promise.all([
+    listCreditAnalyses(isSales ? { sellerId: session.id } : {}),
+    listCreditCustomers(),
+  ]);
+  const customersById = new Map(allCustomers.map((c) => [c.id, c]));
 
   const sellers = Array.from(new Map(all.map((a) => [a.sellerId, a.sellerName])).entries());
 
@@ -134,7 +138,7 @@ export default async function ConsultasPage({
             </thead>
             <tbody>
               {items.map((a) => {
-                const customer = getCreditCustomerById(a.customerId);
+                const customer = customersById.get(a.customerId);
                 return (
                   <tr key={a.id} className="border-b border-ink-50 last:border-0 hover:bg-ink-50/50">
                     <td className="px-4 py-3 text-ink-500">

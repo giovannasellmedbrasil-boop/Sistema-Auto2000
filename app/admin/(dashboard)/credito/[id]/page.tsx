@@ -22,11 +22,11 @@ export default async function CreditAnalysisPage({ params }: { params: Promise<{
   if (!session) return null;
 
   const { id } = await params;
-  const analysis = getCreditAnalysisById(id);
+  const analysis = await getCreditAnalysisById(id);
   if (!analysis) notFound();
   if (session.role === "SALES" && analysis.sellerId !== session.id) redirect("/admin/credito");
 
-  const customer = getCreditCustomerById(analysis.customerId);
+  const customer = await getCreditCustomerById(analysis.customerId);
   if (!customer) notFound();
 
   const { report, aiAnalysis } = analysis;
@@ -34,7 +34,7 @@ export default async function CreditAnalysisPage({ params }: { params: Promise<{
     Math.min(analysis.vehiclePrice * 0.5, analysis.downPayment + analysis.vehiclePrice * 0.15)
   );
 
-  const compatibleVehicles = listVehiclesAdmin({ sort: "recent" })
+  const compatibleVehicles = (await listVehiclesAdmin({ sort: "recent" }))
     .filter((v) => v.status === "AVAILABLE")
     .filter((v) => v.price >= analysis.vehiclePrice * 0.85 && v.price <= analysis.vehiclePrice * 1.15)
     .sort((a, b) => Math.abs(a.price - analysis.vehiclePrice) - Math.abs(b.price - analysis.vehiclePrice))

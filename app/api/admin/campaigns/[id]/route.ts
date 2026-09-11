@@ -46,7 +46,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const campaign = updateMarketingCampaign(id, parsed.data);
+  const campaign = await updateMarketingCampaign(id, parsed.data);
   if (!campaign) return NextResponse.json({ error: "Campanha não encontrada" }, { status: 404 });
   return NextResponse.json({ campaign });
 }
@@ -58,7 +58,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   }
 
   const { id } = await params;
-  const ok = deleteMarketingCampaign(id);
+  const ok = await deleteMarketingCampaign(id);
   if (!ok) return NextResponse.json({ error: "Campanha não encontrada" }, { status: 404 });
   return NextResponse.json({ ok: true });
 }

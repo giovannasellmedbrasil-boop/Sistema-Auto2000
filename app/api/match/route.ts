@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   }
 
   const query = parseQuery(parsed.data.text);
-  const vehicles = listVehiclesPublic();
+  const vehicles = await listVehiclesPublic();
   const matches = matchVehicles(vehicles, query).slice(0, 6);
 
   return NextResponse.json({ query, matches });

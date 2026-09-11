@@ -8,6 +8,6 @@ export async function POST() {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 
-  const result = importMercadoLivreVehicles();
+  const result = await importMercadoLivreVehicles();
   return NextResponse.json(result);
 }

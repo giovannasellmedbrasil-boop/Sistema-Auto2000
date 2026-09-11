@@ -43,21 +43,26 @@ export async function GET(request: Request) {
   const metric: DrillMetric = VALID_METRICS.includes(metricParam as DrillMetric) ? (metricParam as DrillMetric) : "leads";
   const filters = parseDashboardFilters(searchParams);
 
-  const leads = getDrilldownLeads(filters, metric).map((lead) => {
-    const vehicle = lead.vehicleId ? getVehicleById(lead.vehicleId) : undefined;
-    const owner = lead.ownerId ? getSalespersonById(lead.ownerId) : undefined;
-    return {
-      id: lead.id,
-      name: lead.name,
-      phone: lead.phone,
-      email: lead.email ?? null,
-      vehicle: vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version}` : null,
-      owner: owner?.name ?? null,
-      channel: lead.channel ? LEAD_CHANNEL_LABELS[lead.channel] : null,
-      status: lead.status ? LEAD_STATUS_LABELS[lead.status] : null,
-      createdAt: lead.createdAt,
-    };
-  });
+  const drilldownLeads = await getDrilldownLeads(filters, metric);
+  const leads = await Promise.all(
+    drilldownLeads.map(async (lead) => {
+      const [vehicle, owner] = await Promise.all([
+        lead.vehicleId ? getVehicleById(lead.vehicleId) : undefined,
+        lead.ownerId ? getSalespersonById(lead.ownerId) : undefined,
+      ]);
+      return {
+        id: lead.id,
+        name: lead.name,
+        phone: lead.phone,
+        email: lead.email ?? null,
+        vehicle: vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version}` : null,
+        owner: owner?.name ?? null,
+        channel: lead.channel ? LEAD_CHANNEL_LABELS[lead.channel] : null,
+        status: lead.status ? LEAD_STATUS_LABELS[lead.status] : null,
+        createdAt: lead.createdAt,
+      };
+    })
+  );
 
   return NextResponse.json({ leads });
 }
@@ -73,6 +78,6 @@ export async function POST(request: Request) {
   }
 
   const { email, ...rest } = parsed.data;
-  const lead = createLeadManual({ ...rest, email: email || null });
+  const lead = await createLeadManual({ ...rest, email: email || null });
   return NextResponse.json({ lead }, { status: 201 });
 }

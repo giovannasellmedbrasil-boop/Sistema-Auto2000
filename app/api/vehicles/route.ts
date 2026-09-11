@@ -39,16 +39,16 @@ export async function GET(request: Request) {
   if (admin) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    return NextResponse.json({ vehicles: listVehiclesAdmin() });
+    return NextResponse.json({ vehicles: await listVehiclesAdmin() });
   }
 
   if (ids) {
     const idList = ids.split(",").filter(Boolean);
-    const vehicles = listVehiclesAdmin().filter((v) => idList.includes(v.id));
+    const vehicles = (await listVehiclesAdmin()).filter((v) => idList.includes(v.id));
     return NextResponse.json({ vehicles });
   }
 
-  const vehicles = listVehiclesPublic();
+  const vehicles = await listVehiclesPublic();
   return NextResponse.json({ vehicles });
 }
 
@@ -62,6 +62,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const vehicle = createVehicle(parsed.data);
+  const vehicle = await createVehicle(parsed.data);
   return NextResponse.json({ vehicle }, { status: 201 });
 }

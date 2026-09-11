@@ -15,7 +15,7 @@ import { getAdminSession } from "@/lib/server/auth";
 import {
   getChecklistItems,
   getNegotiationDashboardMetrics,
-  getVehicleById,
+  listVehiclesAdmin,
   listNegotiations,
   listSalespeople,
 } from "@/lib/server/db";
@@ -37,30 +37,34 @@ export default async function DocumentacaoDashboardPage({
   if (!session) return null;
   const sp = await searchParams;
 
-  const metrics = getNegotiationDashboardMetrics();
-  const sellers = listSalespeople()
-    .filter((s) => s.active)
-    .map((s) => ({ id: s.id, name: s.name }));
-
   const isSales = session.role === "SALES";
-  const negotiations = listNegotiations({
-    q: sp.q,
-    sellerId: isSales ? session.id : sp.sellerId,
-    status: sp.status as NegotiationStatus | undefined,
-    bucket: sp.bucket as NegotiationBucket | undefined,
-    paymentMethod: sp.paymentMethod as NegotiationPaymentMethod | undefined,
-  });
+  const [metrics, allSellers, negotiations, vehicles] = await Promise.all([
+    getNegotiationDashboardMetrics(),
+    listSalespeople(),
+    listNegotiations({
+      q: sp.q,
+      sellerId: isSales ? session.id : sp.sellerId,
+      status: sp.status as NegotiationStatus | undefined,
+      bucket: sp.bucket as NegotiationBucket | undefined,
+      paymentMethod: sp.paymentMethod as NegotiationPaymentMethod | undefined,
+    }),
+    listVehiclesAdmin(),
+  ]);
+  const sellers = allSellers.filter((s) => s.active).map((s) => ({ id: s.id, name: s.name }));
+  const vehiclesById = new Map(vehicles.map((v) => [v.id, v]));
 
-  const rows: NegotiationRow[] = negotiations.map((negotiation) => {
-    const items = getChecklistItems(negotiation.id);
-    const vehicle = getVehicleById(negotiation.vehicleId);
-    return {
-      negotiation,
-      vehicleLabel: vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version}` : "—",
-      progressPercent: computeProgressPercent(items),
-      bucket: classifyNegotiation(items),
-    };
-  });
+  const rows: NegotiationRow[] = await Promise.all(
+    negotiations.map(async (negotiation) => {
+      const items = await getChecklistItems(negotiation.id);
+      const vehicle = vehiclesById.get(negotiation.vehicleId);
+      return {
+        negotiation,
+        vehicleLabel: vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version}` : "—",
+        progressPercent: computeProgressPercent(items),
+        bucket: classifyNegotiation(items),
+      };
+    })
+  );
 
   const cards = [
     { label: "Vendas em andamento", value: metrics.inProgress, icon: ClipboardList },

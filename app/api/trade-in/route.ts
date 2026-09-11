@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     .filter(Boolean)
     .join(" ");
 
-  const lead = createLead({
+  const lead = await createLead({
     name: d.name,
     phone: d.phone,
     email: d.email || null,

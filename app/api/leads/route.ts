@@ -36,11 +36,11 @@ export async function POST(request: Request) {
 
   const { vehicleId, ...rest } = parsed.data;
 
-  if (vehicleId && !getVehicleById(vehicleId)) {
+  if (vehicleId && !(await getVehicleById(vehicleId))) {
     return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
   }
 
-  const lead = createLead({
+  const lead = await createLead({
     ...rest,
     email: rest.email || null,
     message: rest.message || null,

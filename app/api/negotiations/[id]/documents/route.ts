@@ -18,7 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
   if (session.role === "SALES" && negotiation.sellerId !== session.id) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
@@ -49,7 +49,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const absolutePath = path.join(negotiationDir, storedFileName);
   fs.writeFileSync(absolutePath, buffer);
 
-  const { document, duplicate } = addNegotiationDocument({
+  const { document, duplicate } = await addNegotiationDocument({
     negotiationId: id,
     category: category as (typeof CATEGORIES)[number],
     itemKey: typeof itemKey === "string" && itemKey ? itemKey : null,

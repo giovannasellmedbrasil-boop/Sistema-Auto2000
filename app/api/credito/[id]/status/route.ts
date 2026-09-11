@@ -25,7 +25,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Status inválido." }, { status: 400 });
 
-  const updated = updateCreditAnalysisCommercialStatus(id, parsed.data.status);
+  const updated = await updateCreditAnalysisCommercialStatus(id, parsed.data.status);
   if (!updated) return NextResponse.json({ error: "Consulta não encontrada." }, { status: 404 });
 
   return NextResponse.json({ analysis: updated });

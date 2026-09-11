@@ -13,18 +13,22 @@ import { classifyNegotiation, computeProgressPercent, getMissingItems, isDeliver
 import type { NegotiationWithChecklist } from "@/lib/types";
 
 async function loadNegotiationDetail(id: string): Promise<NegotiationWithChecklist | null> {
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) return null;
-  const items = getChecklistItems(id);
-  const vehicle = getVehicleById(negotiation.vehicleId);
+  const [items, vehicle, documents, history] = await Promise.all([
+    getChecklistItems(id),
+    getVehicleById(negotiation.vehicleId),
+    getNegotiationDocuments(id),
+    getNegotiationHistory(id),
+  ]);
   return {
     negotiation,
     vehicle: vehicle
       ? { id: vehicle.id, brand: vehicle.brand, model: vehicle.model, version: vehicle.version, modelYear: vehicle.modelYear, slug: vehicle.slug }
       : null,
     items,
-    documents: getNegotiationDocuments(id),
-    history: getNegotiationHistory(id),
+    documents,
+    history,
     progressPercent: computeProgressPercent(items),
     bucket: classifyNegotiation(items),
     deliveryReady: isDeliveryReady(items),
@@ -89,7 +93,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const { id } = await params;
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
   if (session.role === "SALES" && negotiation.sellerId !== session.id) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
@@ -105,6 +109,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const historyMessage =
     changedFields.length > 0 ? `Atualização: ${changedFields.join(", ")}` : undefined;
 
-  const updated = updateNegotiation(id, parsed.data, { actor: session.name, historyMessage });
+  const updated = await updateNegotiation(id, parsed.data, { actor: session.name, historyMessage });
   return NextResponse.json({ negotiation: updated });
 }

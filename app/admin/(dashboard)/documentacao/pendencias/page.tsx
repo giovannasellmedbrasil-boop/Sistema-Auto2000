@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAdminSession } from "@/lib/server/auth";
-import { getChecklistItems, getVehicleById, listNegotiations } from "@/lib/server/db";
+import { getChecklistItems, listVehiclesAdmin, listNegotiations } from "@/lib/server/db";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ListChecks } from "lucide-react";
 
@@ -29,14 +29,17 @@ export default async function CentralDePendenciasPage({
   const sort = sp.sort === "oldest" ? "oldest" : "urgent";
 
   const isSales = session.role === "SALES";
-  const negotiations = listNegotiations(isSales ? { sellerId: session.id } : {}).filter(
-    (n) => n.status === "IN_PROGRESS"
-  );
+  const [allNegotiations, vehicles] = await Promise.all([
+    listNegotiations(isSales ? { sellerId: session.id } : {}),
+    listVehiclesAdmin(),
+  ]);
+  const negotiations = allNegotiations.filter((n) => n.status === "IN_PROGRESS");
+  const vehiclesById = new Map(vehicles.map((v) => [v.id, v]));
 
   const rows: PendingRow[] = [];
   for (const negotiation of negotiations) {
-    const items = getChecklistItems(negotiation.id);
-    const vehicle = getVehicleById(negotiation.vehicleId);
+    const items = await getChecklistItems(negotiation.id);
+    const vehicle = vehiclesById.get(negotiation.vehicleId);
     const vehicleLabel = vehicle ? `${vehicle.brand} ${vehicle.model}` : "—";
     for (const item of items) {
       if (!item.required || item.status === "APPROVED" || item.status === "NOT_APPLICABLE") continue;

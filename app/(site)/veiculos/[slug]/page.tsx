@@ -38,7 +38,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const vehicle = getVehicleBySlug(slug);
+  const vehicle = await getVehicleBySlug(slug);
   if (!vehicle) return { title: "Veículo não encontrado" };
 
   const title = `${vehicle.brand} ${vehicle.model} ${vehicle.version} ${vehicle.modelYear}`;
@@ -58,14 +58,14 @@ export default async function VehiclePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const vehicle = getVehicleBySlug(slug);
+  const vehicle = await getVehicleBySlug(slug);
   if (!vehicle) notFound();
 
   const isSold = vehicle.status === "SOLD";
   const whatsappHref = buildWhatsAppLink(vehicleWhatsAppMessage(vehicle));
   const title = `${vehicle.brand} ${vehicle.model} ${vehicle.version}`;
 
-  const similar = listVehiclesPublic({ bodyType: vehicle.bodyType })
+  const similar = (await listVehiclesPublic({ bodyType: vehicle.bodyType }))
     .filter((v) => v.id !== vehicle.id)
     .slice(0, 4);
 

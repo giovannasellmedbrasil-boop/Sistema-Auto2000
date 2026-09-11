@@ -23,11 +23,11 @@ export async function POST(request: Request) {
 
   const user = authenticate(parsed.data.email, parsed.data.password);
   if (!user) {
-    appendAuditLog({ type: "LOGIN_FAILED", userEmail: parsed.data.email, detail: "Tentativa de login com credenciais inválidas." });
+    await appendAuditLog({ type: "LOGIN_FAILED", userEmail: parsed.data.email, detail: "Tentativa de login com credenciais inválidas." });
     return NextResponse.json({ error: "E-mail ou senha inválidos." }, { status: 401 });
   }
 
-  appendAuditLog({ type: "LOGIN", userEmail: user.email, detail: `Login realizado (${user.role}).` });
+  await appendAuditLog({ type: "LOGIN", userEmail: user.email, detail: `Login realizado (${user.role}).` });
 
   const token = createSessionToken(user);
   const res = NextResponse.json({ ok: true });

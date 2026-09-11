@@ -42,7 +42,7 @@ import { FinancingStatusSelect } from "@/components/documentacao/FinancingStatus
 
 export const metadata: Metadata = { title: "Venda — Documentação", robots: { index: false } };
 
-function itemsIn(items: ReturnType<typeof getChecklistItems>, category: ChecklistCategory) {
+function itemsIn(items: Awaited<ReturnType<typeof getChecklistItems>>, category: ChecklistCategory) {
   return items.filter((i) => i.category === category);
 }
 
@@ -51,14 +51,16 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
   if (!session) return null;
 
   const { id } = await params;
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) notFound();
   if (session.role === "SALES" && negotiation.sellerId !== session.id) redirect("/admin/documentacao");
 
-  const items = getChecklistItems(id);
-  const documents = getNegotiationDocuments(id);
-  const history = getNegotiationHistory(id);
-  const vehicle = getVehicleById(negotiation.vehicleId);
+  const [items, documents, history, vehicle] = await Promise.all([
+    getChecklistItems(id),
+    getNegotiationDocuments(id),
+    getNegotiationHistory(id),
+    getVehicleById(negotiation.vehicleId),
+  ]);
 
   const progressPercent = computeProgressPercent(items);
   const bucket = classifyNegotiation(items);

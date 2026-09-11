@@ -25,7 +25,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const salesperson = updateSalesperson(id, parsed.data);
+  const salesperson = await updateSalesperson(id, parsed.data);
   if (!salesperson) return NextResponse.json({ error: "Vendedor não encontrado" }, { status: 404 });
   return NextResponse.json({ salesperson });
 }
@@ -37,7 +37,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   }
 
   const { id } = await params;
-  const ok = deleteSalesperson(id);
+  const ok = await deleteSalesperson(id);
   if (!ok) return NextResponse.json({ error: "Vendedor não encontrado" }, { status: 404 });
   return NextResponse.json({ ok: true });
 }

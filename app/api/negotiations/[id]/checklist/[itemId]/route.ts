@@ -18,7 +18,7 @@ export async function PATCH(
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const { id, itemId } = await params;
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
   if (session.role === "SALES" && negotiation.sellerId !== session.id) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
@@ -30,7 +30,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const item = updateChecklistItem(id, itemId, parsed.data, session.name);
+  const item = await updateChecklistItem(id, itemId, parsed.data, session.name);
   if (!item) return NextResponse.json({ error: "Item não encontrado" }, { status: 404 });
 
   return NextResponse.json({ item });

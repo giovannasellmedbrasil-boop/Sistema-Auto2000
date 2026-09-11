@@ -10,7 +10,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   }
 
   const { sampleId } = await params;
-  const ok = deleteMarketPriceSample(sampleId);
+  const ok = await deleteMarketPriceSample(sampleId);
   if (!ok) return NextResponse.json({ error: "Amostra não encontrada" }, { status: 404 });
   return NextResponse.json({ ok: true });
 }

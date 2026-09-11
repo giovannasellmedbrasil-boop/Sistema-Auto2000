@@ -503,3 +503,22 @@ model AiRecommendation {
 
   @@map("ai_recommendations")
 }
+
+// ---------------------------------------------------------------------------
+// Tabela-ponte (não é o modelo relacional "de verdade" descrito acima)
+// ---------------------------------------------------------------------------
+//
+// Guarda o mesmo objeto DbShape que lib/server/db.ts já manipula em memória,
+// agora persistido no Postgres em vez de um arquivo local em disco — resolve
+// a falta de disco compartilhado entre instâncias serverless da Vercel (cada
+// requisição podia cair numa instância com seu próprio /tmp, então uma
+// escrita não era visível na leitura seguinte). Uma única linha (id fixo
+// "singleton"). Migrar de fato para as tabelas relacionais acima é um passo
+// futuro, se um dia for necessário.
+model MockStore {
+  id        String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
+
+  @@map("mock_store")
+}

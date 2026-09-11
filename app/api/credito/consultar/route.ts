@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   const data = parsed.data;
   const cpfDigits = onlyDigits(data.cpf);
 
-  const customer = createCreditCustomer({
+  const customer = await createCreditCustomer({
     name: data.name,
     cpf: cpfDigits,
     birthDate: data.birthDate,
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     email: data.email || null,
   });
 
-  const consent = createConsentRecord({
+  const consent = await createConsentRecord({
     customerId: customer.id,
     text: CONSENT_TEXT,
     granted: true,
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     vehiclePrice: data.vehiclePrice,
   });
 
-  const analysis = createCreditAnalysis({
+  const analysis = await createCreditAnalysis({
     customerId: customer.id,
     vehicleId: null,
     vehicleInterest: data.vehicleInterest,
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     sellerName: session.name,
   });
 
-  appendAuditLog({
+  await appendAuditLog({
     type: "CREDIT_QUERY",
     userEmail: session.email,
     detail: `Consulta de crédito para CPF ${maskCpf(cpfDigits)} — finalidade: análise de crédito para financiamento de veículo.`,

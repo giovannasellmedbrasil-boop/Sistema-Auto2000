@@ -13,9 +13,9 @@ export default async function ClientesPage() {
   if (!session) return null;
 
   const isSales = session.role === "SALES";
-  const analyses = listCreditAnalyses(isSales ? { sellerId: session.id } : {});
+  const analyses = await listCreditAnalyses(isSales ? { sellerId: session.id } : {});
   const visibleCustomerIds = new Set(analyses.map((a) => a.customerId));
-  const customers = listCreditCustomers().filter((c) => !isSales || visibleCustomerIds.has(c.id));
+  const customers = (await listCreditCustomers()).filter((c) => !isSales || visibleCustomerIds.has(c.id));
 
   return (
     <div className="flex flex-col gap-6">

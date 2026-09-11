@@ -17,10 +17,10 @@ export default async function ClienteFichaPage({ params }: { params: Promise<{ i
   if (!session) return null;
 
   const { id } = await params;
-  const customer = getCreditCustomerById(id);
+  const customer = await getCreditCustomerById(id);
   if (!customer) notFound();
 
-  const analyses = listCreditAnalysesByCustomer(id).sort(
+  const analyses = (await listCreditAnalysesByCustomer(id)).sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 

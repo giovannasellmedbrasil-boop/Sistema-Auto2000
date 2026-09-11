@@ -10,7 +10,7 @@ export default async function AdminVendedoresPage() {
   const session = await getAdminSession();
   if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) redirect("/admin");
 
-  const salespeople = listSalespeople();
+  const salespeople = await listSalespeople();
 
   return (
     <div className="flex flex-col gap-6">

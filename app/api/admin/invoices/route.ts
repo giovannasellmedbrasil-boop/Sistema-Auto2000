@@ -21,7 +21,7 @@ export async function GET() {
   if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
-  const invoices = listInvoices().map((inv) => ({ ...inv, buyerDocument: maskDocument(inv.buyerDocument) }));
+  const invoices = (await listInvoices()).map((inv) => ({ ...inv, buyerDocument: maskDocument(inv.buyerDocument) }));
   return NextResponse.json({ invoices });
 }
 
@@ -37,10 +37,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  if (!getVehicleById(parsed.data.vehicleId)) {
+  if (!(await getVehicleById(parsed.data.vehicleId))) {
     return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
   }
 
-  const invoice = createInvoice({ ...parsed.data, requestedBy: session.name });
+  const invoice = await createInvoice({ ...parsed.data, requestedBy: session.name });
   return NextResponse.json({ invoice }, { status: 201 });
 }

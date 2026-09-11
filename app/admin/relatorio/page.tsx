@@ -19,7 +19,7 @@ export default async function RelatorioExecutivoPage({
 
   const sp = await searchParams;
   const filters = parseDashboardFilters(new URLSearchParams(sp as Record<string, string>));
-  const data = getDashboardData(filters);
+  const data = await getDashboardData(filters);
 
   return (
     <div className="min-h-dvh bg-ink-50 px-4 py-10 print:bg-white print:py-0">

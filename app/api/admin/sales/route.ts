@@ -11,19 +11,21 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const filters = parseDashboardFilters(searchParams);
 
-  const sales = getDrilldownSales(filters).map((sale) => {
-    const vehicle = getVehicleById(sale.vehicleId);
-    const owner = getSalespersonById(sale.ownerId);
-    return {
-      id: sale.id,
-      vehicle: vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version}` : sale.vehicleId,
-      owner: owner?.name ?? sale.ownerId,
-      channel: LEAD_CHANNEL_LABELS[sale.channel],
-      finalPrice: sale.finalPrice,
-      paymentMethod: sale.paymentMethod,
-      soldAt: sale.soldAt,
-    };
-  });
+  const drilldownSales = await getDrilldownSales(filters);
+  const sales = await Promise.all(
+    drilldownSales.map(async (sale) => {
+      const [vehicle, owner] = await Promise.all([getVehicleById(sale.vehicleId), getSalespersonById(sale.ownerId)]);
+      return {
+        id: sale.id,
+        vehicle: vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version}` : sale.vehicleId,
+        owner: owner?.name ?? sale.ownerId,
+        channel: LEAD_CHANNEL_LABELS[sale.channel],
+        finalPrice: sale.finalPrice,
+        paymentMethod: sale.paymentMethod,
+        soldAt: sale.soldAt,
+      };
+    })
+  );
 
   return NextResponse.json({ sales });
 }

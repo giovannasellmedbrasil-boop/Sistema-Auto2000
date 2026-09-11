@@ -14,14 +14,14 @@ export default async function RelatorioPage({ params }: { params: Promise<{ id: 
   if (!session) redirect("/admin/login");
 
   const { id } = await params;
-  const analysis = getCreditAnalysisById(id);
+  const analysis = await getCreditAnalysisById(id);
   if (!analysis) notFound();
   if (session.role === "SALES" && analysis.sellerId !== session.id) redirect("/admin/credito");
 
-  const customer = getCreditCustomerById(analysis.customerId);
+  const customer = await getCreditCustomerById(analysis.customerId);
   if (!customer) notFound();
 
-  appendAuditLog({
+  await appendAuditLog({
     type: "REPORT_GENERATED",
     userEmail: session.email,
     detail: `Relatório gerado para CPF ${maskCpf(customer.cpf)}.`,

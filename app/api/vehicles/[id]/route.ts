@@ -33,7 +33,7 @@ const vehicleUpdateSchema = z.object({
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const vehicle = getVehicleById(id);
+  const vehicle = await getVehicleById(id);
   if (!vehicle) return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
   return NextResponse.json({ vehicle });
 }
@@ -49,7 +49,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const vehicle = updateVehicle(id, parsed.data);
+  const vehicle = await updateVehicle(id, parsed.data);
   if (!vehicle) return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
   return NextResponse.json({ vehicle });
 }
@@ -59,7 +59,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const { id } = await params;
-  const ok = deleteVehicle(id);
+  const ok = await deleteVehicle(id);
   if (!ok) return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
   return NextResponse.json({ ok: true });
 }

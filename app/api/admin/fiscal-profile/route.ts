@@ -24,7 +24,7 @@ export async function GET() {
   if (!session || !hasRole(session.role, ["SALES", "MANAGER", "ADMIN"])) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
-  return NextResponse.json({ profile: getCompanyFiscalProfile() });
+  return NextResponse.json({ profile: await getCompanyFiscalProfile() });
 }
 
 // Só gerente/admin pode alterar os dados fiscais da loja (CNPJ, regime
@@ -42,6 +42,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const profile = updateCompanyFiscalProfile(parsed.data);
+  const profile = await updateCompanyFiscalProfile(parsed.data);
   return NextResponse.json({ profile });
 }

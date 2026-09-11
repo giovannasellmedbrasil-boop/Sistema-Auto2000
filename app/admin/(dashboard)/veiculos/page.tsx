@@ -6,8 +6,8 @@ import { VehicleTable } from "@/components/admin/VehicleTable";
 
 export const metadata: Metadata = { title: "Veículos", robots: { index: false } };
 
-export default function AdminVehiclesPage() {
-  const vehicles = listVehiclesAdmin();
+export default async function AdminVehiclesPage() {
+  const vehicles = await listVehiclesAdmin();
 
   return (
     <div className="flex flex-col gap-6">

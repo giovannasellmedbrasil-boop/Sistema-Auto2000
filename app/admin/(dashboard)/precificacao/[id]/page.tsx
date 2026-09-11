@@ -23,13 +23,16 @@ export default async function VehiclePricingPage({ params }: { params: Promise<{
   if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) redirect("/admin");
 
   const { id } = await params;
-  const vehicle = getVehicleById(id);
+  const vehicle = await getVehicleById(id);
   if (!vehicle) notFound();
 
-  const fipeLink = getFipeLink(id) ?? null;
-  const fipeHistory = listFipeQuoteHistory(id);
+  const [fipeLinkRaw, fipeHistory, samples] = await Promise.all([
+    getFipeLink(id),
+    listFipeQuoteHistory(id),
+    listMarketPriceSamples(id),
+  ]);
+  const fipeLink = fipeLinkRaw ?? null;
   const latestQuote = fipeHistory[0] ?? null;
-  const samples = listMarketPriceSamples(id);
   const marketStats = computeMarketStats(samples.map((s) => s.price));
 
   return (

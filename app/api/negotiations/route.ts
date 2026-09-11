@@ -60,7 +60,7 @@ export async function GET(request: Request) {
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
-  const negotiations = listNegotiations({
+  const allNegotiations = await listNegotiations({
     q: searchParams.get("q") ?? undefined,
     sellerId: searchParams.get("sellerId") ?? undefined,
     vehicleId: searchParams.get("vehicleId") ?? undefined,
@@ -69,7 +69,8 @@ export async function GET(request: Request) {
     paymentMethod: (searchParams.get("paymentMethod") as never) ?? undefined,
     financierName: searchParams.get("financierName") ?? undefined,
     documentationResponsible: searchParams.get("documentationResponsible") ?? undefined,
-  }).filter((n) => (session.role === "SALES" ? n.sellerId === session.id : true));
+  });
+  const negotiations = allNegotiations.filter((n) => (session.role === "SALES" ? n.sellerId === session.id : true));
 
   return NextResponse.json({ negotiations });
 }
@@ -87,6 +88,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Dados inválidos", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const negotiation = createNegotiation(parsed.data);
+  const negotiation = await createNegotiation(parsed.data);
   return NextResponse.json({ negotiation }, { status: 201 });
 }

@@ -10,10 +10,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const negotiation = getNegotiationById(id);
+  const negotiation = await getNegotiationById(id);
   if (!negotiation) return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
 
-  const result = markNegotiationDelivered(id, session.name);
+  const result = await markNegotiationDelivered(id, session.name);
   if (!result.ok) return NextResponse.json({ error: result.reason }, { status: 400 });
 
   return NextResponse.json({ negotiation: result.negotiation });

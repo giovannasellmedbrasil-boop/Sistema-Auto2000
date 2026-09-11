@@ -43,9 +43,12 @@ export default async function EstoquePage({
   // Um carro marcado como vendido no estoque sai da vitrine automaticamente
   // na próxima renderização — listVehiclesPublic() já exclui SOLD por
   // padrão quando includeSold não é passado.
-  const vehicles = listVehiclesPublic(filters);
-  const brands = listBrands();
-  const colors = Array.from(new Set(listVehiclesPublic().map((v) => v.color))).sort();
+  const [vehicles, brands, allVehicles] = await Promise.all([
+    listVehiclesPublic(filters),
+    listBrands(),
+    listVehiclesPublic(),
+  ]);
+  const colors = Array.from(new Set(allVehicles.map((v) => v.color))).sort();
 
   return (
     <Container className="flex flex-col gap-8 py-10 sm:py-14">

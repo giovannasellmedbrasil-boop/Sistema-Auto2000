@@ -5,9 +5,9 @@ import { TrustSection } from "@/components/home/TrustSection";
 import { AiTeaser } from "@/components/home/AiTeaser";
 import { listVehiclesPublic, listBrands } from "@/lib/server/db";
 
-export default function Home() {
-  const featured = listVehiclesPublic({ sort: "recent" }).slice(0, 8);
-  const brands = listBrands();
+export default async function Home() {
+  const [allFeatured, brands] = await Promise.all([listVehiclesPublic({ sort: "recent" }), listBrands()]);
+  const featured = allFeatured.slice(0, 8);
 
   return (
     <>

@@ -9,8 +9,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   }
 
   const { id } = await params;
-  if (!getInvoiceById(id)) return NextResponse.json({ error: "Nota não encontrada" }, { status: 404 });
+  if (!(await getInvoiceById(id))) return NextResponse.json({ error: "Nota não encontrada" }, { status: 404 });
 
-  const invoice = cancelInvoice(id);
+  const invoice = await cancelInvoice(id);
   return NextResponse.json({ invoice });
 }

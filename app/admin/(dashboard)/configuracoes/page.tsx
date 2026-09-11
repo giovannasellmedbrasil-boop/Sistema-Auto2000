@@ -15,7 +15,7 @@ export default async function ConfiguracoesPage() {
 
   const configured = isServiceConfigured();
   const environment = getServiceEnvironment();
-  const logs = listAuditLogs(30);
+  const logs = await listAuditLogs(30);
 
   return (
     <div className="flex flex-col gap-8">
