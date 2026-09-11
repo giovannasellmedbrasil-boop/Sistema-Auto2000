@@ -17,7 +17,8 @@ const DIFERENCIAIS = [
   { icon: Users, title: "Time especializado", text: "Consultores dedicados a te ajudar a encontrar o carro certo, sem pressão." },
 ];
 
-const GOOGLE_REVIEWS_URL = "https://share.google/sjBKJzlWNr3bQ9con";
+const GOOGLE_REVIEWS_URL =
+  "https://www.google.com/search?sca_esv=97ecd86c81018411&cs=0&output=search&kgmid=/g/11c54g7zmk&q=Auto+2000+Ve%C3%ADculos&shem=dlvs1,epsd1,ltae,rimspwouoe&shndl=30&source=sh/x/loc/uni/m1/1&kgs=2b5ad3114cfcec60&utm_source=dlvs1,epsd1,ltae,rimspwouoe,sh/x/loc/uni/m1/1#lrd=0x94ce5d672c2ed5a1:0x1b750281f91d1451,1,,,,";
 
 export default function SobrePage() {
   return (
