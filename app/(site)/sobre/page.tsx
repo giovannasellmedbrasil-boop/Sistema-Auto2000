@@ -78,7 +78,7 @@ export default function SobrePage() {
           </span>
           <h3 className="text-sm font-semibold text-accent-400">Avaliação dos clientes</h3>
           <p className="text-sm leading-relaxed text-ink-500">
-            Veja nossa nota real e as avaliações de clientes atendidos direto no Google.
+            4,8/5 em 120 avaliações de clientes atendidos, direto no Google.
           </p>
         </a>
       </div>
