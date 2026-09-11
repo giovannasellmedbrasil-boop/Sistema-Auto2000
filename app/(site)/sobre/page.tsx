@@ -15,8 +15,9 @@ const DIFERENCIAIS = [
   { icon: ShieldCheck, title: "Procedência verificada", text: "Todo veículo passa por inspeção de +140 itens antes de entrar no estoque." },
   { icon: Award, title: "Garantia na compra", text: "Garantia de motor e câmbio inclusa em todos os seminovos, conforme condições do veículo." },
   { icon: Users, title: "Time especializado", text: "Consultores dedicados a te ajudar a encontrar o carro certo, sem pressão." },
-  { icon: Star, title: "Avaliação dos clientes", text: "4,8/5 em mais de 900 avaliações de clientes atendidos." },
 ];
+
+const GOOGLE_REVIEWS_URL = "https://share.google/sjBKJzlWNr3bQ9con";
 
 export default function SobrePage() {
   return (
@@ -66,6 +67,20 @@ export default function SobrePage() {
             <p className="text-sm leading-relaxed text-ink-500">{text}</p>
           </Card>
         ))}
+        <a
+          href={GOOGLE_REVIEWS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex flex-col gap-3 rounded-card border border-white/8 bg-ink-100 p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-[var(--shadow-card-hover)]"
+        >
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-accent-700">
+            <Star className="h-5 w-5" strokeWidth={1.6} />
+          </span>
+          <h3 className="text-sm font-semibold text-accent-400">Avaliação dos clientes</h3>
+          <p className="text-sm leading-relaxed text-ink-500">
+            Veja nossa nota real e as avaliações de clientes atendidos direto no Google.
+          </p>
+        </a>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
