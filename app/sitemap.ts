@@ -3,6 +3,10 @@ import { listVehiclesPublic } from "@/lib/server/db";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.auto2000.com.br";
 
+// Evita a pré-renderização estática no build (sem acesso à rede do Postgres
+// no ambiente de build da Vercel) — mesmo motivo de app/(site)/page.tsx.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     "",
