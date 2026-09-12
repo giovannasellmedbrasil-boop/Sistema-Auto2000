@@ -1,50 +1,16 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { CheckCircle2, Camera, Loader2, MessageCircle } from "lucide-react";
+import { CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormGroup, Input, Label, Select } from "@/components/ui/Field";
 import { buildWhatsAppLink } from "@/lib/utils";
 
-const PHOTO_SLOTS = ["Frente", "Traseira", "Lateral esquerda", "Lateral direita", "Interior", "Painel"];
-
-function PhotoSlot({ label, onSelect }: { label: string; onSelect: (label: string, hasFile: boolean) => void }) {
-  const [preview, setPreview] = useState<string | null>(null);
-
-  return (
-    <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-ink-200 p-4 text-center hover:border-accent-400 hover:bg-accent-50/40">
-      {preview ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={preview} alt={label} className="h-16 w-16 rounded-lg object-cover" />
-      ) : (
-        <Camera className="h-6 w-6 text-ink-600" strokeWidth={1.5} />
-      )}
-      <span className="text-xs font-medium text-ink-600">{label}</span>
-      <input
-        type="file"
-        accept="image/*"
-        className="sr-only"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) setPreview(URL.createObjectURL(file));
-          onSelect(label, !!file);
-        }}
-      />
-    </label>
-  );
-}
-
 export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: string }) {
   const [hasFinancing, setHasFinancing] = useState("nao");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [selectedPhotos, setSelectedPhotos] = useState<Record<string, boolean>>({});
   const [whatsappHref, setWhatsappHref] = useState<string | null>(null);
-  const photoCount = Object.values(selectedPhotos).filter(Boolean).length;
-
-  function handlePhotoSelect(label: string, hasFile: boolean) {
-    setSelectedPhotos((prev) => ({ ...prev, [label]: hasFile }));
-  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -76,19 +42,12 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
       if (!res.ok) throw new Error();
       const data = await res.json();
 
-      // O WhatsApp não permite anexar arquivos por link — por isso pedimos
-      // pro cliente enviar as fotos ele mesmo na conversa que abre a seguir.
       const link = buildWhatsAppLink(
         [
           "Olá! Quero vender/trocar meu carro.",
           data.message,
           `Meus dados: ${name}, ${phone}${email ? `, ${email}` : ""}.`,
-          photoCount > 0
-            ? `Vou enviar aqui ${photoCount} foto${photoCount > 1 ? "s" : ""} do veículo.`
-            : null,
-        ]
-          .filter(Boolean)
-          .join(" ")
+        ].join(" ")
       );
       setWhatsappHref(link);
       window.open(link, "_blank", "noopener,noreferrer");
@@ -105,7 +64,6 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
         <h2 className="text-lg font-semibold text-accent-400">Solicitação recebida!</h2>
         <p className="max-w-sm text-sm text-ink-500">
           Abrimos o WhatsApp com os dados do seu veículo para a nossa equipe.
-          {photoCount > 0 && " Envie as fotos por lá para agilizar a avaliação."}
         </p>
         {whatsappHref && (
           <Button href={whatsappHref} target="_blank" rel="noopener noreferrer" variant="whatsapp">
@@ -161,20 +119,6 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
             <Label hint="opcional">Valor esperado</Label>
             <Input name="expectedValue" type="number" min={0} step={500} placeholder="R$ 0,00" />
           </FormGroup>
-        </div>
-      </Card>
-
-      <Card className="flex flex-col gap-4 p-6 sm:p-8">
-        <div>
-          <h2 className="text-base font-semibold text-accent-400">Fotos do veículo</h2>
-          <p className="text-sm text-ink-600">
-            Ajuda a agilizar a avaliação. Se preferir, envie depois pelo WhatsApp.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {PHOTO_SLOTS.map((slot) => (
-            <PhotoSlot key={slot} label={slot} onSelect={handlePhotoSelect} />
-          ))}
         </div>
       </Card>
 
