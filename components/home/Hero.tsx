@@ -37,7 +37,7 @@ export function Hero({ brands }: { brands: string[] }) {
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-4 py-20 text-center sm:items-start sm:px-6 sm:py-28 sm:text-left lg:px-8">
         <h1 className="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-accent-400 sm:max-w-xl sm:text-6xl animate-fade-in-up">
-          Seu próximo carro começa aqui.
+          Novos caminhos começam com a escolha certa.
         </h1>
 
         <p className="max-w-xl text-balance text-lg text-white/70 animate-fade-in-up">
