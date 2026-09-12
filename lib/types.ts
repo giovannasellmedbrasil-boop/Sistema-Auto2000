@@ -390,8 +390,8 @@ export interface VehicleFilters {
     | "year_desc";
   // Mostra também veículos com status SOLD na vitrine pública (usado só no
   // catálogo /estoque, para o carro aparecer marcado "Vendido" em vez de
-  // simplesmente sumir) — nunca afeta destaques da home, sugestões de
-  // veículos semelhantes ou o "encontre seu carro com IA".
+  // simplesmente sumir) — nunca afeta destaques da home nem sugestões de
+  // veículos semelhantes.
   includeSold?: boolean;
 }
 

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Search, Sparkles } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Field";
 
@@ -82,16 +82,10 @@ export function HeroSearch({ brands }: { brands: string[] }) {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-2.5 sm:flex-row">
-          <Button type="submit" size="lg" className="flex-1">
-            <Search className="h-4.5 w-4.5" />
-            Buscar veículos
-          </Button>
-          <Button href="/encontre-seu-carro" variant="outline" size="lg" className="flex-1">
-            <Sparkles className="h-4.5 w-4.5 text-accent-500" />
-            Encontrar meu carro com IA
-          </Button>
-        </div>
+        <Button type="submit" size="lg" className="w-full">
+          <Search className="h-4.5 w-4.5" />
+          Buscar veículos
+        </Button>
       </form>
     </div>
   );

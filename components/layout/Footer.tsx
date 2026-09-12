@@ -11,7 +11,6 @@ const columns = [
       { href: "/estoque?bodyType=SUV", label: "SUVs" },
       { href: "/estoque?bodyType=SEDAN", label: "Sedans" },
       { href: "/estoque?bodyType=HATCH", label: "Hatch" },
-      { href: "/encontre-seu-carro", label: "Encontre com IA" },
       { href: "/venda-seu-carro", label: "Venda ou troque seu carro" },
     ],
   },

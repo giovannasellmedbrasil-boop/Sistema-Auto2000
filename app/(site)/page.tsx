@@ -2,7 +2,6 @@ import { Hero } from "@/components/home/Hero";
 import { QuickCategories } from "@/components/home/QuickCategories";
 import { FeaturedVehicles } from "@/components/home/FeaturedVehicles";
 import { TrustSection } from "@/components/home/TrustSection";
-import { AiTeaser } from "@/components/home/AiTeaser";
 import { listVehiclesPublic, listBrands } from "@/lib/server/db";
 
 // Consulta o mock store real a cada requisição — sem isso, o Next tentaria
@@ -20,7 +19,6 @@ export default async function Home() {
       <Hero brands={brands} />
       <QuickCategories />
       <FeaturedVehicles vehicles={featured} />
-      <AiTeaser />
       <TrustSection />
     </>
   );

@@ -11,7 +11,6 @@ import { buildWhatsAppLink } from "@/lib/utils";
 const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/estoque", label: "Comprar" },
-  { href: "/encontre-seu-carro", label: "Encontre seu carro" },
   { href: "/venda-seu-carro", label: "Venda seu carro" },
   { href: "/sobre", label: "Sobre nós" },
   { href: "/contato", label: "Contato" },
