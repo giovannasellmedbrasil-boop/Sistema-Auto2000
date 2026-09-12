@@ -1,5 +1,3 @@
-import Link from "next/link";
-import Image from "next/image";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
@@ -11,16 +9,7 @@ export function Footer() {
     <footer className="border-t border-white/10 bg-black text-white/60">
       <Container className="grid gap-10 py-14 lg:grid-cols-2 lg:items-center">
         <div>
-          <Link href="/" className="flex items-center" aria-label="Auto2000 — início">
-            <Image
-              src="/logo.png"
-              alt="Auto2000 Veículos"
-              width={896}
-              height={444}
-              className="h-12 w-auto rounded-md"
-            />
-          </Link>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-white">
+          <p className="text-sm leading-relaxed text-white">
             Desde 1982, uma loja de família construída com tradição, confiança e
             compromisso em sede própria.
           </p>
