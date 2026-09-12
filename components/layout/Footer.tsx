@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-black text-white/60">
-      <Container className="py-14">
+      <Container className="grid gap-10 py-14 lg:grid-cols-2 lg:items-center">
         <div>
           <Link href="/" className="flex items-center" aria-label="Auto2000 — início">
             <Image
@@ -37,6 +37,14 @@ export function Footer() {
             </span>
           </div>
         </div>
+
+        <video
+          src="/auto2000.mp4"
+          controls
+          playsInline
+          preload="metadata"
+          className="w-full rounded-card border border-white/8 shadow-[var(--shadow-card)]"
+        />
       </Container>
 
       <div className="border-t border-white/10 py-6">
