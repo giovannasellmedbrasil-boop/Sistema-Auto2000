@@ -53,6 +53,16 @@ export function Hero() {
           </h1>
 
           <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+            <div className="relative h-60 w-full shrink-0 overflow-hidden rounded-card border border-white/8 shadow-[var(--shadow-card)] animate-fade-in-up sm:w-72">
+              <Image
+                src="/loja-fachada-2.png"
+                alt="Fachada da loja Auto2000"
+                fill
+                className="object-cover"
+                sizes="(min-width: 640px) 18rem, 100vw"
+              />
+            </div>
+
             <a
               href={GOOGLE_REVIEWS_URL}
               target="_blank"
@@ -69,16 +79,6 @@ export function Hero() {
                 4,8/5 em 121 avaliações de clientes atendidos.
               </p>
             </a>
-
-            <div className="relative h-60 w-full shrink-0 overflow-hidden rounded-card border border-white/8 shadow-[var(--shadow-card)] animate-fade-in-up sm:w-72">
-              <Image
-                src="/loja-fachada-2.png"
-                alt="Fachada da loja Auto2000"
-                fill
-                className="object-cover"
-                sizes="(min-width: 640px) 18rem, 100vw"
-              />
-            </div>
           </div>
         </div>
 
