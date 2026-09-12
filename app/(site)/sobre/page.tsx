@@ -24,7 +24,7 @@ export default function SobrePage() {
       <Container className="relative flex flex-col gap-16 py-10 sm:py-14">
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-semibold tracking-tight text-accent-400 sm:text-4xl">
-          Sobre a Auto2000
+          Auto 2000 Veículos
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-white">
           Há mais de quatro décadas, construímos nossa história com base em confiança,
