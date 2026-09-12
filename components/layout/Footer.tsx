@@ -9,9 +9,11 @@ export function Footer() {
     <footer className="border-t border-white/10 bg-black text-white/60">
       <Container className="grid gap-10 py-14 lg:grid-cols-2 lg:items-center">
         <div>
-          <p className="text-sm leading-relaxed text-white">
-            Desde 1982, uma loja de família construída com tradição, confiança e
-            compromisso em sede própria.
+          <h3 className="text-base font-semibold text-accent-400">Tradição desde 1982</h3>
+          <p className="mt-2 max-w-md text-sm leading-relaxed text-white">
+            Uma empresa familiar com mais de 40 anos de história, construída com confiança,
+            transparência e compromisso com cada cliente. Em sede própria, seguimos unindo
+            tradição e credibilidade para fazer bons negócios.
           </p>
           <div className="mt-5 flex flex-col gap-2 text-sm text-white">
             <div className="flex items-start gap-3">
