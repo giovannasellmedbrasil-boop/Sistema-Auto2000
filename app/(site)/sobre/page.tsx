@@ -14,8 +14,13 @@ export const metadata: Metadata = {
 
 export default function SobrePage() {
   return (
-    <div className="relative overflow-hidden">
-      <LogoWatermark />
+    <div className="relative">
+      {/* A marca d'água fica numa faixa com altura fixa (igual à medida do
+          Hero da home) em vez de esticar pela altura da página inteira —
+          senão o logo sairia gigante/desproporcional em páginas mais longas. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 hidden overflow-hidden sm:block sm:h-[790px] lg:h-[715px] xl:h-[690px]">
+        <LogoWatermark />
+      </div>
       <Container className="relative flex flex-col gap-16 py-10 sm:py-14">
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-semibold tracking-tight text-accent-400 sm:text-4xl">
