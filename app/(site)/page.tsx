@@ -1,5 +1,4 @@
 import { Hero } from "@/components/home/Hero";
-import { QuickCategories } from "@/components/home/QuickCategories";
 import { FeaturedVehicles } from "@/components/home/FeaturedVehicles";
 import { TrustSection } from "@/components/home/TrustSection";
 import { listVehiclesPublic } from "@/lib/server/db";
@@ -17,7 +16,6 @@ export default async function Home() {
   return (
     <>
       <Hero />
-      <QuickCategories />
       <FeaturedVehicles vehicles={featured} />
       <TrustSection />
     </>

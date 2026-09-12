@@ -88,8 +88,19 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* "Blur amarelo" ambiente — pintado direto como o background do body e
+   repetido verticalmente (em vez de "fixed", que alguns navegadores/engines
+   deixam de pintar corretamente numa página mais alta que a viewport), para
+   aparecer de forma contínua ao longo de toda a página, não só no topo. */
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 900px 600px at 10% 0%, rgba(255, 176, 0, 0.20), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 95% 30%, rgba(255, 176, 0, 0.14), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 5% 65%, rgba(255, 176, 0, 0.13), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 100% 100%, rgba(255, 176, 0, 0.16), transparent 60%);
+  background-repeat: repeat-y;
+  background-size: 100% 1400px;
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
@@ -112,19 +123,4 @@ body {
 ::selection {
   background: var(--color-accent-500);
   color: #0a0a0a;
-}
-
-/* Fixed full-page glow layer — the "blur amarelo" behind every screen.
-   Sits behind all content (z-index handled by stacking order + isolate
-   on the layout wrapper), stays put while the page scrolls. */
-.page-glow {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    radial-gradient(ellipse 900px 600px at 12% -10%, rgba(255, 176, 0, 0.20), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 100% 20%, rgba(255, 176, 0, 0.14), transparent 60%),
-    radial-gradient(ellipse 800px 600px at 8% 70%, rgba(255, 176, 0, 0.12), transparent 60%),
-    radial-gradient(ellipse 900px 700px at 100% 100%, rgba(255, 176, 0, 0.16), transparent 60%);
 }
