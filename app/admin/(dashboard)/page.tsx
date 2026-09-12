@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getDashboardMetrics } from "@/lib/server/db";
 import { getDashboardData, parseDashboardFilters, filtersToQueryString } from "@/lib/server/dashboard";
-import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Clock, AlertTriangle } from "lucide-react";
 import { FilterBar } from "@/components/admin/dashboard/FilterBar";
@@ -11,6 +10,7 @@ import { GoalProgress } from "@/components/admin/dashboard/GoalProgress";
 import { EditGoalsModal } from "@/components/admin/dashboard/EditGoalsModal";
 import { TimeSeriesChart } from "@/components/admin/dashboard/TimeSeriesChart";
 import { Button } from "@/components/ui/Button";
+import { Money, MoneyPrivacyProvider, MoneyPrivacyToggle } from "@/components/admin/dashboard/MoneyPrivacy";
 
 export const metadata: Metadata = { title: "Visão Executiva", robots: { index: false } };
 
@@ -33,6 +33,7 @@ export default async function AdminDashboardPage({
   ];
 
   return (
+    <MoneyPrivacyProvider>
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -41,9 +42,12 @@ export default async function AdminDashboardPage({
             Canais, campanhas e vendas · {data.period.label}
           </p>
         </div>
-        <Button variant="outline" size="sm" href={`/admin/relatorio?${filtersQuery}`}>
-          Exportar relatório
-        </Button>
+        <div className="flex items-center gap-2">
+          <MoneyPrivacyToggle />
+          <Button variant="outline" size="sm" href={`/admin/relatorio?${filtersQuery}`}>
+            Exportar relatório
+          </Button>
+        </div>
       </div>
 
       <FilterBar options={data.filterOptions} />
@@ -60,6 +64,12 @@ export default async function AdminDashboardPage({
           filtersQuery={filtersQuery}
         />
         <StatCard
+          label="Visitantes do site"
+          value={String(data.siteVisitors)}
+          icon="globe"
+          filtersQuery={filtersQuery}
+        />
+        <StatCard
           label="Veículos vendidos"
           value={String(data.kpis.sales.value)}
           icon="trending-up"
@@ -70,7 +80,7 @@ export default async function AdminDashboardPage({
         />
         <StatCard
           label="Faturamento"
-          value={formatCurrency(data.kpis.revenue.value)}
+          value={<Money value={data.kpis.revenue.value} />}
           icon="dollar-sign"
           deltaPct={data.kpis.revenue.deltaPct}
           direction={data.kpis.revenue.direction}
@@ -79,7 +89,7 @@ export default async function AdminDashboardPage({
         />
         <StatCard
           label="Ticket médio"
-          value={data.kpis.avgTicket != null ? formatCurrency(data.kpis.avgTicket) : "—"}
+          value={<Money value={data.kpis.avgTicket} />}
           icon="receipt"
           filtersQuery={filtersQuery}
         />
@@ -135,5 +145,6 @@ export default async function AdminDashboardPage({
       </div>
 
     </div>
+    </MoneyPrivacyProvider>
   );
 }

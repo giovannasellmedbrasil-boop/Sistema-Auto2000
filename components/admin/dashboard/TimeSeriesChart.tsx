@@ -3,14 +3,18 @@
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import type { SeriesPoint } from "@/lib/server/dashboard";
 import { formatCurrency } from "@/lib/utils";
+import { useMoneyPrivacy } from "@/components/admin/dashboard/MoneyPrivacy";
 
 type ValueKind = "count" | "currency";
 
-function formatValue(kind: ValueKind, value: number): string {
-  return kind === "currency" ? formatCurrency(value) : `${value} venda(s)`;
+function formatValue(kind: ValueKind, value: number, hideMoney: boolean): string {
+  if (kind === "currency") return hideMoney ? "R$ ••••••" : formatCurrency(value);
+  return `${value} venda(s)`;
 }
 
 export function TimeSeriesChart({ data, kind }: { data: SeriesPoint[]; kind: ValueKind }) {
+  const { hidden } = useMoneyPrivacy();
+
   if (data.length === 0) {
     return <div className="flex h-64 items-center justify-center text-sm text-ink-500">Sem dados neste período.</div>;
   }
@@ -25,7 +29,7 @@ export function TimeSeriesChart({ data, kind }: { data: SeriesPoint[]; kind: Val
           <Tooltip
             contentStyle={{ background: "#141414", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, fontSize: 12 }}
             labelStyle={{ color: "rgba(255,255,255,0.6)" }}
-            formatter={(value: number, name: string) => [formatValue(kind, value), name === "current" ? "Período atual" : "Período anterior"]}
+            formatter={(value: number, name: string) => [formatValue(kind, value, hidden), name === "current" ? "Período atual" : "Período anterior"]}
           />
           <Line type="monotone" dataKey="previous" stroke="rgba(255,255,255,0.25)" strokeWidth={2} dot={false} strokeDasharray="4 4" />
           <Line type="monotone" dataKey="current" stroke="#FFB000" strokeWidth={2.5} dot={false} />

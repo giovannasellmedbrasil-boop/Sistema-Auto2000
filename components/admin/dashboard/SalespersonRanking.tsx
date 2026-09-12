@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
-import { formatCurrency } from "@/lib/utils";
 import type { SalespersonRow } from "@/lib/server/dashboard";
+import { Money } from "@/components/admin/dashboard/MoneyPrivacy";
 
 type SortKey = "sales" | "revenue" | "conversionPct" | "avgResponseMinutes" | "proposals";
 
@@ -83,8 +83,8 @@ export function SalespersonRanking({ rows }: { rows: SalespersonRow[] }) {
                 <td className="px-4 py-3 text-ink-700">{row.testDrives}</td>
                 <td className="px-4 py-3 text-ink-700">{row.proposals}</td>
                 <td className="px-4 py-3 font-medium text-ink-900">{row.sales}</td>
-                <td className="px-4 py-3 text-ink-700">{formatCurrency(row.revenue)}</td>
-                <td className="px-4 py-3 text-ink-700">{row.avgTicket != null ? formatCurrency(row.avgTicket) : "—"}</td>
+                <td className="px-4 py-3 text-ink-700"><Money value={row.revenue} /></td>
+                <td className="px-4 py-3 text-ink-700"><Money value={row.avgTicket} /></td>
                 <td className="px-4 py-3 text-ink-700">{row.conversionPct != null ? `${row.conversionPct}%` : "—"}</td>
                 <td className="px-4 py-3 text-ink-700">
                   {row.goalPct != null ? `${row.goalPct}%` : "—"} <span className="text-xs text-ink-500">de {row.goalUnits}</span>

@@ -1,5 +1,5 @@
-import { formatCurrency } from "@/lib/utils";
 import type { DashboardData } from "@/lib/server/dashboard";
+import { Money } from "@/components/admin/dashboard/MoneyPrivacy";
 
 function Bar({ pct }: { pct: number | null }) {
   const clamped = Math.min(Math.max(pct ?? 0, 0), 100);
@@ -34,7 +34,7 @@ export function GoalProgress({ goals }: { goals: DashboardData["goals"] }) {
         <div className="flex items-baseline justify-between">
           <span className="text-sm font-medium text-ink-800">Meta de faturamento do mês</span>
           <span className="text-sm text-ink-600">
-            {formatCurrency(goals.achievedRevenue)} / {formatCurrency(goals.revenueTarget)}
+            <Money value={goals.achievedRevenue} /> / <Money value={goals.revenueTarget} />
           </span>
         </div>
         <Bar pct={goals.revenuePct} />

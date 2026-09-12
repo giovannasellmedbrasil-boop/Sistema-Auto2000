@@ -10,8 +10,10 @@ import {
   TrendingUp,
   DollarSign,
   Receipt,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import { RecordsDrawer, type DrillKind } from "@/components/admin/dashboard/RecordsDrawer";
@@ -26,6 +28,7 @@ const ICONS: Record<string, LucideIcon> = {
   "trending-up": TrendingUp,
   "dollar-sign": DollarSign,
   receipt: Receipt,
+  globe: Globe,
 };
 
 export function StatCard({
@@ -39,7 +42,7 @@ export function StatCard({
   filtersQuery,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   icon: keyof typeof ICONS;
   sublabel?: string;
   deltaPct?: number | null;

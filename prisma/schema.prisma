@@ -522,3 +522,21 @@ model MockStore {
 
   @@map("mock_store")
 }
+
+// Contagem real de visitantes do site público — um cookie anônimo
+// (a2000_vid, sem dado pessoal) identifica o navegador, e cada
+// (visitorId, date) só é gravado uma vez por dia (upsert), então a
+// contagem de linhas num período já é o número de pessoas distintas que
+// visitaram o site, sem inflar por múltiplas páginas vistas no mesmo dia.
+// Tabela própria (não a MockStore) para o incremento ser atômico no
+// Postgres em vez de um read-modify-write do blob JSON, que sob volume
+// de tráfego real perderia contagens por condição de corrida.
+model SiteVisit {
+  id        String   @id @default(cuid())
+  visitorId String
+  date      String
+  createdAt DateTime @default(now())
+
+  @@unique([visitorId, date])
+  @@map("site_visits")
+}

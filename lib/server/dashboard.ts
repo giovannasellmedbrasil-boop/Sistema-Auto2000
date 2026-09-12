@@ -18,6 +18,7 @@ import {
   listVehiclesAdmin,
   getDashboardGoals,
 } from "@/lib/server/db";
+import { countUniqueVisitors } from "@/lib/server/site-visits";
 
 // ---------------------------------------------------------------------------
 // Camada de agregação do Dashboard Executivo. Tudo aqui é calculado em cima
@@ -326,6 +327,7 @@ export interface FilterOptions {
 
 export interface DashboardData {
   period: ResolvedPeriod;
+  siteVisitors: number;
   kpis: {
     leads: KpiValue;
     contacted: KpiValue;
@@ -750,6 +752,8 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
     avgTicket,
   };
 
+  const siteVisitors = await countUniqueVisitors(new Date(period.from), new Date(period.to));
+
   const insights = buildInsights({
     kpis,
     originBreakdown,
@@ -762,6 +766,7 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
 
   return {
     period,
+    siteVisitors,
     kpis,
     funnel,
     bottleneck,
