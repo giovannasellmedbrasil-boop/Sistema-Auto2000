@@ -4,6 +4,7 @@ import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { LogoWatermark } from "@/components/ui/LogoWatermark";
 import { buildWhatsAppLink } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
 
 export default function SobrePage() {
   return (
-    <Container className="flex flex-col gap-16 py-10 sm:py-14">
+    <div className="relative overflow-hidden">
+      <LogoWatermark />
+      <Container className="relative flex flex-col gap-16 py-10 sm:py-14">
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-semibold tracking-tight text-accent-400 sm:text-4xl">
           Sobre a Auto2000
@@ -88,6 +91,7 @@ export default function SobrePage() {
           />
         </Card>
       </div>
-    </Container>
+      </Container>
+    </div>
   );
 }

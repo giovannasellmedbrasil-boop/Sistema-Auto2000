@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Star, Wallet } from "lucide-react";
+import { LogoWatermark } from "@/components/ui/LogoWatermark";
 
 const PRICE_RANGES = [
   { label: "Até R$ 25 mil", href: "/?priceMax=25000" },
@@ -23,28 +24,7 @@ export function Hero() {
         }}
       />
 
-      {/* Marca d'água do logo — apenas textura de fundo, nunca sobre o conteúdo */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute right-[-6%] top-[58%] hidden h-[70%] w-[42%] -translate-y-1/2 sm:right-[-4%] sm:block sm:h-[85%] sm:w-[40%] lg:right-[-2%] lg:h-[95%] lg:w-[44%]"
-        style={{
-          opacity: 0.08,
-          filter: "blur(3px)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 62% 72% at 62% 50%, black 25%, transparent 85%)",
-          maskImage:
-            "radial-gradient(ellipse 62% 72% at 62% 50%, black 25%, transparent 85%)",
-        }}
-      >
-        <Image
-          src="/logo.png"
-          alt=""
-          fill
-          priority={false}
-          className="object-contain"
-          sizes="45vw"
-        />
-      </div>
+      <LogoWatermark />
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-4 pb-16 pt-20 text-center sm:items-start sm:px-6 sm:pb-20 sm:pt-28 sm:text-left lg:px-8">
         <div className="flex w-full flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-between">
