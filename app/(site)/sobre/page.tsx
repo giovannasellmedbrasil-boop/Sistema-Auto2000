@@ -74,12 +74,14 @@ export default function SobrePage() {
           rel="noopener noreferrer"
           className="group flex flex-col gap-3 rounded-card border border-white/8 bg-ink-100 p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-[var(--shadow-card-hover)]"
         >
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-accent-700">
-            <Star className="h-5 w-5" strokeWidth={1.6} />
-          </span>
-          <h3 className="text-sm font-semibold text-accent-400">Avaliação dos clientes</h3>
+          <div className="flex items-center gap-1 text-accent-400">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className="h-4.5 w-4.5" fill="currentColor" strokeWidth={0} />
+            ))}
+          </div>
+          <h3 className="text-sm font-semibold text-accent-400">Avaliações dos nossos clientes no Google</h3>
           <p className="text-sm leading-relaxed text-ink-500">
-            4,8/5 em 120 avaliações de clientes atendidos, direto no Google.
+            4,8/5 em 121 avaliações de clientes atendidos.
           </p>
         </a>
       </div>
