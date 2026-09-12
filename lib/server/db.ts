@@ -307,8 +307,16 @@ export async function deleteVehicle(id: string): Promise<boolean> {
 // Reimporta os anúncios ativos da loja no Mercado Livre (ver
 // seed-mercadolivre.ts) para o estoque. Faz upsert por mercadoLivreId — um
 // anúncio já importado tem seus dados atualizados (inclui reprecificação)
-// em vez de duplicar; um anúncio novo é inserido.
-export async function importMercadoLivreVehicles(): Promise<{ imported: number; updated: number }> {
+// em vez de duplicar; um anúncio novo é inserido. Também remove veículos
+// importados do ML que não estão mais entre os anúncios ativos (encerrados
+// no Mercado Livre) — exceto os já marcados como SOLD por aqui, que ficam
+// preservados como histórico de venda mesmo que o anúncio original tenha
+// saído do ar.
+export async function importMercadoLivreVehicles(): Promise<{
+  imported: number;
+  updated: number;
+  removed: number;
+}> {
   const db = await readDb();
   let imported = 0;
   let updated = 0;
@@ -333,8 +341,15 @@ export async function importMercadoLivreVehicles(): Promise<{ imported: number; 
     }
   }
 
+  const activeIds = new Set(mercadoLivreSeedVehicles.map((v) => v.mercadoLivreId));
+  const before = db.vehicles.length;
+  db.vehicles = db.vehicles.filter(
+    (v) => v.source !== "MERCADO_LIVRE" || v.status === "SOLD" || activeIds.has(v.mercadoLivreId)
+  );
+  const removed = before - db.vehicles.length;
+
   await writeDb(db);
-  return { imported, updated };
+  return { imported, updated, removed };
 }
 
 function uniqueSlug(existing: Vehicle[], slug: string): string {
