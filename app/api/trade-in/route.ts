@@ -51,5 +51,5 @@ export async function POST(request: Request) {
     vehicleId: null,
   });
 
-  return NextResponse.json({ lead }, { status: 201 });
+  return NextResponse.json({ lead, message }, { status: 201 });
 }

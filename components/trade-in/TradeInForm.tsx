@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { CheckCircle2, Camera, Loader2 } from "lucide-react";
+import { CheckCircle2, Camera, Loader2, MessageCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormGroup, Input, Label, Select } from "@/components/ui/Field";
+import { buildWhatsAppLink } from "@/lib/utils";
 
 const PHOTO_SLOTS = ["Frente", "Traseira", "Lateral esquerda", "Lateral direita", "Interior", "Painel"];
 
-function PhotoSlot({ label }: { label: string }) {
+function PhotoSlot({ label, onSelect }: { label: string; onSelect: (label: string, hasFile: boolean) => void }) {
   const [preview, setPreview] = useState<string | null>(null);
 
   return (
@@ -27,6 +28,7 @@ function PhotoSlot({ label }: { label: string }) {
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) setPreview(URL.createObjectURL(file));
+          onSelect(label, !!file);
         }}
       />
     </label>
@@ -36,19 +38,29 @@ function PhotoSlot({ label }: { label: string }) {
 export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: string }) {
   const [hasFinancing, setHasFinancing] = useState("nao");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [selectedPhotos, setSelectedPhotos] = useState<Record<string, boolean>>({});
+  const [whatsappHref, setWhatsappHref] = useState<string | null>(null);
+  const photoCount = Object.values(selectedPhotos).filter(Boolean).length;
+
+  function handlePhotoSelect(label: string, hasFile: boolean) {
+    setSelectedPhotos((prev) => ({ ...prev, [label]: hasFile }));
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("submitting");
     const form = new FormData(e.currentTarget);
+    const name = String(form.get("name") ?? "");
+    const phone = String(form.get("phone") ?? "");
+    const email = String(form.get("email") ?? "");
     try {
       const res = await fetch("/api/trade-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.get("name"),
-          phone: form.get("phone"),
-          email: form.get("email") || undefined,
+          name,
+          phone,
+          email: email || undefined,
           plate: form.get("plate"),
           brand: form.get("brand"),
           model: form.get("model"),
@@ -62,6 +74,24 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
         }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      // O WhatsApp não permite anexar arquivos por link — por isso pedimos
+      // pro cliente enviar as fotos ele mesmo na conversa que abre a seguir.
+      const link = buildWhatsAppLink(
+        [
+          "Olá! Quero vender/trocar meu carro.",
+          data.message,
+          `Meus dados: ${name}, ${phone}${email ? `, ${email}` : ""}.`,
+          photoCount > 0
+            ? `Vou enviar aqui ${photoCount} foto${photoCount > 1 ? "s" : ""} do veículo.`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+      setWhatsappHref(link);
+      window.open(link, "_blank", "noopener,noreferrer");
       setStatus("success");
     } catch {
       setStatus("error");
@@ -74,8 +104,15 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
         <CheckCircle2 className="h-10 w-10 text-success-500" />
         <h2 className="text-lg font-semibold text-accent-400">Solicitação recebida!</h2>
         <p className="max-w-sm text-sm text-ink-500">
-          Nossa equipe vai analisar as informações e retornar com uma avaliação inicial em breve.
+          Abrimos o WhatsApp com os dados do seu veículo para a nossa equipe.
+          {photoCount > 0 && " Envie as fotos por lá para agilizar a avaliação."}
         </p>
+        {whatsappHref && (
+          <Button href={whatsappHref} target="_blank" rel="noopener noreferrer" variant="whatsapp">
+            <MessageCircle className="h-4 w-4" />
+            Abrir WhatsApp
+          </Button>
+        )}
       </Card>
     );
   }
@@ -136,7 +173,7 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
         </div>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {PHOTO_SLOTS.map((slot) => (
-            <PhotoSlot key={slot} label={slot} />
+            <PhotoSlot key={slot} label={slot} onSelect={handlePhotoSelect} />
           ))}
         </div>
       </Card>
