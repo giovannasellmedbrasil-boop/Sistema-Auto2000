@@ -3,30 +3,10 @@ import Image from "next/image";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
-const columns = [
-  {
-    title: "Comprar",
-    links: [
-      { href: "/", label: "Todos os veículos" },
-      { href: "/?bodyType=SUV", label: "SUVs" },
-      { href: "/?bodyType=SEDAN", label: "Sedans" },
-      { href: "/?bodyType=HATCH", label: "Hatch" },
-      { href: "/venda-seu-carro", label: "Venda ou troque seu carro" },
-    ],
-  },
-  {
-    title: "Institucional",
-    links: [
-      { href: "/sobre", label: "Sobre nós" },
-      { href: "/contato", label: "Contato" },
-    ],
-  },
-];
-
 export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-black text-white/60">
-      <Container className="grid gap-10 py-14 lg:grid-cols-[1.4fr_1fr_1fr]">
+      <Container className="py-14">
         <div>
           <Link href="/" className="flex items-center" aria-label="Auto2000 — início">
             <Image
@@ -37,7 +17,7 @@ export function Footer() {
               className="h-12 w-auto rounded-md"
             />
           </Link>
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/50">
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-white/50">
             Desde 1982, uma loja de família construída com tradição, confiança e
             compromisso em sede própria.
           </p>
@@ -57,21 +37,6 @@ export function Footer() {
             </span>
           </div>
         </div>
-
-        {columns.map((col) => (
-          <div key={col.title}>
-            <h4 className="text-sm font-semibold text-accent-400">{col.title}</h4>
-            <ul className="mt-4 flex flex-col gap-2.5">
-              {col.links.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-white/55 hover:text-accent-400">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
       </Container>
 
       <div className="border-t border-white/10 py-6">
