@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Auto2000 — Seu próximo carro começa aqui",
+    default: "Auto2000 — Novos caminhos começam com a escolha certa.",
     template: "%s | Auto2000",
   },
   description:
     "Encontre, simule e negocie seu veículo seminovo de forma simples, rápida e segura na Auto2000.",
   openGraph: {
-    title: "Auto2000 — Seu próximo carro começa aqui",
+    title: "Auto2000 — Novos caminhos começam com a escolha certa.",
     description:
       "Encontre, simule e negocie seu veículo seminovo de forma simples, rápida e segura.",
     type: "website",
