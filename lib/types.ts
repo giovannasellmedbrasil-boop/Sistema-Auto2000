@@ -855,6 +855,22 @@ export interface SalesCustomer {
 export type SalesCustomerInput = Omit<SalesCustomer, "id" | "createdAt" | "updatedAt">;
 
 // ---------------------------------------------------------------------------
+// Contratos (aba "Contratos") — gera o documento completo a partir dos 3
+// modelos reais da loja (ver lib/contracts/config.ts para os campos de cada
+// tipo e components/contratos/templates para o texto fixo de cada um).
+// ---------------------------------------------------------------------------
+
+export interface Contract {
+  id: string;
+  type: "CONSIGNACAO" | "VENDA_TROCA" | "RECIBO_COMPRA";
+  fields: Record<string, string>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ContractInput = Pick<Contract, "type" | "fields">;
+
+// ---------------------------------------------------------------------------
 // Precificação — Tabela FIPE (integração real, ver lib/server/fipe.ts) e
 // preço praticado no mercado.
 //

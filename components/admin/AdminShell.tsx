@@ -19,6 +19,7 @@ import {
   X,
   Receipt,
   Users,
+  FileSignature,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ const NAV: { href: string; label: string; icon: typeof LayoutDashboard; roles: U
   { href: "/admin/documentacao/nova", label: "Nova Venda", icon: ClipboardCheck, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/documentacao", label: "Vendas", icon: ListChecks, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/clientes", label: "Clientes", icon: Users, roles: ["SALES", "MANAGER", "ADMIN"] },
+  { href: "/admin/contratos", label: "Contratos", icon: FileSignature, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/veiculos", label: "Estoque", icon: Car, roles: ["MANAGER", "ADMIN"] },
   { href: "/admin/precificacao", label: "Precificação", icon: Tag, roles: ["MANAGER", "ADMIN"] },
   { href: "/admin/vendedores", label: "Vendedores", icon: Contact, roles: ["MANAGER", "ADMIN"] },

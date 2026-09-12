@@ -29,6 +29,8 @@ import type {
   SalespersonInput,
   SalesCustomer,
   SalesCustomerInput,
+  Contract,
+  ContractInput,
   Vehicle,
   VehicleFilters,
   VehicleInput,
@@ -89,6 +91,7 @@ interface DbShape {
   companyFiscalProfile: CompanyFiscalProfile | null;
   invoices: Invoice[];
   salesCustomers: SalesCustomer[];
+  contracts: Contract[];
 }
 
 const MOCK_STORE_ID = "singleton";
@@ -115,6 +118,7 @@ function emptyDb(): DbShape {
     companyFiscalProfile: null,
     invoices: [],
     salesCustomers: [],
+    contracts: [],
   };
 }
 
@@ -142,6 +146,7 @@ function normalize(parsed: Partial<DbShape>): DbShape {
     companyFiscalProfile: parsed.companyFiscalProfile ?? null,
     invoices: parsed.invoices ?? [],
     salesCustomers: parsed.salesCustomers ?? [],
+    contracts: parsed.contracts ?? [],
   };
 }
 
@@ -1315,4 +1320,40 @@ export async function deleteSalesCustomer(id: string): Promise<boolean> {
   db.salesCustomers = db.salesCustomers.filter((c) => c.id !== id);
   await writeDb(db);
   return db.salesCustomers.length < before;
+}
+
+// --- Contratos --------------------------------------------------------------
+
+export async function listContracts(): Promise<Contract[]> {
+  return (await readDb()).contracts;
+}
+
+export async function getContractById(id: string): Promise<Contract | undefined> {
+  return (await readDb()).contracts.find((c) => c.id === id);
+}
+
+export async function createContract(input: ContractInput): Promise<Contract> {
+  const db = await readDb();
+  const now = new Date().toISOString();
+  const contract: Contract = { ...input, id: genId("contract"), createdAt: now, updatedAt: now };
+  db.contracts.unshift(contract);
+  await writeDb(db);
+  return contract;
+}
+
+export async function updateContract(id: string, input: ContractInput): Promise<Contract | undefined> {
+  const db = await readDb();
+  const idx = db.contracts.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  db.contracts[idx] = { ...db.contracts[idx], ...input, updatedAt: new Date().toISOString() };
+  await writeDb(db);
+  return db.contracts[idx];
+}
+
+export async function deleteContract(id: string): Promise<boolean> {
+  const db = await readDb();
+  const before = db.contracts.length;
+  db.contracts = db.contracts.filter((c) => c.id !== id);
+  await writeDb(db);
+  return db.contracts.length < before;
 }
