@@ -25,7 +25,7 @@ export default async function ClienteFichaPage({ params }: { params: Promise<{ i
   );
 
   if (session.role === "SALES" && !analyses.some((a) => a.sellerId === session.id)) {
-    redirect("/admin/clientes");
+    redirect("/admin/credito/clientes");
   }
 
   const latest = analyses[0];
@@ -86,7 +86,7 @@ export default async function ClienteFichaPage({ params }: { params: Promise<{ i
         {Object.values(COMMERCIAL_STATUS_LABELS).join(" → ")}.
       </p>
 
-      <Link href="/admin/clientes" className="text-sm text-accent-400 hover:underline">
+      <Link href="/admin/credito/clientes" className="text-sm text-accent-400 hover:underline">
         ← Voltar para clientes
       </Link>
     </div>

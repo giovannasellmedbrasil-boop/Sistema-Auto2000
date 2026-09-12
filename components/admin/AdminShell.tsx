@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Receipt,
+  Users,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://auto2000.com.br";
 const NAV: { href: string; label: string; icon: typeof LayoutDashboard; roles: UserRole[] }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/documentacao/nova", label: "Nova Venda", icon: ClipboardCheck, roles: ["SALES", "MANAGER", "ADMIN"] },
+  { href: "/admin/clientes", label: "Clientes", icon: Users, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/veiculos", label: "Estoque", icon: Car, roles: ["MANAGER", "ADMIN"] },
   { href: "/admin/precificacao", label: "Precificação", icon: Tag, roles: ["MANAGER", "ADMIN"] },
   { href: "/admin/vendedores", label: "Vendedores", icon: Contact, roles: ["MANAGER", "ADMIN"] },

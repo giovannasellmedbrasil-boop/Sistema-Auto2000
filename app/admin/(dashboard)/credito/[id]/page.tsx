@@ -173,7 +173,7 @@ export default async function CreditAnalysisPage({ params }: { params: Promise<{
 
       <p className="text-xs text-ink-600">
         Status comercial atual:{" "}
-        <Link href={`/admin/clientes/${customer.id}`} className="text-accent-400 hover:underline">
+        <Link href={`/admin/credito/clientes/${customer.id}`} className="text-accent-400 hover:underline">
           {COMMERCIAL_STATUS_LABELS[analysis.commercialStatus]} — ver ficha completa do cliente
         </Link>
       </p>

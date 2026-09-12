@@ -27,6 +27,8 @@ import type {
   Sale,
   Salesperson,
   SalespersonInput,
+  SalesCustomer,
+  SalesCustomerInput,
   Vehicle,
   VehicleFilters,
   VehicleInput,
@@ -86,6 +88,7 @@ interface DbShape {
   marketPriceSamples: MarketPriceSample[];
   companyFiscalProfile: CompanyFiscalProfile | null;
   invoices: Invoice[];
+  salesCustomers: SalesCustomer[];
 }
 
 const MOCK_STORE_ID = "singleton";
@@ -111,6 +114,7 @@ function emptyDb(): DbShape {
     marketPriceSamples: [],
     companyFiscalProfile: null,
     invoices: [],
+    salesCustomers: [],
   };
 }
 
@@ -137,6 +141,7 @@ function normalize(parsed: Partial<DbShape>): DbShape {
     marketPriceSamples: parsed.marketPriceSamples ?? [],
     companyFiscalProfile: parsed.companyFiscalProfile ?? null,
     invoices: parsed.invoices ?? [],
+    salesCustomers: parsed.salesCustomers ?? [],
   };
 }
 
@@ -1244,4 +1249,43 @@ export async function cancelInvoice(id: string): Promise<Invoice | undefined> {
   db.invoices[idx] = { ...db.invoices[idx], status: "CANCELLED", cancelledAt: new Date().toISOString() };
   await writeDb(db);
   return db.invoices[idx];
+}
+
+// --- Cadastro de clientes (aba "Clientes") ---------------------------------
+
+export async function listSalesCustomers(): Promise<SalesCustomer[]> {
+  return (await readDb()).salesCustomers;
+}
+
+export async function getSalesCustomerById(id: string): Promise<SalesCustomer | undefined> {
+  return (await readDb()).salesCustomers.find((c) => c.id === id);
+}
+
+export async function createSalesCustomer(input: SalesCustomerInput): Promise<SalesCustomer> {
+  const db = await readDb();
+  const now = new Date().toISOString();
+  const customer: SalesCustomer = { ...input, id: genId("cust_sale"), createdAt: now, updatedAt: now };
+  db.salesCustomers.unshift(customer);
+  await writeDb(db);
+  return customer;
+}
+
+export async function updateSalesCustomer(
+  id: string,
+  input: SalesCustomerInput
+): Promise<SalesCustomer | undefined> {
+  const db = await readDb();
+  const idx = db.salesCustomers.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  db.salesCustomers[idx] = { ...db.salesCustomers[idx], ...input, updatedAt: new Date().toISOString() };
+  await writeDb(db);
+  return db.salesCustomers[idx];
+}
+
+export async function deleteSalesCustomer(id: string): Promise<boolean> {
+  const db = await readDb();
+  const before = db.salesCustomers.length;
+  db.salesCustomers = db.salesCustomers.filter((c) => c.id !== id);
+  await writeDb(db);
+  return db.salesCustomers.length < before;
 }

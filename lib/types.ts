@@ -834,6 +834,27 @@ export interface NegotiationWithChecklist {
 }
 
 // ---------------------------------------------------------------------------
+// Cadastro de clientes (aba "Clientes") — registro de dados do cliente e da
+// CNH, independente de uma venda/negociação específica. Diferente do
+// CreditCustomer (usado só pelo módulo de análise de crédito).
+// ---------------------------------------------------------------------------
+
+export interface SalesCustomer {
+  id: string;
+  name: string;
+  document: string; // CPF ou CNPJ (dígitos)
+  phone: string;
+  email?: string | null;
+  address: string;
+  cep: string;
+  cnhNumber: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SalesCustomerInput = Omit<SalesCustomer, "id" | "createdAt" | "updatedAt">;
+
+// ---------------------------------------------------------------------------
 // Precificação — Tabela FIPE (integração real, ver lib/server/fipe.ts) e
 // preço praticado no mercado.
 //
