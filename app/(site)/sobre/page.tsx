@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Clock, Mail, MapPin, Phone, ShieldCheck, Star, Award, Users } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -10,15 +10,6 @@ export const metadata: Metadata = {
   title: "Sobre nós",
   description: "Conheça a história, os diferenciais e as garantias da Auto2000.",
 };
-
-const DIFERENCIAIS = [
-  { icon: ShieldCheck, title: "Procedência verificada", text: "Todo veículo passa por inspeção de +140 itens antes de entrar no estoque." },
-  { icon: Award, title: "Garantia na compra", text: "Garantia de motor e câmbio inclusa em todos os seminovos, conforme condições do veículo." },
-  { icon: Users, title: "Time especializado", text: "Consultores dedicados a te ajudar a encontrar o carro certo, sem pressão." },
-];
-
-const GOOGLE_REVIEWS_URL =
-  "https://www.google.com/search?sca_esv=97ecd86c81018411&cs=0&output=search&kgmid=/g/11c54g7zmk&q=Auto+2000+Ve%C3%ADculos&shem=dlvs1,epsd1,ltae,rimspwouoe&shndl=30&source=sh/x/loc/uni/m1/1&kgs=2b5ad3114cfcec60&utm_source=dlvs1,epsd1,ltae,rimspwouoe,sh/x/loc/uni/m1/1#lrd=0x94ce5d672c2ed5a1:0x1b750281f91d1451,1,,,,";
 
 export default function SobrePage() {
   return (
@@ -56,34 +47,6 @@ export default function SobrePage() {
         <p className="font-medium text-accent-400">
           Desde 1982, tradição de família, confiança construída ao longo de gerações.
         </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {DIFERENCIAIS.map(({ icon: Icon, title, text }) => (
-          <Card key={title} className="flex flex-col gap-3 p-6">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-accent-700">
-              <Icon className="h-5 w-5" strokeWidth={1.6} />
-            </span>
-            <h3 className="text-sm font-semibold text-accent-400">{title}</h3>
-            <p className="text-sm leading-relaxed text-ink-500">{text}</p>
-          </Card>
-        ))}
-        <a
-          href={GOOGLE_REVIEWS_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group flex flex-col gap-3 rounded-card border border-white/8 bg-ink-100 p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-[var(--shadow-card-hover)]"
-        >
-          <div className="flex items-center gap-1 text-accent-400">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className="h-4.5 w-4.5" fill="currentColor" strokeWidth={0} />
-            ))}
-          </div>
-          <h3 className="text-sm font-semibold text-accent-400">Avaliações dos nossos clientes no Google</h3>
-          <p className="text-sm leading-relaxed text-ink-500">
-            4,8/5 em 121 avaliações de clientes atendidos.
-          </p>
-        </a>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
