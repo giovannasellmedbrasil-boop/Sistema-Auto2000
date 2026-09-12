@@ -6,8 +6,6 @@ import { Card } from "@/components/ui/Card";
 import { Clock, AlertTriangle } from "lucide-react";
 import { FilterBar } from "@/components/admin/dashboard/FilterBar";
 import { StatCard } from "@/components/admin/dashboard/StatCard";
-import { ChannelTable } from "@/components/admin/dashboard/ChannelTable";
-import { CampaignTable } from "@/components/admin/dashboard/CampaignTable";
 import { SalespersonRanking } from "@/components/admin/dashboard/SalespersonRanking";
 import { GoalProgress } from "@/components/admin/dashboard/GoalProgress";
 import { EditGoalsModal } from "@/components/admin/dashboard/EditGoalsModal";
@@ -85,18 +83,6 @@ export default async function AdminDashboardPage({
           icon="receipt"
           filtersQuery={filtersQuery}
         />
-      </div>
-
-      {/* Performance por canal (seção 5) */}
-      <div>
-        <h2 className="mb-4 text-base font-semibold text-accent-400">Performance por canal</h2>
-        <ChannelTable rows={data.channelTable} />
-      </div>
-
-      {/* Performance das campanhas (seção 7) */}
-      <div>
-        <h2 className="mb-4 text-base font-semibold text-accent-400">Performance das campanhas</h2>
-        <CampaignTable rows={data.campaignTable} />
       </div>
 
       {/* Performance dos vendedores (seção 8) */}
