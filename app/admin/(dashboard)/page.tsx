@@ -40,7 +40,7 @@ export default async function AdminDashboardPage({
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-accent-400">Visão Executiva</h1>
           <p className="text-sm text-ink-500">
-            Funil comercial, marketing e vendas · {data.period.label}
+            Canais, campanhas e vendas · {data.period.label}
           </p>
         </div>
         <Button variant="outline" size="sm" href={`/admin/relatorio?${filtersQuery}`}>
