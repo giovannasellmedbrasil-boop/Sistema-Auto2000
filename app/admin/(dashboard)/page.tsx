@@ -6,19 +6,12 @@ import { Card } from "@/components/ui/Card";
 import { Clock, AlertTriangle } from "lucide-react";
 import { FilterBar } from "@/components/admin/dashboard/FilterBar";
 import { StatCard } from "@/components/admin/dashboard/StatCard";
-import { FunnelChart } from "@/components/admin/dashboard/FunnelChart";
-import { OriginBreakdown } from "@/components/admin/dashboard/OriginBreakdown";
 import { ChannelTable } from "@/components/admin/dashboard/ChannelTable";
 import { CampaignTable } from "@/components/admin/dashboard/CampaignTable";
 import { SalespersonRanking } from "@/components/admin/dashboard/SalespersonRanking";
-import { ResponsePendingCard } from "@/components/admin/dashboard/ResponsePendingCard";
 import { GoalProgress } from "@/components/admin/dashboard/GoalProgress";
 import { EditGoalsModal } from "@/components/admin/dashboard/EditGoalsModal";
-import { ForecastCard } from "@/components/admin/dashboard/ForecastCard";
-import { StockDemandTable } from "@/components/admin/dashboard/StockDemandTable";
 import { TimeSeriesChart } from "@/components/admin/dashboard/TimeSeriesChart";
-import { DistributionSection } from "@/components/admin/dashboard/DistributionSection";
-import { InsightsPanel } from "@/components/admin/dashboard/InsightsPanel";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = { title: "Visão Executiva", robots: { index: false } };
@@ -69,46 +62,6 @@ export default async function AdminDashboardPage({
           filtersQuery={filtersQuery}
         />
         <StatCard
-          label="Contatos realizados"
-          value={String(data.kpis.contacted.value)}
-          sublabel={data.kpis.contactedRatePct != null ? `${data.kpis.contactedRatePct}% dos leads` : undefined}
-          icon="phone-call"
-          deltaPct={data.kpis.contacted.deltaPct}
-          direction={data.kpis.contacted.direction}
-          drill={{ metric: "contacted", kind: "leads", title: "Contatos realizados" }}
-          filtersQuery={filtersQuery}
-        />
-        <StatCard
-          label="Visitas"
-          value={String(data.kpis.visits.value)}
-          sublabel={data.kpis.visitRatePct != null ? `${data.kpis.visitRatePct}% dos contatados` : undefined}
-          icon="calendar"
-          deltaPct={data.kpis.visits.deltaPct}
-          direction={data.kpis.visits.direction}
-          drill={{ metric: "visits", kind: "leads", title: "Visitas" }}
-          filtersQuery={filtersQuery}
-        />
-        <StatCard
-          label="Test-drives"
-          value={String(data.kpis.testDrives.value)}
-          sublabel={data.kpis.testDriveRatePct != null ? `${data.kpis.testDriveRatePct}% das visitas` : undefined}
-          icon="car"
-          deltaPct={data.kpis.testDrives.deltaPct}
-          direction={data.kpis.testDrives.direction}
-          drill={{ metric: "testDrives", kind: "leads", title: "Test-drives" }}
-          filtersQuery={filtersQuery}
-        />
-        <StatCard
-          label="Propostas"
-          value={String(data.kpis.proposals.value)}
-          sublabel={data.kpis.proposalRatePct != null ? `${data.kpis.proposalRatePct}% dos test-drives` : undefined}
-          icon="file-text"
-          deltaPct={data.kpis.proposals.deltaPct}
-          direction={data.kpis.proposals.direction}
-          drill={{ metric: "proposals", kind: "leads", title: "Propostas" }}
-          filtersQuery={filtersQuery}
-        />
-        <StatCard
           label="Veículos vendidos"
           value={String(data.kpis.sales.value)}
           icon="trending-up"
@@ -134,55 +87,11 @@ export default async function AdminDashboardPage({
         />
       </div>
 
-      {/* Funil comercial (seção 3) */}
-      <Card className="p-6">
-        <h2 className="mb-5 text-base font-semibold text-accent-400">Funil comercial</h2>
-        <FunnelChart stages={data.funnel} bottleneck={data.bottleneck} />
-      </Card>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Origem dos leads (seção 4) */}
-        <Card className="p-6">
-          <h2 className="mb-5 text-base font-semibold text-accent-400">Origem dos leads</h2>
-          <OriginBreakdown rows={data.originBreakdown} />
-        </Card>
-
-        {/* Insights automáticos (seção 15) */}
-        <Card className="p-6">
-          <h2 className="mb-5 text-base font-semibold text-accent-400">Insights da IA</h2>
-          <InsightsPanel insights={data.insights} />
-        </Card>
-      </div>
-
       {/* Performance por canal (seção 5) */}
       <div>
         <h2 className="mb-4 text-base font-semibold text-accent-400">Performance por canal</h2>
         <ChannelTable rows={data.channelTable} />
       </div>
-
-      {/* Performance de marketing / ROI (seção 6) */}
-      <Card className="p-6">
-        <h2 className="mb-5 text-base font-semibold text-accent-400">Performance de marketing</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-          {[
-            ["Investimento em mídia", formatCurrency(data.marketing.investment)],
-            ["Receita atribuída", formatCurrency(data.marketing.revenue)],
-            ["CPL", data.marketing.cpl != null ? formatCurrency(data.marketing.cpl) : "—"],
-            ["CAC", data.marketing.cac != null ? formatCurrency(data.marketing.cac) : "—"],
-            ["ROAS", data.marketing.roas != null ? `${data.marketing.roas}x` : "—"],
-          ].map(([label, value]) => (
-            <div key={label} className="flex flex-col gap-1">
-              <span className="text-xl font-semibold text-ink-950">{value}</span>
-              <span className="text-xs text-ink-500">{label}</span>
-            </div>
-          ))}
-        </div>
-        {data.marketing.roiPct != null && (
-          <div className="mt-4 rounded-xl border border-accent-500/30 bg-accent-500/10 px-4 py-3 text-sm font-semibold text-accent-400">
-            ROI: {data.marketing.roiPct}%
-          </div>
-        )}
-      </Card>
 
       {/* Performance das campanhas (seção 7) */}
       <div>
@@ -194,20 +103,6 @@ export default async function AdminDashboardPage({
       <div>
         <h2 className="mb-4 text-base font-semibold text-accent-400">Performance dos vendedores</h2>
         <SalespersonRanking rows={data.salespeople} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Tempo de resposta + leads sem atendimento (seções 9, 14) */}
-        <Card className="p-6">
-          <h2 className="mb-5 text-base font-semibold text-accent-400">Tempo de resposta aos leads</h2>
-          <ResponsePendingCard responseTime={data.responseTime} filtersQuery={filtersQuery} />
-        </Card>
-
-        {/* Previsão de fechamento (seção 12) */}
-        <Card className="p-6">
-          <h2 className="mb-5 text-base font-semibold text-accent-400">Previsão de fechamento do mês</h2>
-          <ForecastCard forecast={data.forecast} />
-        </Card>
       </div>
 
       {/* Metas (seções 10, 11) */}
@@ -229,18 +124,6 @@ export default async function AdminDashboardPage({
           <h2 className="mb-5 text-base font-semibold text-accent-400">Faturamento ao longo do tempo</h2>
           <TimeSeriesChart data={data.revenueOverTime} kind="currency" />
         </Card>
-      </div>
-
-      {/* Distribuição de vendas (seção 18) */}
-      <Card className="p-6">
-        <h2 className="mb-5 text-base font-semibold text-accent-400">Distribuição de vendas</h2>
-        <DistributionSection distribution={data.distribution} />
-      </Card>
-
-      {/* Estoque x demanda (seção 13) */}
-      <div>
-        <h2 className="mb-4 text-base font-semibold text-accent-400">Estoque x demanda</h2>
-        <StockDemandTable rows={data.stockDemand} />
       </div>
 
       {/* Saúde do estoque (aging) — já existia, mantido */}

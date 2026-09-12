@@ -77,46 +77,6 @@ export function FilterBar({ options }: { options: FilterOptions }) {
             </option>
           ))}
         </Select>
-        <Select className="h-9 w-auto min-w-36 py-1.5 text-xs" value={get("brand")} onChange={(e) => update("brand", e.target.value)}>
-          <option value="">Todas as marcas</option>
-          {options.brands.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </Select>
-        <Select className="h-9 w-auto min-w-36 py-1.5 text-xs" value={get("model")} onChange={(e) => update("model", e.target.value)}>
-          <option value="">Todos os modelos</option>
-          {options.models.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </Select>
-        <Select className="h-9 w-auto min-w-40 py-1.5 text-xs" value={get("channel")} onChange={(e) => update("channel", e.target.value)}>
-          <option value="">Todos os canais</option>
-          {options.channels.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </Select>
-        <Select className="h-9 w-auto min-w-40 py-1.5 text-xs" value={get("campaignId")} onChange={(e) => update("campaignId", e.target.value)}>
-          <option value="">Todas as campanhas</option>
-          {options.campaigns.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </Select>
-        <Select className="h-9 w-auto min-w-32 py-1.5 text-xs" value={get("platform")} onChange={(e) => update("platform", e.target.value)}>
-          <option value="">Todas as plataformas</option>
-          {options.platforms.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </Select>
         {hasFilters && (
           <Button variant="ghost" size="sm" onClick={() => router.push(`${pathname}?period=${currentPeriod}`)}>
             Limpar filtros
