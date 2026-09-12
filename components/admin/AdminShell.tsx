@@ -23,6 +23,12 @@ import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/types";
 import { USER_ROLE_LABELS } from "@/lib/types";
 
+// Link "Ver site" no rodapé do menu — sempre aponta para o site público de
+// verdade, mesmo quando o admin está sendo servido pelo deploy "sistema"
+// (onde "/" redireciona para /admin via proxy.ts, então um href relativo
+// "/" reabriria o próprio admin em vez do site).
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://auto2000.com.br";
+
 const NAV: { href: string; label: string; icon: typeof LayoutDashboard; roles: UserRole[] }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ["SALES", "MANAGER", "ADMIN"] },
   { href: "/admin/documentacao", label: "Documentação", icon: ClipboardCheck, roles: ["SALES", "MANAGER", "ADMIN"] },
@@ -88,7 +94,7 @@ export function AdminShell({
         </nav>
         <div className="mt-auto flex flex-col gap-1 border-t border-white/10 pt-4">
           <Link
-            href="/"
+            href={SITE_URL}
             target="_blank"
             className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 hover:bg-white/8 hover:text-white"
           >
@@ -171,7 +177,7 @@ export function AdminShell({
 
             <div className="flex flex-col gap-1 border-t border-white/10 pt-4">
               <Link
-                href="/"
+                href={SITE_URL}
                 target="_blank"
                 onClick={() => setMobileNavOpen(false)}
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 hover:bg-white/8 hover:text-white"
