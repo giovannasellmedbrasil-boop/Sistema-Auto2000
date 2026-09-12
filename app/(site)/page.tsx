@@ -1,7 +1,7 @@
 import { Hero } from "@/components/home/Hero";
 import { FeaturedVehicles } from "@/components/home/FeaturedVehicles";
 import { TrustSection } from "@/components/home/TrustSection";
-import { listVehiclesPublic, listBrands } from "@/lib/server/db";
+import { listVehiclesPublic } from "@/lib/server/db";
 import type { BodyType, FuelType, Transmission, VehicleFilters } from "@/lib/types";
 
 // Consulta o mock store real a cada requisição — sem isso, o Next tentaria
@@ -37,17 +37,12 @@ export default async function Home({
     sort: (sp.sort as VehicleFilters["sort"]) ?? "recent",
   };
 
-  const [vehicles, brands, allVehicles] = await Promise.all([
-    listVehiclesPublic(filters),
-    listBrands(),
-    listVehiclesPublic(),
-  ]);
-  const colors = Array.from(new Set(allVehicles.map((v) => v.color))).sort();
+  const vehicles = await listVehiclesPublic(filters);
 
   return (
     <>
       <Hero />
-      <FeaturedVehicles vehicles={vehicles} brands={brands} colors={colors} />
+      <FeaturedVehicles vehicles={vehicles} />
       <TrustSection />
     </>
   );
