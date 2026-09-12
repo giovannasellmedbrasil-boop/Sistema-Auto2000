@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { addFipeQuote, getFipeLink, getVehicleById, setFipeLink } from "@/lib/server/db";
-import { getFipeValue } from "@/lib/server/fipe";
+import { getFipeLink, getVehicleById, setFipeLink } from "@/lib/server/db";
+import { queryAndStoreQuote } from "@/lib/server/fipe-quote";
 import { getAdminSession, hasRole } from "@/lib/server/auth";
 import { checkRateLimit } from "@/lib/server/rateLimit";
 
@@ -13,19 +13,6 @@ const linkSchema = z.object({
   yearCode: z.string().min(1),
   yearLabel: z.string().min(1),
 });
-
-async function queryAndStoreQuote(vehicleId: string, brandCode: string, modelCode: string, yearCode: string) {
-  const result = await getFipeValue(brandCode, modelCode, yearCode);
-  if (!result.ok) return { quote: null, error: result.error };
-  const quote = await addFipeQuote({
-    vehicleId,
-    fipeCode: result.data.fipeCode,
-    value: result.data.value,
-    referenceMonth: result.data.referenceMonth,
-    fuel: result.data.fuel,
-  });
-  return { quote, error: null };
-}
 
 // Vincula o veículo a um modelo/ano da FIPE e já consulta o valor atual.
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
