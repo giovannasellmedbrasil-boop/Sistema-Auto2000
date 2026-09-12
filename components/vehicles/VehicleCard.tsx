@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Gauge, Fuel, Settings2 } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
 import { FUEL_LABELS, TRANSMISSION_LABELS } from "@/lib/types";
-import { formatCurrency, formatKm, daysInStock } from "@/lib/utils";
+import { formatCurrency, formatKm } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
@@ -10,7 +10,6 @@ import { FavoriteButton } from "@/components/vehicles/FavoriteButton";
 
 export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const isSold = vehicle.status === "SOLD";
-  const isNew = daysInStock(vehicle.enteredStockAt) <= 7;
   const isLowMileage = vehicle.mileageKm < 20000;
   const cover = vehicle.photos.find((p) => p.isCover) ?? vehicle.photos[0];
 
@@ -33,10 +32,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
           )}
           <div className="absolute left-3 top-3 flex flex-col gap-1.5">
             {vehicle.status === "RESERVED" && <Badge tone="warning">Reservado</Badge>}
-            {isNew && vehicle.status === "AVAILABLE" && <Badge tone="accent">Recém-chegado</Badge>}
-            {isLowMileage && vehicle.status === "AVAILABLE" && !isNew && (
-              <Badge tone="ink">Baixa km</Badge>
-            )}
+            {isLowMileage && vehicle.status === "AVAILABLE" && <Badge tone="ink">Baixa km</Badge>}
           </div>
           {!isSold && <FavoriteButton vehicleId={vehicle.id} className="absolute right-3 top-3" />}
         </div>
