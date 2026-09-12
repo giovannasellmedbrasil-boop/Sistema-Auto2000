@@ -22,7 +22,6 @@ export function NewNegotiationForm({
   const [errorMsg, setErrorMsg] = useState("");
 
   const [customerKind, setCustomerKind] = useState<"INDIVIDUAL" | "COMPANY">("INDIVIDUAL");
-  const [customerMarried, setCustomerMarried] = useState(false);
   const [hasRepresentativeProcuration, setHasRepresentativeProcuration] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "FINANCING">("CASH");
   const [hasTradeIn, setHasTradeIn] = useState(false);
@@ -46,7 +45,6 @@ export function NewNegotiationForm({
       customerEmail: form.get("customerEmail") || undefined,
       customerAddress: form.get("customerAddress"),
       customerCep: form.get("customerCep"),
-      customerMarried,
       hasRepresentativeProcuration,
       vehicleId: form.get("vehicleId"),
       sellerId,
@@ -128,8 +126,8 @@ export function NewNegotiationForm({
             <Input name="customerPhone" required placeholder="5511999999999" />
           </FormGroup>
           <FormGroup>
-            <Label hint="opcional">E-mail</Label>
-            <Input name="customerEmail" type="email" />
+            <Label>E-mail</Label>
+            <Input name="customerEmail" type="email" required />
           </FormGroup>
           <FormGroup>
             <Label>CEP</Label>
@@ -141,12 +139,6 @@ export function NewNegotiationForm({
           </FormGroup>
         </div>
         <div className="flex flex-wrap gap-5 pt-1">
-          {customerKind === "INDIVIDUAL" && (
-            <label className="flex items-center gap-2 text-sm text-ink-700">
-              <input type="checkbox" checked={customerMarried} onChange={(e) => setCustomerMarried(e.target.checked)} />
-              Cliente casado(a) (exige certidão de casamento e dados do cônjuge)
-            </label>
-          )}
           <label className="flex items-center gap-2 text-sm text-ink-700">
             <input
               type="checkbox"

@@ -72,7 +72,7 @@ const patchSchema = z.object({
   transferStage: z.enum(["SALE_DONE", "DOCS_REVIEWED", "ATPV", "COURIER", "DETRAN", "COMPLETED"]).optional(),
   documentationResponsible: z.string().optional().nullable(),
   customerPhone: z.string().optional(),
-  customerEmail: z.string().optional().nullable(),
+  customerEmail: z.string().email().optional(),
   tradeIn: z
     .object({
       plate: z.string(),

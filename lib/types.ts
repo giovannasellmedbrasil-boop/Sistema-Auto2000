@@ -779,7 +779,7 @@ export interface Negotiation {
   customerName: string;
   customerDocument: string; // CPF ou CNPJ (dígitos)
   customerPhone: string;
-  customerEmail?: string | null;
+  customerEmail: string;
   customerAddress: string;
   customerCep: string;
   customerMarried: boolean;
