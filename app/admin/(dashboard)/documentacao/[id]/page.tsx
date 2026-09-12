@@ -13,7 +13,6 @@ import {
   getVehicleById,
 } from "@/lib/server/db";
 import {
-  analyzeDocumentation,
   classifyNegotiation,
   computeProgressPercent,
   getMissingItems,
@@ -26,14 +25,12 @@ import {
   VEHICLE_CONDITION_LABELS,
   type ChecklistCategory,
 } from "@/lib/types";
-import { documentRequestWhatsAppMessage, formatCurrency, formatKm, maskCpf } from "@/lib/utils";
+import { formatCurrency, formatKm, maskCpf } from "@/lib/utils";
 import { BucketBadge } from "@/components/documentacao/BucketBadge";
 import { ChecklistSection } from "@/components/documentacao/ChecklistSection";
 import { DeliveryGateBanner } from "@/components/documentacao/DeliveryGateBanner";
-import { DocumentationAnalysisCard } from "@/components/documentacao/DocumentationAnalysisCard";
 import { DocumentUploadForm } from "@/components/documentacao/DocumentUploadForm";
 import { DocumentsList } from "@/components/documentacao/DocumentsList";
-import { WhatsAppRequestButton } from "@/components/documentacao/WhatsAppRequestButton";
 import { TransferTimeline } from "@/components/documentacao/TransferTimeline";
 import { HistoryTimeline } from "@/components/documentacao/HistoryTimeline";
 import { FinancingStatusSelect } from "@/components/documentacao/FinancingStatusSelect";
@@ -64,15 +61,9 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
   const bucket = classifyNegotiation(items);
   const deliveryReady = isDeliveryReady(items);
   const missingItems = getMissingItems(items);
-  const analysis = analyzeDocumentation(items);
   const canManage = session.role === "MANAGER" || session.role === "ADMIN";
 
   const vehicleLabel = vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version} ${vehicle.modelYear}` : "Veículo";
-  const whatsappMessage = documentRequestWhatsAppMessage({
-    customerFirstName: negotiation.customerName.split(" ")[0],
-    vehicleLabel,
-    missingLabels: missingItems.map((i) => i.label),
-  });
 
   const resumoTab = (
     <div className="flex flex-col gap-6">
@@ -129,15 +120,6 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
         canConfirmDelivery={canManage}
       />
 
-      {missingItems.length > 0 && (
-        <Card className="flex flex-col gap-3 p-6">
-          <h3 className="text-base font-semibold text-accent-400">Solicitar documentos ao cliente</h3>
-          <p className="whitespace-pre-line text-sm text-ink-600">{whatsappMessage}</p>
-          <WhatsAppRequestButton message={whatsappMessage} />
-        </Card>
-      )}
-
-      <DocumentationAnalysisCard analysis={analysis} />
     </div>
   );
 

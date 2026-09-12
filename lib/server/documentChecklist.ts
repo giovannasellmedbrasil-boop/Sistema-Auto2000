@@ -81,26 +81,6 @@ export function classifyNegotiation(items: ChecklistItem[]): NegotiationBucket {
   return "PENDING";
 }
 
-// --- "Análise da documentação" (seção 9) ------------------------------------
-//
-// Comparação direta entre o checklist exigido e o que já foi marcado/
-// anexado — não é leitura de conteúdo de arquivo nem IA. Rotulada como tal
-// em toda a UI que consumir esta função.
-export interface DocumentationAnalysis {
-  percent: number;
-  receivedLabels: string[];
-  missingLabels: string[];
-}
-
-export function analyzeDocumentation(items: ChecklistItem[]): DocumentationAnalysis {
-  const required = items.filter((i) => i.required);
-  return {
-    percent: computeProgressPercent(items),
-    receivedLabels: required.filter((i) => i.status === "APPROVED").map((i) => i.label),
-    missingLabels: getMissingItems(items).map((i) => i.label),
-  };
-}
-
 export const CHECKLIST_STATUS_DOT: Record<ChecklistItemStatus, string> = {
   PENDING: "bg-warning-500",
   RECEIVED: "bg-warning-500",

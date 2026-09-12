@@ -89,18 +89,6 @@ export function maskDocument(document: string): string {
   return maskCpf(digits);
 }
 
-// --- Assistente de Documentação --------------------------------------------
-
-export function documentRequestWhatsAppMessage(params: {
-  customerFirstName: string;
-  vehicleLabel: string;
-  missingLabels: string[];
-}): string {
-  const { customerFirstName, vehicleLabel, missingLabels } = params;
-  const list = missingLabels.map((l) => `• ${l}`).join("\n");
-  return `Olá, ${customerFirstName}! Para continuarmos o processo de compra do seu ${vehicleLabel}, precisamos dos seguintes documentos:\n\n${list}\n\nVocê pode enviar os documentos respondendo esta mensagem.`;
-}
-
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
