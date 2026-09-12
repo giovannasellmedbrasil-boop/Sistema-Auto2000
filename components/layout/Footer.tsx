@@ -7,10 +7,10 @@ const columns = [
   {
     title: "Comprar",
     links: [
-      { href: "/estoque", label: "Todos os veículos" },
-      { href: "/estoque?bodyType=SUV", label: "SUVs" },
-      { href: "/estoque?bodyType=SEDAN", label: "Sedans" },
-      { href: "/estoque?bodyType=HATCH", label: "Hatch" },
+      { href: "/", label: "Todos os veículos" },
+      { href: "/?bodyType=SUV", label: "SUVs" },
+      { href: "/?bodyType=SEDAN", label: "Sedans" },
+      { href: "/?bodyType=HATCH", label: "Hatch" },
       { href: "/venda-seu-carro", label: "Venda ou troque seu carro" },
     ],
   },

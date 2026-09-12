@@ -27,7 +27,7 @@ export function VehicleFiltersPanel({
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
-    router.push(`/estoque?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -37,7 +37,7 @@ export function VehicleFiltersPanel({
     for (const [key, value] of data.entries()) {
       if (typeof value === "string" && value) params.set(key, value);
     }
-    router.push(`/estoque?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
     setOpen(false);
   }
 
@@ -59,7 +59,7 @@ export function VehicleFiltersPanel({
           {hasFilters && (
             <button
               type="button"
-              onClick={() => router.push("/estoque")}
+              onClick={() => router.push("/")}
               className="inline-flex items-center gap-1 text-sm font-medium text-ink-500 hover:text-ink-900"
             >
               <X className="h-3.5 w-3.5" /> Limpar filtros

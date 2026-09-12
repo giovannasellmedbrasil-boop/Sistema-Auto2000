@@ -389,9 +389,8 @@ export interface VehicleFilters {
     | "mileage_asc"
     | "year_desc";
   // Mostra também veículos com status SOLD na vitrine pública (usado só no
-  // catálogo /estoque, para o carro aparecer marcado "Vendido" em vez de
-  // simplesmente sumir) — nunca afeta destaques da home nem sugestões de
-  // veículos semelhantes.
+  // catálogo, para o carro aparecer marcado "Vendido" em vez de simplesmente
+  // sumir) — nunca afeta sugestões de veículos semelhantes.
   includeSold?: boolean;
 }
 

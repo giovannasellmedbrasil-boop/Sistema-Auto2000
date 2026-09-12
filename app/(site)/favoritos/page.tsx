@@ -53,7 +53,7 @@ export default function FavoritosPage() {
           icon={HeartOff}
           title="Nenhum favorito ainda"
           description="Toque no coração em qualquer veículo para salvá-lo aqui."
-          action={<Button href="/estoque">Ver estoque</Button>}
+          action={<Button href="/">Ver estoque</Button>}
         />
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

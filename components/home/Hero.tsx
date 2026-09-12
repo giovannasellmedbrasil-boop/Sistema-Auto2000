@@ -3,10 +3,10 @@ import Link from "next/link";
 import { Wallet } from "lucide-react";
 
 const PRICE_RANGES = [
-  { label: "Até R$ 25 mil", href: "/estoque?priceMax=25000" },
-  { label: "De R$ 25 mil a R$ 50 mil", href: "/estoque?priceMin=25000&priceMax=50000" },
-  { label: "De R$ 50 mil a R$ 75 mil", href: "/estoque?priceMin=50000&priceMax=75000" },
-  { label: "A partir de R$ 75 mil", href: "/estoque?priceMin=75000" },
+  { label: "Até R$ 25 mil", href: "/?priceMax=25000" },
+  { label: "De R$ 25 mil a R$ 50 mil", href: "/?priceMin=25000&priceMax=50000" },
+  { label: "De R$ 50 mil a R$ 75 mil", href: "/?priceMin=50000&priceMax=75000" },
+  { label: "A partir de R$ 75 mil", href: "/?priceMin=75000" },
 ];
 
 export function Hero() {
