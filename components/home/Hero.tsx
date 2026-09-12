@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Wallet } from "lucide-react";
+import { Star, Wallet } from "lucide-react";
 
 const PRICE_RANGES = [
   { label: "Até R$ 25 mil", href: "/?priceMax=25000" },
@@ -8,6 +8,9 @@ const PRICE_RANGES = [
   { label: "De R$ 50 mil a R$ 75 mil", href: "/?priceMin=50000&priceMax=75000" },
   { label: "A partir de R$ 75 mil", href: "/?priceMin=75000" },
 ];
+
+const GOOGLE_REVIEWS_URL =
+  "https://www.google.com/search?sca_esv=97ecd86c81018411&cs=0&output=search&kgmid=/g/11c54g7zmk&q=Auto+2000+Ve%C3%ADculos&shem=dlvs1,epsd1,ltae,rimspwouoe&shndl=30&source=sh/x/loc/uni/m1/1&kgs=2b5ad3114cfcec60&utm_source=dlvs1,epsd1,ltae,rimspwouoe,sh/x/loc/uni/m1/1#lrd=0x94ce5d672c2ed5a1:0x1b750281f91d1451,1,,,,";
 
 export function Hero() {
   return (
@@ -44,9 +47,26 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-4 pb-16 pt-20 text-center sm:items-start sm:px-6 sm:pb-20 sm:pt-28 sm:text-left lg:px-8">
-        <h1 className="max-w-3xl text-3xl font-semibold leading-[1.1] tracking-tight text-accent-400 sm:max-w-xl sm:text-5xl animate-fade-in-up">
-          Novos caminhos começam com a escolha certa.
-        </h1>
+        <div className="flex w-full flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-between">
+          <h1 className="max-w-3xl text-3xl font-semibold leading-[1.1] tracking-tight text-accent-400 sm:max-w-xl sm:text-5xl animate-fade-in-up">
+            Novos caminhos começam com a escolha certa.
+          </h1>
+
+          <a
+            href={GOOGLE_REVIEWS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex w-full max-w-xs shrink-0 flex-col gap-3 rounded-card border border-white/8 bg-ink-100 p-6 text-left shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-[var(--shadow-card-hover)] animate-fade-in-up"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-accent-700">
+              <Star className="h-5 w-5" strokeWidth={1.6} />
+            </span>
+            <h3 className="text-sm font-semibold text-accent-400">Avaliação dos clientes</h3>
+            <p className="text-sm leading-relaxed text-ink-500">
+              4,8/5 em 120 avaliações de clientes atendidos, direto no Google.
+            </p>
+          </a>
+        </div>
 
         <p className="max-w-xl text-balance text-lg text-white/70 animate-fade-in-up">
           Encontre, simule e negocie seu veículo de forma simples, rápida e segura.
