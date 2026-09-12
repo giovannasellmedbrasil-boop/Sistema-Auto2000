@@ -1,31 +1,18 @@
 import Link from "next/link";
-import {
-  Car,
-  CarFront,
-  Settings2,
-  Sparkles,
-  Truck,
-  Wallet,
-} from "lucide-react";
+import { Wallet } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const CATEGORIES = [
-  { label: "SUVs", href: "/estoque?bodyType=SUV", icon: CarFront },
-  { label: "Sedans", href: "/estoque?bodyType=SEDAN", icon: Car },
-  { label: "Hatch", href: "/estoque?bodyType=HATCH", icon: Car },
-  { label: "Picapes", href: "/estoque?bodyType=PICKUP", icon: Truck },
-  { label: "Automáticos", href: "/estoque?transmission=AUTOMATIC", icon: Settings2 },
-  { label: "Até R$ 60 mil", href: "/estoque?priceMax=60000", icon: Wallet },
-  { label: "Até R$ 100 mil", href: "/estoque?priceMax=100000", icon: Wallet },
-  { label: "Recém-chegados", href: "/estoque?sort=recent", icon: Sparkles },
+  { label: "Até R$ 25 mil", href: "/estoque?priceMax=25000", icon: Wallet },
+  { label: "De R$ 25 mil a R$ 50 mil", href: "/estoque?priceMin=25000&priceMax=50000", icon: Wallet },
+  { label: "De R$ 50 mil a R$ 75 mil", href: "/estoque?priceMin=50000&priceMax=75000", icon: Wallet },
+  { label: "A partir de R$ 75 mil", href: "/estoque?priceMin=75000", icon: Wallet },
 ];
 
 export function QuickCategories() {
   return (
     <section className="py-16 sm:py-20">
       <Container className="flex flex-col gap-8">
-        <SectionHeading eyebrow="Comece por aqui" title="O que você está buscando?" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {CATEGORIES.map(({ label, href, icon: Icon }) => (
             <Link
