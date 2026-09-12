@@ -209,7 +209,7 @@ export default async function VehiclePage({
       {vehicle.description && (
         <section className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold tracking-tight text-accent-400">Sobre este veículo</h2>
-          <p className="max-w-3xl text-base leading-relaxed text-ink-600">{vehicle.description}</p>
+          <p className="max-w-3xl text-base leading-relaxed text-white">{vehicle.description}</p>
         </section>
       )}
 

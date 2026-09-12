@@ -23,7 +23,7 @@ export default async function VendaSeuCarroPage({
           <h1 className="text-3xl font-semibold tracking-tight text-accent-400 sm:text-4xl">
             Venda seu carro para nós
           </h1>
-          <p className="max-w-2xl text-ink-500">
+          <p className="max-w-2xl text-white">
             Envie os dados do seu veículo e receba uma avaliação inicial.
           </p>
         </div>

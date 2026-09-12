@@ -41,7 +41,7 @@ export default function FavoritosPage() {
         <h1 className="text-3xl font-semibold tracking-tight text-accent-400 sm:text-4xl">
           Meus favoritos
         </h1>
-        <p className="text-ink-500">Veículos que você salvou para comparar depois.</p>
+        <p className="text-white">Veículos que você salvou para comparar depois.</p>
       </div>
 
       {loading ? (

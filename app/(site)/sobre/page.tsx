@@ -21,13 +21,13 @@ export default function SobrePage() {
         <h1 className="text-3xl font-semibold tracking-tight text-accent-400 sm:text-4xl">
           Sobre a Auto2000
         </h1>
-        <p className="max-w-2xl text-base leading-relaxed text-ink-500">
+        <p className="max-w-2xl text-base leading-relaxed text-white">
           Há mais de quatro décadas, construímos nossa história com base em confiança,
           tradição e relacionamento.
         </p>
       </div>
 
-      <div className="flex max-w-3xl flex-col gap-5 text-base leading-relaxed text-ink-500">
+      <div className="flex max-w-3xl flex-col gap-5 text-base leading-relaxed text-white">
         <p>
           Fundada em 1982, nossa loja nasceu como um negócio familiar e, ao longo de 44 anos
           de trajetória, consolidou-se no mercado mantendo os mesmos valores que fizeram parte
@@ -55,7 +55,7 @@ export default function SobrePage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="flex flex-col gap-4 p-8">
           <h2 className="text-lg font-semibold text-accent-400">Visite nossa loja</h2>
-          <div className="flex flex-col gap-3 text-sm text-ink-600">
+          <div className="flex flex-col gap-3 text-sm text-white">
             <span className="inline-flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ink-600" />
               Av. Professor Luiz Ignácio Anhaia Mello, 8201 - Parque São Lourenço, São Paulo - SP, 03155-000

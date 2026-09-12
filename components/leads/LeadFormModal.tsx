@@ -111,7 +111,7 @@ export function LeadFormModal({
               <div className="flex flex-col items-center gap-3 py-6 text-center">
                 <CheckCircle2 className="h-10 w-10 text-success-500" />
                 <h3 className="text-lg font-semibold text-accent-400">Recebemos seu contato!</h3>
-                <p className="text-sm text-ink-500">
+                <p className="text-sm text-white">
                   Um de nossos consultores vai falar com você em breve.
                 </p>
                 <Button variant="outline" onClick={close} className="mt-2">
@@ -121,7 +121,7 @@ export function LeadFormModal({
             ) : (
               <>
                 <h3 className="pr-8 text-lg font-semibold text-accent-400">{title}</h3>
-                {subtitle && <p className="mt-1 text-sm text-ink-500">{subtitle}</p>}
+                {subtitle && <p className="mt-1 text-sm text-white">{subtitle}</p>}
 
                 <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
                   <FormGroup>

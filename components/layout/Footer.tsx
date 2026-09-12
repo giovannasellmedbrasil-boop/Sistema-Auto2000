@@ -17,11 +17,11 @@ export function Footer() {
               className="h-12 w-auto rounded-md"
             />
           </Link>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-white/50">
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-white">
             Desde 1982, uma loja de família construída com tradição, confiança e
             compromisso em sede própria.
           </p>
-          <div className="mt-5 flex flex-col gap-2 text-sm text-white/60">
+          <div className="mt-5 flex flex-col gap-2 text-sm text-white">
             <span className="inline-flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent-400" />
               Av. Professor Luiz Ignácio Anhaia Mello, 8201 - Parque São Lourenço, São Paulo - SP, 03155-000

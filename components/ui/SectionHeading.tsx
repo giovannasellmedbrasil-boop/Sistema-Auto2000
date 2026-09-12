@@ -32,7 +32,7 @@ export function SectionHeading({
           </span>
         )}
         <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-accent-400">{title}</h2>
-        {subtitle && <p className="max-w-2xl text-base text-ink-500">{subtitle}</p>}
+        {subtitle && <p className="max-w-2xl text-base text-white">{subtitle}</p>}
       </div>
       {action}
     </div>

@@ -18,7 +18,7 @@ export function EmptyState({
         <Icon className="h-5 w-5" strokeWidth={1.5} />
       </span>
       <h3 className="text-base font-semibold text-accent-400">{title}</h3>
-      {description && <p className="max-w-sm text-sm text-ink-500">{description}</p>}
+      {description && <p className="max-w-sm text-sm text-white">{description}</p>}
       {action}
     </div>
   );

@@ -42,7 +42,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
             <h3 className="text-base font-semibold text-accent-400 leading-tight">
               {vehicle.brand} {vehicle.model}
             </h3>
-            <p className="text-sm text-ink-500">{vehicle.version}</p>
+            <p className="text-sm text-white">{vehicle.version}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-500">

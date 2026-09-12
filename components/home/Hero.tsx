@@ -55,14 +55,14 @@ export function Hero() {
                 ))}
               </div>
               <h3 className="text-sm font-semibold text-accent-400">Avaliações dos nossos clientes no Google</h3>
-              <p className="text-sm leading-relaxed text-ink-500">
+              <p className="text-sm leading-relaxed text-white">
                 4,8/5 em 121 avaliações de clientes atendidos.
               </p>
             </a>
           </div>
         </div>
 
-        <p className="max-w-xl text-balance text-lg text-white/70 animate-fade-in-up">
+        <p className="max-w-xl text-balance text-lg text-white animate-fade-in-up">
           Encontre, simule e negocie seu veículo de forma simples, rápida e segura.
         </p>
 

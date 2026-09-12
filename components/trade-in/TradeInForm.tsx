@@ -62,7 +62,7 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
       <Card className="flex flex-col items-center gap-3 p-10 text-center">
         <CheckCircle2 className="h-10 w-10 text-success-500" />
         <h2 className="text-lg font-semibold text-accent-400">Solicitação recebida!</h2>
-        <p className="max-w-sm text-sm text-ink-500">
+        <p className="max-w-sm text-sm text-white">
           Abrimos o WhatsApp com os dados do seu veículo para a nossa equipe.
         </p>
         {whatsappHref && (

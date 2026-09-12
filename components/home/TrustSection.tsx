@@ -34,7 +34,7 @@ export function TrustSection() {
               <Icon className="h-5 w-5" strokeWidth={1.6} />
             </span>
             <h3 className="text-base font-semibold text-accent-400">{title}</h3>
-            <p className="text-sm leading-relaxed text-ink-500">{text}</p>
+            <p className="text-sm leading-relaxed text-white">{text}</p>
           </div>
         ))}
       </Container>
