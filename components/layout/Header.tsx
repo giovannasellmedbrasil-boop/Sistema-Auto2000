@@ -12,7 +12,6 @@ const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/venda-seu-carro", label: "Venda seu carro" },
   { href: "/sobre", label: "Sobre nós" },
-  { href: "/contato", label: "Contato" },
 ];
 
 export function Header() {
