@@ -14,7 +14,6 @@ import {
 } from "@/lib/server/db";
 import {
   analyzeDocumentation,
-  buildAlerts,
   classifyNegotiation,
   computeProgressPercent,
   getMissingItems,
@@ -32,7 +31,6 @@ import { BucketBadge } from "@/components/documentacao/BucketBadge";
 import { ChecklistSection } from "@/components/documentacao/ChecklistSection";
 import { DeliveryGateBanner } from "@/components/documentacao/DeliveryGateBanner";
 import { DocumentationAnalysisCard } from "@/components/documentacao/DocumentationAnalysisCard";
-import { AlertsList } from "@/components/documentacao/AlertsList";
 import { DocumentUploadForm } from "@/components/documentacao/DocumentUploadForm";
 import { DocumentsList } from "@/components/documentacao/DocumentsList";
 import { WhatsAppRequestButton } from "@/components/documentacao/WhatsAppRequestButton";
@@ -66,7 +64,6 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
   const bucket = classifyNegotiation(items);
   const deliveryReady = isDeliveryReady(items);
   const missingItems = getMissingItems(items);
-  const alerts = buildAlerts(negotiation, items);
   const analysis = analyzeDocumentation(items);
   const canManage = session.role === "MANAGER" || session.role === "ADMIN";
 
@@ -131,13 +128,6 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
         alreadyDelivered={negotiation.status === "DELIVERED"}
         canConfirmDelivery={canManage}
       />
-
-      {alerts.length > 0 && (
-        <Card className="flex flex-col gap-3 p-6">
-          <h3 className="text-base font-semibold text-accent-400">Alertas</h3>
-          <AlertsList alerts={alerts} />
-        </Card>
-      )}
 
       {missingItems.length > 0 && (
         <Card className="flex flex-col gap-3 p-6">

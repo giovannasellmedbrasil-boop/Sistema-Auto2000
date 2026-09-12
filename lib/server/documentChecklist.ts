@@ -10,7 +10,6 @@ import type {
   ChecklistCategory,
   ChecklistItem,
   ChecklistItemStatus,
-  Negotiation,
   NegotiationBucket,
 } from "@/lib/types";
 
@@ -100,37 +99,6 @@ export function analyzeDocumentation(items: ChecklistItem[]): DocumentationAnaly
     receivedLabels: required.filter((i) => i.status === "APPROVED").map((i) => i.label),
     missingLabels: getMissingItems(items).map((i) => i.label),
   };
-}
-
-// --- Alertas (seção 15) ------------------------------------------------------
-
-export type AlertTone = "critical" | "warning" | "info" | "success";
-
-export interface NegotiationAlert {
-  tone: AlertTone;
-  message: string;
-}
-
-export function buildAlerts(negotiation: Negotiation, items: ChecklistItem[]): NegotiationAlert[] {
-  const alerts: NegotiationAlert[] = [];
-
-  for (const item of items) {
-    if (!item.required) continue;
-    if (item.status === "REJECTED") {
-      alerts.push({ tone: "critical", message: `${item.label} recusado${item.note ? ` — ${item.note}` : ""}` });
-    } else if (item.status === "AWAITING_THIRD_PARTY") {
-      alerts.push({ tone: "info", message: `${item.label}: aguardando terceiro` });
-    } else if (item.status === "PENDING") {
-      alerts.push({ tone: "warning", message: `${item.label} pendente` });
-    }
-  }
-
-  if (isDeliveryReady(items)) {
-    alerts.push({ tone: "success", message: "Documentação completa" });
-    alerts.push({ tone: "success", message: "Veículo liberado para entrega" });
-  }
-
-  return alerts;
 }
 
 export const CHECKLIST_STATUS_DOT: Record<ChecklistItemStatus, string> = {
