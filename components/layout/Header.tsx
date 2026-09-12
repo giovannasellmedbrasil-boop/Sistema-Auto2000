@@ -32,13 +32,13 @@ export function Header() {
             />
           </Link>
 
-          <div className="flex items-center gap-2 border-l border-white/15 pl-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-accent-400 text-accent-400">
-              <Award className="h-4.5 w-4.5" strokeWidth={1.75} />
+          <div className="flex items-center gap-1.5 border-l border-white/15 pl-2 sm:gap-2 sm:pl-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-accent-400 text-accent-400 sm:h-9 sm:w-9">
+              <Award className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" strokeWidth={1.75} />
             </span>
-            <span className="hidden leading-tight sm:block">
-              <span className="block text-xs font-bold text-accent-400">44 ANOS</span>
-              <span className="block text-[10px] text-accent-400">de tradição</span>
+            <span className="leading-tight">
+              <span className="block text-[9px] font-bold text-accent-400 sm:text-xs">44 ANOS</span>
+              <span className="block text-[8px] text-accent-400 sm:text-[10px]">de tradição</span>
             </span>
           </div>
         </div>
