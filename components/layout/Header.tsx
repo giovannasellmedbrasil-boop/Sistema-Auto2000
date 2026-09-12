@@ -38,7 +38,7 @@ export function Header() {
             </span>
             <span className="hidden leading-tight sm:block">
               <span className="block text-xs font-bold text-accent-400">44 ANOS</span>
-              <span className="block text-[10px] text-white/60">de tradição</span>
+              <span className="block text-[10px] text-accent-400">de tradição</span>
             </span>
           </div>
         </div>
