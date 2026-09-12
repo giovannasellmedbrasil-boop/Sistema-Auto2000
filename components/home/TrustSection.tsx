@@ -15,7 +15,7 @@ const ITEMS = [
   {
     icon: Clock3,
     title: "Processo rápido",
-    text: "Simule, negocie e feche negócio sem enrolação, presencial ou online.",
+    text: "Da simulação à entrega do seu carro, cuidamos de cada etapa para tornar sua compra rápida, simples e segura, seja presencialmente ou online.",
   },
   {
     icon: HeartHandshake,
