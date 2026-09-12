@@ -37,9 +37,12 @@ import { vehicleSlug } from "@/lib/utils";
 
 // CRM (leads/vendas/vendedores/campanhas) e documentação (negociações/
 // checklist) NÃO usam mais dados fictícios gerados automaticamente — essas
-// coleções começam vazias e são alimentadas manualmente pelo time via os
-// cadastros do admin (/admin/vendedores, /admin/marketing, /admin/leads,
-// /admin/documentacao). O gerador antigo (`lib/server/seed-executive-data.ts`)
+// coleções começam vazias. Leads chegam via captura pública (LeadFormModal
+// no site) e vendedores via /admin/vendedores; não há mais telas de admin
+// para leads e campanhas de marketing (removidas a pedido em 2026-09-12) —
+// os dados de leads/campanhas seguem existindo no mock store e alimentando
+// o Dashboard Executivo, só não têm mais uma tela de gestão dedicada. O
+// gerador antigo (`lib/server/seed-executive-data.ts`)
 // e a frota fictícia (`lib/server/seed-data.ts`) foram desativados por esse
 // motivo — o arquivo de seed continua disponível como referência, mas não
 // alimenta mais o banco.
