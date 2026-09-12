@@ -35,7 +35,7 @@ import type {
 } from "@/lib/types";
 import { buildChecklistTemplates, classifyNegotiation, isDeliveryReady } from "@/lib/server/documentChecklist";
 import { mercadoLivreSeedVehicles } from "@/lib/server/seed-mercadolivre";
-import { vehicleSlug } from "@/lib/utils";
+import { onlyDigits, vehicleSlug } from "@/lib/utils";
 
 // CRM (leads/vendas/vendedores/campanhas) e documentação (negociações/
 // checklist) NÃO usam mais dados fictícios gerados automaticamente — essas
@@ -786,6 +786,33 @@ export async function createNegotiation(input: NegotiationInput): Promise<Negoti
     actor: input.sellerName,
     createdAt: now,
   });
+
+  // Os dados do cliente preenchidos na venda também alimentam o cadastro em
+  // "Clientes" — casa por CPF/CNPJ (dígitos) para não duplicar quem já
+  // comprou antes; CNH fica em branco aqui e pode ser preenchida depois na
+  // própria aba Clientes.
+  const customerIdx = db.salesCustomers.findIndex(
+    (c) => onlyDigits(c.document) === onlyDigits(input.customerDocument)
+  );
+  const customerFields = {
+    name: input.customerName,
+    document: input.customerDocument,
+    phone: input.customerPhone,
+    email: input.customerEmail ?? null,
+    address: input.customerAddress,
+    cep: input.customerCep,
+  };
+  if (customerIdx === -1) {
+    db.salesCustomers.unshift({
+      id: genId("cust_sale"),
+      ...customerFields,
+      cnhNumber: "",
+      createdAt: now,
+      updatedAt: now,
+    });
+  } else {
+    db.salesCustomers[customerIdx] = { ...db.salesCustomers[customerIdx], ...customerFields, updatedAt: now };
+  }
 
   await writeDb(db);
   return negotiation;
