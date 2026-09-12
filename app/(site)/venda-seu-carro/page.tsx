@@ -25,7 +25,7 @@ export default async function VendaSeuCarroPage({
       <Container className="relative flex flex-col gap-10 py-10 sm:py-14">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-semibold tracking-tight text-accent-400 sm:text-4xl">
-            Venda seu carro para nós
+            Venda seu carro com segurança e facilidade
           </h1>
           <p className="max-w-2xl text-white">
             Envie os dados do seu veículo e receba uma avaliação inicial.
