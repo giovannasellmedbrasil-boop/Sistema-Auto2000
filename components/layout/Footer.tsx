@@ -9,7 +9,7 @@ const GOOGLE_MAPS_URL =
 export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-black text-white/60">
-      <Container className="grid gap-10 py-14 lg:grid-cols-2 lg:items-center">
+      <Container className="grid gap-10 py-14 lg:grid-cols-3 lg:items-center">
         <div>
           <Link href="/" className="flex items-center" aria-label="Auto2000 — início">
             <Image
@@ -45,6 +45,27 @@ export function Footer() {
             </span>
           </div>
         </div>
+
+        <a
+          href={GOOGLE_MAPS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir localização da Auto2000 no Google Maps"
+          className="group relative block aspect-video w-full overflow-hidden rounded-card border border-white/8 shadow-[var(--shadow-card)]"
+        >
+          <iframe
+            src="https://maps.google.com/maps?q=-23.6022077,-46.5214069&z=16&output=embed"
+            title="Mapa de localização da Auto2000"
+            className="h-full w-full pointer-events-none grayscale-[30%]"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+          <div className="absolute inset-0 flex items-end bg-black/0 p-3 transition-colors group-hover:bg-black/20">
+            <span className="rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+              Ver no Google Maps
+            </span>
+          </div>
+        </a>
 
         <video
           src="/auto2000.mp4"
