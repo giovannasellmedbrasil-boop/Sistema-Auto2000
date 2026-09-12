@@ -157,6 +157,8 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
         <p><span className="text-ink-500">Documento:</span> {negotiation.customerKind === "INDIVIDUAL" ? maskCpf(negotiation.customerDocument) : negotiation.customerDocument}</p>
         <p><span className="text-ink-500">Telefone:</span> {negotiation.customerPhone}</p>
         {negotiation.customerEmail && <p><span className="text-ink-500">E-mail:</span> {negotiation.customerEmail}</p>}
+        <p><span className="text-ink-500">CEP:</span> {negotiation.customerCep}</p>
+        <p><span className="text-ink-500">Endereço:</span> {negotiation.customerAddress}</p>
       </Card>
       <ChecklistSection negotiationId={id} category="CLIENTE" items={itemsIn(items, "CLIENTE")} />
     </div>

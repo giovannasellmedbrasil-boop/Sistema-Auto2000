@@ -44,6 +44,8 @@ export function NewNegotiationForm({
       customerDocument: form.get("customerDocument"),
       customerPhone: form.get("customerPhone"),
       customerEmail: form.get("customerEmail") || undefined,
+      customerAddress: form.get("customerAddress"),
+      customerCep: form.get("customerCep"),
       customerMarried,
       hasRepresentativeProcuration,
       vehicleId: form.get("vehicleId"),
@@ -128,6 +130,14 @@ export function NewNegotiationForm({
           <FormGroup>
             <Label hint="opcional">E-mail</Label>
             <Input name="customerEmail" type="email" />
+          </FormGroup>
+          <FormGroup>
+            <Label>CEP</Label>
+            <Input name="customerCep" required placeholder="00000-000" />
+          </FormGroup>
+          <FormGroup className="sm:col-span-2">
+            <Label>Endereço completo</Label>
+            <Input name="customerAddress" required placeholder="Rua, número, bairro, cidade/UF" />
           </FormGroup>
         </div>
         <div className="flex flex-wrap gap-5 pt-1">
@@ -278,7 +288,7 @@ export function NewNegotiationForm({
       <div className="flex gap-3">
         <Button type="submit" disabled={status === "submitting"}>
           {status === "submitting" && <Loader2 className="h-4 w-4 animate-spin" />}
-          Cadastrar venda e gerar checklist
+          Gerar documentação necessária
         </Button>
         <Button href="/admin/documentacao" variant="outline">
           Cancelar

@@ -38,6 +38,8 @@ const negotiationInputSchema = z.object({
   customerDocument: z.string().min(1),
   customerPhone: z.string().min(1),
   customerEmail: z.string().optional().nullable(),
+  customerAddress: z.string().min(1),
+  customerCep: z.string().min(1),
   customerMarried: z.boolean().default(false),
   hasRepresentativeProcuration: z.boolean().default(false),
   vehicleId: z.string().min(1),

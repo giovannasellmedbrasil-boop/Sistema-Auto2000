@@ -780,6 +780,8 @@ export interface Negotiation {
   customerDocument: string; // CPF ou CNPJ (dígitos)
   customerPhone: string;
   customerEmail?: string | null;
+  customerAddress: string;
+  customerCep: string;
   customerMarried: boolean;
   hasRepresentativeProcuration: boolean;
   vehicleId: string;

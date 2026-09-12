@@ -757,7 +757,7 @@ export async function createNegotiation(input: NegotiationInput): Promise<Negoti
   };
   db.negotiations.unshift(negotiation);
 
-  const templates = buildChecklistTemplates(input);
+  const templates = buildChecklistTemplates();
   const items: ChecklistItem[] = templates.map((t) => ({
     id: genId(`${id}_item`),
     negotiationId: id,
