@@ -1,4 +1,4 @@
-import { ShieldCheck, BadgeCheck, Clock3, HeartHandshake } from "lucide-react";
+import { ShieldCheck, BadgeCheck, Clock3, HeartHandshake, CheckCircle2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
 const ITEMS = [
@@ -20,7 +20,7 @@ const ITEMS = [
   {
     icon: HeartHandshake,
     title: "Suporte pós-venda",
-    text: "Canal direto com nossa equipe mesmo depois da compra concluída.",
+    text: null,
   },
 ];
 
@@ -33,8 +33,11 @@ export function TrustSection() {
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-accent-700">
               <Icon className="h-5 w-5" strokeWidth={1.6} />
             </span>
-            <h3 className="text-base font-semibold text-accent-400">{title}</h3>
-            <p className="text-sm leading-relaxed text-white">{text}</p>
+            <h3 className="flex items-center gap-2 text-base font-semibold text-accent-400">
+              {title}
+              {!text && <CheckCircle2 className="h-4.5 w-4.5 text-success-500" strokeWidth={2} />}
+            </h3>
+            {text && <p className="text-sm leading-relaxed text-white">{text}</p>}
           </div>
         ))}
       </Container>
