@@ -6,7 +6,7 @@ import { VehicleCard } from "@/components/vehicles/VehicleCard";
 
 export function FeaturedVehicles({ vehicles }: { vehicles: Vehicle[] }) {
   return (
-    <section className="border-y border-white/8 bg-white/[0.02] py-16 sm:py-20">
+    <section className="border-b border-white/8 bg-white/[0.02] py-16 sm:py-20">
       <Container className="flex flex-col gap-8">
         <SectionHeading
           eyebrow="Estoque selecionado"

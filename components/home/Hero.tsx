@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-white/10">
+    <section className="relative overflow-hidden">
       <div
         className="pointer-events-none absolute inset-0 opacity-70"
         style={{
