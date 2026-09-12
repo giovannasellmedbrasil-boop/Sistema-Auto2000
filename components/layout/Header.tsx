@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Menu, X, MessageCircle, Heart } from "lucide-react";
+import { Menu, X, MessageCircle, Heart, Award } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { buildWhatsAppLink } from "@/lib/utils";
@@ -20,16 +20,28 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/85 backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center" aria-label="Auto2000 — início">
-          <Image
-            src="/logo.png"
-            alt="Auto2000 Veículos"
-            width={896}
-            height={444}
-            priority
-            className="h-11 w-auto rounded-md"
-          />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center" aria-label="Auto2000 — início">
+            <Image
+              src="/logo.png"
+              alt="Auto2000 Veículos"
+              width={896}
+              height={444}
+              priority
+              className="h-11 w-auto rounded-md"
+            />
+          </Link>
+
+          <div className="flex items-center gap-2 border-l border-white/15 pl-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-accent-400 text-accent-400">
+              <Award className="h-4.5 w-4.5" strokeWidth={1.75} />
+            </span>
+            <span className="hidden leading-tight sm:block">
+              <span className="block text-xs font-bold text-accent-400">40 ANOS</span>
+              <span className="block text-[10px] text-white/60">de tradição</span>
+            </span>
+          </div>
+        </div>
 
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => (
