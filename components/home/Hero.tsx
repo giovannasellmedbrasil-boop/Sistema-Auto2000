@@ -52,22 +52,34 @@ export function Hero() {
             Novos caminhos começam com a escolha certa.
           </h1>
 
-          <a
-            href={GOOGLE_REVIEWS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex w-full max-w-xs shrink-0 flex-col gap-3 rounded-card border border-white/8 bg-ink-100 p-6 text-left shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-[var(--shadow-card-hover)] animate-fade-in-up"
-          >
-            <div className="flex items-center gap-1 text-accent-400">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-4.5 w-4.5" fill="currentColor" strokeWidth={0} />
-              ))}
+          <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+            <a
+              href={GOOGLE_REVIEWS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex w-full shrink-0 flex-col gap-3 rounded-card border border-white/8 bg-ink-100 p-6 text-left shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-[var(--shadow-card-hover)] animate-fade-in-up sm:w-72 sm:h-60"
+            >
+              <div className="flex items-center gap-1 text-accent-400">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-4.5 w-4.5" fill="currentColor" strokeWidth={0} />
+                ))}
+              </div>
+              <h3 className="text-sm font-semibold text-accent-400">Avaliações dos nossos clientes no Google</h3>
+              <p className="text-sm leading-relaxed text-ink-500">
+                4,8/5 em 121 avaliações de clientes atendidos.
+              </p>
+            </a>
+
+            <div className="relative h-60 w-full shrink-0 overflow-hidden rounded-card border border-white/8 shadow-[var(--shadow-card)] animate-fade-in-up sm:w-72">
+              <Image
+                src="/loja-fachada-2.png"
+                alt="Fachada da loja Auto2000"
+                fill
+                className="object-cover"
+                sizes="(min-width: 640px) 18rem, 100vw"
+              />
             </div>
-            <h3 className="text-sm font-semibold text-accent-400">Avaliações dos nossos clientes no Google</h3>
-            <p className="text-sm leading-relaxed text-ink-500">
-              4,8/5 em 121 avaliações de clientes atendidos.
-            </p>
-          </a>
+          </div>
         </div>
 
         <p className="max-w-xl text-balance text-lg text-white/70 animate-fade-in-up">
