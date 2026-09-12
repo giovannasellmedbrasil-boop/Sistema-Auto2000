@@ -44,7 +44,7 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-4 pb-16 pt-20 text-center sm:items-start sm:px-6 sm:pb-20 sm:pt-28 sm:text-left lg:px-8">
-        <h1 className="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-accent-400 sm:max-w-xl sm:text-6xl animate-fade-in-up">
+        <h1 className="max-w-3xl text-3xl font-semibold leading-[1.1] tracking-tight text-accent-400 sm:max-w-xl sm:text-5xl animate-fade-in-up">
           Novos caminhos começam com a escolha certa.
         </h1>
 
