@@ -36,10 +36,6 @@ export function Hero({ brands }: { brands: string[] }) {
       </div>
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-4 py-20 text-center sm:items-start sm:px-6 sm:py-28 sm:text-left lg:px-8">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 animate-fade-in-up">
-          Seminovos selecionados · Financiamento facilitado
-        </span>
-
         <h1 className="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-accent-400 sm:max-w-xl sm:text-6xl animate-fade-in-up">
           Seu próximo carro começa aqui.
         </h1>
