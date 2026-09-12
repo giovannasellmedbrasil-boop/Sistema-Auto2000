@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Tabs } from "@/components/ui/Tabs";
 import { getAdminSession } from "@/lib/server/auth";
@@ -20,7 +19,6 @@ import {
 } from "@/lib/server/documentChecklist";
 import {
   CUSTOMER_KIND_LABELS,
-  FINANCING_STATUS_LABELS,
   NEGOTIATION_PAYMENT_METHOD_LABELS,
   VEHICLE_CONDITION_LABELS,
   type ChecklistCategory,
@@ -33,7 +31,6 @@ import { DocumentUploadForm } from "@/components/documentacao/DocumentUploadForm
 import { DocumentsList } from "@/components/documentacao/DocumentsList";
 import { TransferTimeline } from "@/components/documentacao/TransferTimeline";
 import { HistoryTimeline } from "@/components/documentacao/HistoryTimeline";
-import { FinancingStatusSelect } from "@/components/documentacao/FinancingStatusSelect";
 
 export const metadata: Metadata = { title: "Venda — Documentação", robots: { index: false } };
 
@@ -177,26 +174,6 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
     </div>
   );
 
-  const financiamentoTab = negotiation.financing ? (
-    <div className="flex flex-col gap-6">
-      <Card className="flex flex-col gap-3 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="text-base font-semibold text-accent-400">{negotiation.financing.financierName}</h3>
-            <p className="text-sm text-ink-500">
-              {formatCurrency(negotiation.financing.financedAmount)} financiado em {negotiation.financing.installments}x · entrada {formatCurrency(negotiation.financing.downPayment)}
-            </p>
-          </div>
-          <FinancingStatusSelect negotiationId={id} financing={negotiation.financing} />
-        </div>
-        <Badge tone="ink">{FINANCING_STATUS_LABELS[negotiation.financing.status]}</Badge>
-      </Card>
-      <ChecklistSection negotiationId={id} category="FINANCIAMENTO" items={itemsIn(items, "FINANCIAMENTO")} />
-    </div>
-  ) : (
-    <Card className="p-6 text-sm text-ink-500">Esta venda é à vista — não há financiamento.</Card>
-  );
-
   const transferenciaTab = negotiation.needsTransfer ? (
     <div className="flex flex-col gap-6">
       <Card className="p-6">
@@ -252,7 +229,6 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
           { key: "resumo", label: "Resumo", content: resumoTab },
           { key: "cliente", label: "Cliente", content: clienteTab },
           { key: "veiculo", label: "Veículo", content: veiculoTab },
-          { key: "financiamento", label: "Financiamento", content: financiamentoTab },
           { key: "transferencia", label: "Transferência", content: transferenciaTab },
           { key: "entrega", label: "Entrega", content: entregaTab },
           { key: "arquivos", label: "Arquivos", content: arquivosTab },
