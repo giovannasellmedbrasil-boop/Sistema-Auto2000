@@ -2,7 +2,7 @@ import { Hero } from "@/components/home/Hero";
 import { QuickCategories } from "@/components/home/QuickCategories";
 import { FeaturedVehicles } from "@/components/home/FeaturedVehicles";
 import { TrustSection } from "@/components/home/TrustSection";
-import { listVehiclesPublic, listBrands } from "@/lib/server/db";
+import { listVehiclesPublic } from "@/lib/server/db";
 
 // Consulta o mock store real a cada requisição — sem isso, o Next tentaria
 // pré-renderizar esta página como estática no build (sem acesso à rede do
@@ -11,12 +11,12 @@ import { listVehiclesPublic, listBrands } from "@/lib/server/db";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [allFeatured, brands] = await Promise.all([listVehiclesPublic({ sort: "recent" }), listBrands()]);
+  const allFeatured = await listVehiclesPublic({ sort: "recent" });
   const featured = allFeatured.slice(0, 8);
 
   return (
     <>
-      <Hero brands={brands} />
+      <Hero />
       <QuickCategories />
       <FeaturedVehicles vehicles={featured} />
       <TrustSection />

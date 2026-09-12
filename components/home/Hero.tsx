@@ -1,7 +1,6 @@
 import Image from "next/image";
-import { HeroSearch } from "@/components/home/HeroSearch";
 
-export function Hero({ brands }: { brands: string[] }) {
+export function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-white/10">
       <div
@@ -43,10 +42,6 @@ export function Hero({ brands }: { brands: string[] }) {
         <p className="max-w-xl text-balance text-lg text-white/70 animate-fade-in-up">
           Encontre, simule e negocie seu veículo de forma simples, rápida e segura.
         </p>
-
-        <div className="w-full max-w-2xl animate-fade-in-up">
-          <HeroSearch brands={brands} />
-        </div>
       </div>
     </section>
   );
