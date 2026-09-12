@@ -91,16 +91,20 @@
 /* "Blur amarelo" ambiente — pintado direto como o background do body e
    repetido verticalmente (em vez de "fixed", que alguns navegadores/engines
    deixam de pintar corretamente numa página mais alta que a viewport), para
-   aparecer de forma contínua ao longo de toda a página, não só no topo. */
+   aparecer de forma contínua ao longo de toda a página, não só no topo.
+   Cada radial-gradient já fica 100% transparente a partir de 60% do seu
+   próprio raio — por isso todos os centros ficam bem longe das bordas do
+   tile (0px e 1300px), garantindo transparência total exatamente na emenda
+   e evitando a linha de costura visível ao repetir. */
 body {
   background-color: var(--background);
   background-image:
-    radial-gradient(ellipse 900px 600px at 10% 0%, rgba(255, 176, 0, 0.20), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 95% 30%, rgba(255, 176, 0, 0.14), transparent 60%),
-    radial-gradient(ellipse 800px 600px at 5% 65%, rgba(255, 176, 0, 0.13), transparent 60%),
-    radial-gradient(ellipse 900px 700px at 100% 100%, rgba(255, 176, 0, 0.16), transparent 60%);
+    radial-gradient(ellipse 900px 600px at 10% 18%, rgba(255, 176, 0, 0.20), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 92% 40%, rgba(255, 176, 0, 0.14), transparent 60%),
+    radial-gradient(ellipse 800px 550px at 6% 62%, rgba(255, 176, 0, 0.13), transparent 60%),
+    radial-gradient(ellipse 850px 560px at 94% 84%, rgba(255, 176, 0, 0.16), transparent 60%);
   background-repeat: repeat-y;
-  background-size: 100% 1400px;
+  background-size: 100% 1300px;
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
 }

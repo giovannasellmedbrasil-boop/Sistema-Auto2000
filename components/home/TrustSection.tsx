@@ -5,12 +5,12 @@ const ITEMS = [
   {
     icon: ShieldCheck,
     title: "Procedência garantida",
-    text: "Todos os veículos passam por inspeção antes de entrar no estoque.",
+    text: "Todos os veículos passam por laudo cautelar antes de entrar no estoque.",
   },
   {
     icon: BadgeCheck,
     title: "Documentação em dia",
-    text: "Transferência e burocracia cuidadas por nossa equipe, do início ao fim.",
+    text: "Nossa equipe cuida de todo o processo incluindo o de transferência de propriedade.",
   },
   {
     icon: Clock3,
