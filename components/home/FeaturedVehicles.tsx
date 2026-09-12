@@ -9,9 +9,7 @@ export function FeaturedVehicles({ vehicles }: { vehicles: Vehicle[] }) {
     <section className="border-b border-white/8 bg-white/[0.02] py-16 sm:py-20">
       <Container className="flex flex-col gap-8">
         <SectionHeading
-          eyebrow="Estoque selecionado"
-          title="Veículos em destaque"
-          subtitle="Uma seleção dos veículos mais recentes e procurados do nosso estoque."
+          title="A escolha certa começa aqui"
           action={
             <Button href="/estoque" variant="outline">
               Ver estoque completo
