@@ -46,3 +46,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# material de referência local (contratos, vídeos brutos etc.) — não é
+# usado em tempo de execução pelo site, fica só na máquina local
+/auto2000 docs/
