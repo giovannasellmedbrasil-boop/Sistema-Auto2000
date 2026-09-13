@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect, notFound } from "next/navigation";
 import { getAdminSession } from "@/lib/server/auth";
 import { getContractById } from "@/lib/server/db";
@@ -22,6 +23,9 @@ export default async function ContratoDocumentPage({ params }: { params: Promise
         <div className="flex items-center justify-between print:hidden">
           <span className="text-xs uppercase tracking-wide text-ink-500">{CONTRACT_TYPE_LABELS[contract.type]}</span>
           <PrintButton />
+        </div>
+        <div className="flex justify-center print:mb-4">
+          <Image src="/logo.png" alt="Auto2000 Veículos" width={896} height={444} className="h-16 w-auto" priority />
         </div>
         <ContractDocument type={contract.type} fields={contract.fields} />
       </div>
