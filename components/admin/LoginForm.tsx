@@ -48,11 +48,11 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <FormGroup>
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" name="email" type="email" required defaultValue="adm@auto2000.com.br" />
+          <Input id="email" name="email" type="email" required autoComplete="username" />
         </FormGroup>
         <FormGroup>
           <Label htmlFor="password">Senha</Label>
-          <Input id="password" name="password" type="password" required defaultValue="auto2000admin" />
+          <Input id="password" name="password" type="password" required autoComplete="current-password" />
         </FormGroup>
 
         {status === "error" && (
@@ -63,9 +63,6 @@ export function LoginForm() {
           {status === "submitting" && <Loader2 className="h-4 w-4 animate-spin" />}
           Entrar
         </Button>
-        <p className="text-center text-xs text-ink-600">
-          Ambiente de demonstração — credenciais já preenchidas.
-        </p>
       </form>
     </Card>
   );
