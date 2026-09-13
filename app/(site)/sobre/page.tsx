@@ -34,26 +34,20 @@ export default function SobrePage() {
 
       <div className="flex max-w-3xl flex-col gap-5 text-base leading-relaxed text-white">
         <p>
-          Fundada em 1982, nossa loja nasceu como um negócio familiar e, ao longo de 44 anos
-          de trajetória, consolidou-se no mercado mantendo os mesmos valores que fizeram parte
-          do nosso início: seriedade, transparência, respeito e compromisso com cada cliente.
+          Ao longo de 44 anos, acompanhamos muito mais do que mudanças no mercado.
+          Acompanhamos conquistas, novos começos e diferentes gerações de clientes que
+          escolheram confiar na Auto2000.
         </p>
         <p>
-          Somos uma empresa familiar, com uma estrutura construída para oferecer segurança,
-          conforto e um atendimento próximo em todas as etapas da compra ou venda de um veículo.
+          Porque sabemos que um carro representa muito mais do que uma compra. Ele acompanha
+          momentos importantes, realiza planos e faz parte de novas histórias.
         </p>
         <p>
-          Ao longo dos anos, acompanhamos as transformações do mercado automotivo, evoluímos
-          nossa forma de trabalhar e incorporamos novas tecnologias, sem deixar de lado aquilo
-          que consideramos essencial: conhecer nossos clientes, entender suas necessidades e
-          construir relações duradouras.
-        </p>
-        <p>
-          Cada veículo que passa pela nossa loja faz parte de uma história e cada cliente que
-          confia em nosso trabalho passa a fazer parte da nossa também.
+          E é essa confiança, construída ao longo de tantos anos, que nos inspira a continuar.
         </p>
         <p className="font-medium text-accent-400">
-          Desde 1982, tradição de família, confiança construída ao longo de gerações.
+          Auto2000. Desde 1982, uma história de família, feita de confiança e construída para
+          atravessar gerações.
         </p>
       </div>
 
