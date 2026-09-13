@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { LogoWatermark } from "@/components/ui/LogoWatermark";
-import { buildWhatsAppLink } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Sobre nós",
@@ -51,45 +48,15 @@ export default function SobrePage() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="flex flex-col gap-4 p-8">
-          <h2 className="text-lg font-semibold text-accent-400">Visite nossa loja</h2>
-          <div className="flex flex-col gap-3 text-sm text-white">
-            <span className="inline-flex items-start gap-2">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ink-600" />
-              Av. Professor Luiz Ignácio Anhaia Mello, 8201 - Parque São Lourenço, São Paulo - SP, 03155-000
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Clock className="h-4 w-4 shrink-0 text-ink-600" /> Seg a sex, 9h às 18h · Sáb, 9h às 15h
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Phone className="h-4 w-4 shrink-0 text-ink-600" /> (11) 94729-4679
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Mail className="h-4 w-4 shrink-0 text-ink-600" /> auto2000veiculos@uol.com.br
-            </span>
-          </div>
-          <Button
-            href={buildWhatsAppLink("Olá! Gostaria de saber mais sobre a Auto2000.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="whatsapp"
-            className="w-fit"
-          >
-            Falar no WhatsApp
-          </Button>
-        </Card>
-
-        <Card className="relative aspect-video overflow-hidden p-0 lg:aspect-auto">
-          <Image
-            src="/loja-fachada.png"
-            alt="Fachada da loja Auto2000, Av. Professor Luiz Ignácio Anhaia Mello, 8201"
-            fill
-            className="object-cover"
-            sizes="(min-width: 1024px) 50vw, 100vw"
-          />
-        </Card>
-      </div>
+      <Card className="relative mx-auto aspect-video w-full max-w-3xl overflow-hidden p-0">
+        <Image
+          src="/loja-fachada.png"
+          alt="Fachada da loja Auto2000, Av. Professor Luiz Ignácio Anhaia Mello, 8201"
+          fill
+          className="object-cover"
+          sizes="(min-width: 768px) 48rem, 100vw"
+        />
+      </Card>
       </Container>
     </div>
   );
