@@ -50,16 +50,18 @@ export function AdminShell({
   name,
   email,
   role,
+  hideDashboard,
   children,
 }: {
   name: string;
   email: string;
   role: UserRole;
+  hideDashboard?: boolean;
   children: ReactNode;
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const nav = NAV.filter((item) => item.roles.includes(role));
+  const nav = NAV.filter((item) => item.roles.includes(role) && (!hideDashboard || item.href !== "/admin"));
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   async function handleLogout() {

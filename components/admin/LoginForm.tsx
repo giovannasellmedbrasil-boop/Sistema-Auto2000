@@ -48,7 +48,7 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <FormGroup>
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" name="email" type="email" required defaultValue="admin@auto2000.com.br" />
+          <Input id="email" name="email" type="email" required defaultValue="adm@auto2000.com.br" />
         </FormGroup>
         <FormGroup>
           <Label htmlFor="password">Senha</Label>

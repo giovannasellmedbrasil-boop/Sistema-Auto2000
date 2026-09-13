@@ -7,7 +7,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
   if (!session) redirect("/admin/login");
 
   return (
-    <AdminShell name={session.name} email={session.email} role={session.role}>
+    <AdminShell name={session.name} email={session.email} role={session.role} hideDashboard={session.hideDashboard}>
       {children}
     </AdminShell>
   );

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getAdminSession } from "@/lib/server/auth";
 import { getDashboardMetrics } from "@/lib/server/db";
 import { getDashboardData, parseDashboardFilters, filtersToQueryString } from "@/lib/server/dashboard";
 import { Card } from "@/components/ui/Card";
@@ -19,6 +21,9 @@ export default async function AdminDashboardPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  const session = await getAdminSession();
+  if (session?.hideDashboard) redirect("/admin/documentacao/nova");
+
   const sp = await searchParams;
   const urlParams = new URLSearchParams(Object.entries(sp).filter(([, v]) => v != null) as [string, string][]);
   const filters = parseDashboardFilters(urlParams);

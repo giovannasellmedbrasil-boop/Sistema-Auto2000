@@ -22,29 +22,27 @@ interface DemoUser {
   email: string;
   password: string;
   role: UserRole;
+  // Acesso a tudo (role ADMIN), exceto ao Dashboard — não é uma role
+  // separada, é uma exceção pontual para este usuário (pedido em
+  // 2026-09-13: "acesso a tudo exceto o dashboard").
+  hideDashboard?: boolean;
 }
 
 const DEMO_USERS: DemoUser[] = [
   {
     id: "user_admin",
     name: "Administrador",
-    email: process.env.ADMIN_EMAIL ?? "admin@auto2000.com.br",
-    password: process.env.ADMIN_PASSWORD ?? "auto2000admin",
+    email: "adm@auto2000.com.br",
+    password: "auto2000admin",
     role: "ADMIN",
   },
   {
-    id: "user_manager",
-    name: "Gerente Demonstração",
-    email: "gerente@auto2000.com.br",
-    password: "auto2000gerente",
-    role: "MANAGER",
-  },
-  {
-    id: "user_sales",
-    name: "Vendedor Demonstração",
-    email: "vendedor@auto2000.com.br",
-    password: "auto2000vendedor",
-    role: "SALES",
+    id: "user_vitorhugo",
+    name: "Vitor Hugo",
+    email: "vitorhugo@auto2000.com.br",
+    password: "auto2000vh",
+    role: "ADMIN",
+    hideDashboard: true,
   },
 ];
 
@@ -57,6 +55,7 @@ interface SessionPayload {
   email: string;
   name: string;
   role: UserRole;
+  hideDashboard: boolean;
   exp: number;
 }
 
@@ -77,6 +76,7 @@ export function createSessionToken(user: DemoUser): string {
     email: user.email,
     name: user.name,
     role: user.role,
+    hideDashboard: user.hideDashboard ?? false,
     exp: Date.now() + SESSION_MAX_AGE * 1000,
   };
   const json = JSON.stringify(payload);
