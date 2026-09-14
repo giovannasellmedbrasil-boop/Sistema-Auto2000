@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import type { NegotiationPaymentMethod, Vehicle } from "@/lib/types";
+import type { Negotiation, NegotiationPaymentMethod, Vehicle } from "@/lib/types";
 import { CUSTOMER_KIND_LABELS, NEGOTIATION_PAYMENT_METHOD_LABELS, VEHICLE_CONDITION_LABELS } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -15,22 +15,27 @@ export function NewNegotiationForm({
   vehicles,
   sellers,
   initialVehicleId,
+  negotiation,
 }: {
   vehicles: Pick<Vehicle, "id" | "brand" | "model" | "version" | "modelYear" | "price">[];
   sellers: { id: string; name: string }[];
   initialVehicleId?: string;
+  negotiation?: Negotiation;
 }) {
   const router = useRouter();
+  const isEditing = Boolean(negotiation);
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [customerKind, setCustomerKind] = useState<"INDIVIDUAL" | "COMPANY">("INDIVIDUAL");
-  const [hasRepresentativeProcuration, setHasRepresentativeProcuration] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<NegotiationPaymentMethod>("CASH");
-  const [vehicleCondition, setVehicleCondition] = useState<"NEW" | "USED">("USED");
-  const [needsTransfer, setNeedsTransfer] = useState(true);
-  const [interstate, setInterstate] = useState(false);
-  const [needsCourier, setNeedsCourier] = useState(false);
+  const [customerKind, setCustomerKind] = useState<"INDIVIDUAL" | "COMPANY">(negotiation?.customerKind ?? "INDIVIDUAL");
+  const [hasRepresentativeProcuration, setHasRepresentativeProcuration] = useState(
+    negotiation?.hasRepresentativeProcuration ?? false
+  );
+  const [paymentMethod, setPaymentMethod] = useState<NegotiationPaymentMethod>(negotiation?.paymentMethod ?? "CASH");
+  const [vehicleCondition, setVehicleCondition] = useState<"NEW" | "USED">(negotiation?.vehicleCondition ?? "USED");
+  const [needsTransfer, setNeedsTransfer] = useState(negotiation?.needsTransfer ?? true);
+  const [interstate, setInterstate] = useState(negotiation?.interstate ?? false);
+  const [needsCourier, setNeedsCourier] = useState(negotiation?.needsCourier ?? false);
 
   // A forma de pagamento já diz se há financiamento e/ou troca — em vez de
   // pedir de novo em checkboxes separados que poderiam ficar dessincronizados.
@@ -87,22 +92,22 @@ export function NewNegotiationForm({
     };
 
     try {
-      const res = await fetch("/api/negotiations", {
-        method: "POST",
+      const res = await fetch(isEditing ? `/api/negotiations/${negotiation!.id}` : "/api/negotiations", {
+        method: isEditing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        setErrorMsg(data?.error ?? "Não foi possível cadastrar a venda.");
+        setErrorMsg(data?.error ?? (isEditing ? "Não foi possível salvar as alterações." : "Não foi possível cadastrar a venda."));
         setStatus("error");
         return;
       }
-      const data = await res.json();
-      router.push(`/admin/documentacao/${data.negotiation.id}`);
+      const targetId = isEditing ? negotiation!.id : (await res.json()).negotiation.id;
+      router.push(`/admin/documentacao/${targetId}`);
       router.refresh();
     } catch {
-      setErrorMsg("Não foi possível cadastrar a venda.");
+      setErrorMsg(isEditing ? "Não foi possível salvar as alterações." : "Não foi possível cadastrar a venda.");
       setStatus("error");
     }
   }
@@ -122,27 +127,32 @@ export function NewNegotiationForm({
           </FormGroup>
           <FormGroup>
             <Label>{customerKind === "INDIVIDUAL" ? "Nome completo" : "Razão social"}</Label>
-            <Input name="customerName" required />
+            <Input name="customerName" required defaultValue={negotiation?.customerName} />
           </FormGroup>
           <FormGroup>
             <Label>{customerKind === "INDIVIDUAL" ? "CPF" : "CNPJ"}</Label>
-            <Input name="customerDocument" required />
+            <Input name="customerDocument" required defaultValue={negotiation?.customerDocument} />
           </FormGroup>
           <FormGroup>
             <Label>Telefone (WhatsApp)</Label>
-            <Input name="customerPhone" required placeholder="5511999999999" />
+            <Input name="customerPhone" required placeholder="5511999999999" defaultValue={negotiation?.customerPhone} />
           </FormGroup>
           <FormGroup>
             <Label>E-mail</Label>
-            <Input name="customerEmail" type="email" required />
+            <Input name="customerEmail" type="email" required defaultValue={negotiation?.customerEmail ?? undefined} />
           </FormGroup>
           <FormGroup>
             <Label>CEP</Label>
-            <Input name="customerCep" required placeholder="00000-000" />
+            <Input name="customerCep" required placeholder="00000-000" defaultValue={negotiation?.customerCep} />
           </FormGroup>
           <FormGroup className="sm:col-span-2">
             <Label>Endereço completo</Label>
-            <Input name="customerAddress" required placeholder="Rua, número, bairro, cidade/UF" />
+            <Input
+              name="customerAddress"
+              required
+              placeholder="Rua, número, bairro, cidade/UF"
+              defaultValue={negotiation?.customerAddress}
+            />
           </FormGroup>
         </div>
         <div className="flex flex-wrap gap-5 pt-1">
@@ -162,7 +172,7 @@ export function NewNegotiationForm({
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <FormGroup className="sm:col-span-2">
             <Label>Veículo</Label>
-            <Select name="vehicleId" required defaultValue={initialVehicleId ?? ""}>
+            <Select name="vehicleId" required defaultValue={negotiation?.vehicleId ?? initialVehicleId ?? ""}>
               <option value="" disabled>Selecione um veículo do estoque</option>
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -181,7 +191,7 @@ export function NewNegotiationForm({
           </FormGroup>
           <FormGroup>
             <Label>Vendedor</Label>
-            <Select name="sellerId" required defaultValue="">
+            <Select name="sellerId" required defaultValue={negotiation?.sellerId ?? ""}>
               <option value="" disabled>Selecione</option>
               {sellers.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
@@ -190,7 +200,7 @@ export function NewNegotiationForm({
           </FormGroup>
           <FormGroup>
             <Label>Valor da venda</Label>
-            <MoneyInput name="saleValue" required />
+            <MoneyInput name="saleValue" required defaultValue={negotiation?.saleValue} />
           </FormGroup>
           <FormGroup>
             <Label>Forma de pagamento</Label>
@@ -202,7 +212,7 @@ export function NewNegotiationForm({
           </FormGroup>
           <FormGroup>
             <Label hint="opcional">Responsável pela documentação</Label>
-            <Select name="documentationResponsible" defaultValue="">
+            <Select name="documentationResponsible" defaultValue={negotiation?.documentationResponsible ?? ""}>
               <option value="">Não definido</option>
               <option value="Cliente">Cliente</option>
               <option value="Loja">Loja</option>
@@ -217,23 +227,36 @@ export function NewNegotiationForm({
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <FormGroup>
               <Label>Financeira</Label>
-              <Input name="financierName" required />
+              <Input name="financierName" required defaultValue={negotiation?.financing?.financierName} />
             </FormGroup>
             <FormGroup>
               <Label>Valor financiado</Label>
-              <MoneyInput name="financedAmount" required />
+              <MoneyInput name="financedAmount" required defaultValue={negotiation?.financing?.financedAmount} />
             </FormGroup>
             <FormGroup>
               <Label>Entrada</Label>
-              <MoneyInput name="downPayment" required />
+              <MoneyInput name="downPayment" required defaultValue={negotiation?.financing?.downPayment} />
             </FormGroup>
             <FormGroup>
               <Label>Quantidade de parcelas</Label>
-              <Input name="installments" type="number" min={1} step={1} required placeholder="Ex: 48" />
+              <Input
+                name="installments"
+                type="number"
+                min={1}
+                step={1}
+                required
+                placeholder="Ex: 48"
+                defaultValue={negotiation?.financing?.installments}
+              />
             </FormGroup>
             <FormGroup>
               <Label>Valor de cada parcela</Label>
-              <MoneyInput name="installmentValue" required placeholder="Ex: 1.459" />
+              <MoneyInput
+                name="installmentValue"
+                required
+                placeholder="Ex: 1.459"
+                defaultValue={negotiation?.financing?.installmentValue}
+              />
             </FormGroup>
           </div>
         </Card>
@@ -263,27 +286,27 @@ export function NewNegotiationForm({
             </p>
             <FormGroup>
               <Label>Placa</Label>
-              <Input name="tradeInPlate" required />
+              <Input name="tradeInPlate" required defaultValue={negotiation?.tradeIn?.plate} />
             </FormGroup>
             <FormGroup>
               <Label>Marca</Label>
-              <Input name="tradeInBrand" required />
+              <Input name="tradeInBrand" required defaultValue={negotiation?.tradeIn?.brand} />
             </FormGroup>
             <FormGroup>
               <Label>Modelo</Label>
-              <Input name="tradeInModel" required />
+              <Input name="tradeInModel" required defaultValue={negotiation?.tradeIn?.model} />
             </FormGroup>
             <FormGroup>
               <Label>Ano</Label>
-              <Input name="tradeInYear" type="number" required />
+              <Input name="tradeInYear" type="number" required defaultValue={negotiation?.tradeIn?.year} />
             </FormGroup>
             <FormGroup>
               <Label>Quilometragem</Label>
-              <Input name="tradeInMileage" type="number" min={0} required />
+              <Input name="tradeInMileage" type="number" min={0} required defaultValue={negotiation?.tradeIn?.mileageKm} />
             </FormGroup>
             <FormGroup>
               <Label>Valor solicitado pelo cliente</Label>
-              <MoneyInput name="tradeInRequestedValue" required />
+              <MoneyInput name="tradeInRequestedValue" required defaultValue={negotiation?.tradeIn?.requestedValue} />
             </FormGroup>
           </div>
         )}
@@ -294,9 +317,9 @@ export function NewNegotiationForm({
       <div className="flex gap-3">
         <Button type="submit" disabled={status === "submitting"}>
           {status === "submitting" && <Loader2 className="h-4 w-4 animate-spin" />}
-          Gerar documentação necessária
+          {isEditing ? "Salvar alterações" : "Gerar documentação necessária"}
         </Button>
-        <Button href="/admin/documentacao" variant="outline">
+        <Button href={isEditing ? `/admin/documentacao/${negotiation!.id}` : "/admin/documentacao"} variant="outline">
           Cancelar
         </Button>
       </div>

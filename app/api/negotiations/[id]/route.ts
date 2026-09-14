@@ -52,6 +52,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 }
 
 const patchSchema = z.object({
+  customerKind: z.enum(["INDIVIDUAL", "COMPANY"]).optional(),
+  customerName: z.string().min(1).optional(),
+  customerDocument: z.string().min(1).optional(),
+  customerPhone: z.string().optional(),
+  customerEmail: z.string().email().optional(),
+  customerAddress: z.string().min(1).optional(),
+  customerCep: z.string().min(1).optional(),
+  hasRepresentativeProcuration: z.boolean().optional(),
+  vehicleId: z.string().min(1).optional(),
+  sellerId: z.string().min(1).optional(),
+  sellerName: z.string().min(1).optional(),
+  saleValue: z.coerce.number().min(0).optional(),
+  paymentMethod: z
+    .enum(["CASH", "FINANCING", "CASH_FINANCING_TRADE_IN", "CASH_TRADE_IN", "CASH_FINANCING", "FINANCING_TRADE_IN"])
+    .optional(),
   financing: z
     .object({
       financierName: z.string().min(1),
@@ -70,11 +85,9 @@ const patchSchema = z.object({
         "FUNDS_RELEASED",
       ]),
     })
-    .optional(),
-  transferStage: z.enum(["SALE_DONE", "DOCS_REVIEWED", "ATPV", "COURIER", "DETRAN", "COMPLETED"]).optional(),
-  documentationResponsible: z.string().optional().nullable(),
-  customerPhone: z.string().optional(),
-  customerEmail: z.string().email().optional(),
+    .optional()
+    .nullable(),
+  hasTradeIn: z.boolean().optional(),
   tradeIn: z
     .object({
       plate: z.string(),
@@ -87,7 +100,14 @@ const patchSchema = z.object({
       storeAppraisalValue: z.coerce.number().optional().nullable(),
       approvedValue: z.coerce.number().optional().nullable(),
     })
-    .optional(),
+    .optional()
+    .nullable(),
+  vehicleCondition: z.enum(["NEW", "USED"]).optional(),
+  needsTransfer: z.boolean().optional(),
+  interstate: z.boolean().optional(),
+  needsCourier: z.boolean().optional(),
+  transferStage: z.enum(["SALE_DONE", "DOCS_REVIEWED", "ATPV", "COURIER", "DETRAN", "COMPLETED"]).optional(),
+  documentationResponsible: z.string().optional().nullable(),
 });
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {

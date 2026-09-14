@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trash2, FolderSearch } from "lucide-react";
+import { Trash2, Pencil, FolderSearch } from "lucide-react";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { BucketBadge } from "@/components/documentacao/BucketBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -45,7 +45,7 @@ export function NegotiationsTable({ rows, canDelete }: { rows: NegotiationRow[];
             <th className="px-4 py-3">Pagamento</th>
             <th className="px-4 py-3">Progresso</th>
             <th className="px-4 py-3">Status</th>
-            {canDelete && <th className="px-4 py-3 text-right">Ações</th>}
+            <th className="px-4 py-3 text-right">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -72,18 +72,27 @@ export function NegotiationsTable({ rows, canDelete }: { rows: NegotiationRow[];
               <td className="px-4 py-3">
                 <BucketBadge bucket={bucket} />
               </td>
-              {canDelete && (
-                <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => handleDelete(negotiation.id, negotiation.code)}
-                    disabled={deletingId === negotiation.id}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-600 hover:bg-danger-500/10 hover:text-danger-500"
-                    aria-label="Excluir venda"
+              <td className="px-4 py-3">
+                <div className="flex items-center justify-end gap-1">
+                  <Link
+                    href={`/admin/documentacao/${negotiation.id}/editar`}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-600 hover:bg-ink-100 hover:text-ink-700"
+                    aria-label="Editar venda"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </td>
-              )}
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDelete(negotiation.id, negotiation.code)}
+                      disabled={deletingId === negotiation.id}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-600 hover:bg-danger-500/10 hover:text-danger-500"
+                      aria-label="Excluir venda"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>

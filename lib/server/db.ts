@@ -904,12 +904,28 @@ export async function updateNegotiation(
   patch: Partial<
     Pick<
       Negotiation,
-      | "financing"
-      | "tradeIn"
-      | "transferStage"
-      | "documentationResponsible"
+      | "customerKind"
+      | "customerName"
+      | "customerDocument"
       | "customerPhone"
       | "customerEmail"
+      | "customerAddress"
+      | "customerCep"
+      | "hasRepresentativeProcuration"
+      | "vehicleId"
+      | "sellerId"
+      | "sellerName"
+      | "saleValue"
+      | "paymentMethod"
+      | "financing"
+      | "hasTradeIn"
+      | "tradeIn"
+      | "vehicleCondition"
+      | "needsTransfer"
+      | "interstate"
+      | "needsCourier"
+      | "transferStage"
+      | "documentationResponsible"
     >
   >,
   opts: { actor: string; historyMessage?: string }
