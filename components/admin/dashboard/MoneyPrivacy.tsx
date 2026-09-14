@@ -9,15 +9,16 @@ interface MoneyPrivacyContextValue {
   toggle: () => void;
 }
 
-const MoneyPrivacyContext = createContext<MoneyPrivacyContextValue>({ hidden: false, toggle: () => {} });
+const MoneyPrivacyContext = createContext<MoneyPrivacyContextValue>({ hidden: true, toggle: () => {} });
 
 // Envolve o dashboard inteiro — qualquer valor em reais renderizado com
 // <Money> dentro desta árvore respeita o mesmo estado de "ocultar valores",
 // esteja o valor num Server Component (via children) ou num Client
 // Component filho (via o hook useMoneyPrivacy). Estado por carregamento de
-// página (sem persistência entre recarregamentos) — sempre visível ao abrir.
+// página (sem persistência entre recarregamentos) — sempre oculto ao abrir,
+// só aparece se clicar no olho.
 export function MoneyPrivacyProvider({ children }: { children: ReactNode }) {
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(true);
 
   return (
     <MoneyPrivacyContext.Provider value={{ hidden, toggle: () => setHidden((prev) => !prev) }}>
