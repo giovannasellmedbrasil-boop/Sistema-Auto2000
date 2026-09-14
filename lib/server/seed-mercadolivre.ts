@@ -2,15 +2,15 @@ import type { BodyType, FuelType, Transmission, Vehicle } from "@/lib/types";
 import { vehicleSlug } from "@/lib/utils";
 
 // Veículos importados dos anúncios PÚBLICOS e ativos da loja no Mercado
-// Livre (https://www.mercadolivre.com.br/pagina/auto2000veiculos) em
-// 2026-09-12 (revisado/ressincronizado nesta data — anúncios finalizados
-// removidos, novos anúncios ativos adicionados). Toda marca/modelo/versão/
-// ano/km/preço/cor/combustível/câmbio/
-// carroceria/final de placa/motor/potência/equipamentos/descrição e as URLs
-// de fotos abaixo vieram da própria página do anúncio (dados estruturados
-// schema.org/Vehicle + tabela de especificações do anúncio) — nada foi
-// inventado. Campos não informados pelo anunciante (ex: porta-malas em
-// alguns modelos) ficam `null`.
+// Livre (https://www.mercadolivre.com.br/pagina/auto2000veiculos), última
+// ressincronização em 2026-09-14 (8 dos 14 anúncios tinham o preço
+// desatualizado em relação ao Mercado Livre — todos os campos abaixo foram
+// puxados de novo, direto da página de cada anúncio). Toda marca/modelo/
+// versão/ano/km/preço/cor/combustível/câmbio/carroceria/final de placa/
+// motor/potência/equipamentos/descrição e as URLs de fotos abaixo vieram da
+// própria página do anúncio (dados estruturados schema.org/Vehicle + tabela
+// de especificações do anúncio) — nada foi inventado. Campos não informados
+// pelo anunciante (ex: porta-malas em alguns modelos) ficam `null`.
 //
 // Isto é uma IMPORTAÇÃO PONTUAL (rodada manualmente, ver
 // scripts/mercadolivre-import), não uma sincronização automática — se o
@@ -67,6 +67,7 @@ const rawVehicles: RawMlVehicle[] = [
       "Airbag para motorista e passageiro",
       "Alarme",
       "Bancos em couro",
+      "Com preço negociável",
       "Computador de bordo",
       "Controle de estabilidade",
       "Controle remoto para rádio no volante",
@@ -127,6 +128,7 @@ const rawVehicles: RawMlVehicle[] = [
       "Bagageiro no teto",
       "Bancos em couro",
       "CD player",
+      "Com preço negociável",
       "Computador de bordo",
       "Controle de estabilidade",
       "Controle remoto para rádio no volante",
@@ -170,7 +172,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2016,
     "modelYear": 2016,
     "mileageKm": 99000,
-    "price": 80990,
+    "price": 77990,
     "transmission": "AUTOMATIC",
     "fuel": "GASOLINE",
     "color": "Prateado",
@@ -186,6 +188,7 @@ const rawVehicles: RawMlVehicle[] = [
       "Ar-condicionado",
       "Bancos em couro",
       "Bluetooth",
+      "Com preço negociável",
       "Computador de bordo",
       "Controle de estabilidade",
       "Controle remoto para rádio no volante",
@@ -231,7 +234,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2022,
     "modelYear": 2022,
     "mileageKm": 70000,
-    "price": 81490,
+    "price": 79990,
     "transmission": "MANUAL",
     "fuel": "FLEX",
     "color": "Branco",
@@ -335,7 +338,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2005,
     "modelYear": 2005,
     "mileageKm": 165000,
-    "price": 24490,
+    "price": 24990,
     "transmission": "MANUAL",
     "fuel": "GASOLINE",
     "color": "Preto",
@@ -346,17 +349,20 @@ const rawVehicles: RawMlVehicle[] = [
     "trunkLiters": null,
     "features": [
       "Bagageiro no teto",
+      "Com preço negociável",
       "Freios ABS",
       "Porta copos"
     ],
     "description": "LAUDO CAUTELAR APROVADO!Entre em contato com a nossa equipe via WhatsApp para maiores informações e para simulações, confira também nossas avaliações no Google de 4,8 estrelas.Atendemos em sede própria e temos 44 anos de mercado.Chevrolet Corsa Classic 1.6 Spirit 4 portas 2005 é um sedã compacto pensado para rotina urbana, deslocamentos diários e uso familiar leve. Com capacidade para 5 pessoas, entrega uma proposta simples e funcional, com foco em praticidade e condução direta.O conjunto mecânico traz motor 1.6 a gasolina, câmbio manual de 5 velocidades e direção mecânica. A potência informada é de 92 hp, e o consumo médio em cidade de 11,5 km/l ajuda a compor um perfil equilibrado para quem valoriza economia de uso no dia a dia.",
     "photos": [
       "https://http2.mlstatic.com/D_NQ_NP_2X_706645-MLB117363903553_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
-      "https://http2.mlstatic.com/D_NQ_NP_2X_652532-MLB117363782877_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
+      "https://http2.mlstatic.com/D_NQ_NP_2X_826164-MLB117363192905_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
+      "https://http2.mlstatic.com/D_NQ_NP_2X_610967-MLB117363514903_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_841354-MLB115895734804_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_842413-MLB117363192855_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_884387-MLB115896556052_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_839374-MLB115896556058_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
+      "https://http2.mlstatic.com/D_NQ_NP_2X_652532-MLB117363782877_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_664036-MLB115896202730_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_676587-MLB115896173412_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_957375-MLB117363782905_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
@@ -366,9 +372,7 @@ const rawVehicles: RawMlVehicle[] = [
       "https://http2.mlstatic.com/D_NQ_NP_2X_921946-MLB117363900759_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_633799-MLB115896173428_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_702302-MLB115896556076_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
-      "https://http2.mlstatic.com/D_NQ_NP_2X_727489-MLB117363900765_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
-      "https://http2.mlstatic.com/D_NQ_NP_2X_610967-MLB117363514903_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp",
-      "https://http2.mlstatic.com/D_NQ_NP_2X_826164-MLB117363192905_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp"
+      "https://http2.mlstatic.com/D_NQ_NP_2X_727489-MLB117363900765_092026-F-chevrolet-corsa-classic-16-spirit-4p.webp"
     ]
   },
   {
@@ -428,7 +432,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2019,
     "modelYear": 2019,
     "mileageKm": 87000,
-    "price": 134990,
+    "price": 130990,
     "transmission": "AUTOMATIC",
     "fuel": "FLEX",
     "color": "Branco",
@@ -443,6 +447,7 @@ const rawVehicles: RawMlVehicle[] = [
       "Alarme",
       "Bancos em couro",
       "Bluetooth",
+      "Com preço negociável",
       "Computador de bordo",
       "Controle de estabilidade",
       "Controle remoto para rádio no volante",
@@ -495,7 +500,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2025,
     "modelYear": 2025,
     "mileageKm": 43000,
-    "price": 111490,
+    "price": 109990,
     "transmission": "AUTOMATIC",
     "fuel": "FLEX",
     "color": "Cinza-escuro",
@@ -546,7 +551,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2021,
     "modelYear": 2021,
     "mileageKm": 66000,
-    "price": 106490,
+    "price": 105490,
     "transmission": "AUTOMATIC",
     "fuel": "DIESEL",
     "color": "Branco",
@@ -612,7 +617,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2021,
     "modelYear": 2021,
     "mileageKm": 68000,
-    "price": 117490,
+    "price": 116490,
     "transmission": "AUTOMATIC",
     "fuel": "FLEX",
     "color": "Preto",
@@ -670,7 +675,7 @@ const rawVehicles: RawMlVehicle[] = [
     "manufactureYear": 2010,
     "modelYear": 2010,
     "mileageKm": 104000,
-    "price": 30990,
+    "price": 31990,
     "transmission": "MANUAL",
     "fuel": "FLEX",
     "color": "Preto",
@@ -744,6 +749,7 @@ const rawVehicles: RawMlVehicle[] = [
     "description": "LAUDO CAUTELAR APROVADO!Entre em contato com a nossa equipe via WhatsApp para maiores informações e para simulações, confira também nossas avaliações no Google de 4,8 estrelas.Atendemos em sede própria e temos 44 anos de mercado.O Kia Sportage 2018 na cor branca é um SUV pensado para quem valoriza espaço, conforto e condução prática no dia a dia. Com cinco portas e capacidade para cinco ocupantes, atende bem tanto a rotinas urbanas quanto a viagens em família.A motorização 2.0 flex, com câmbio automático de 6 marchas e tração 4x2, entrega uma condução equilibrada e simples de usar. A direção elétrica, o piloto automático e o consumo médio de estrada de 9,5 km/l contribuem para deslocamentos mais tranquilos.",
     "photos": [
       "https://http2.mlstatic.com/D_NQ_NP_2X_649537-MLB115784504484_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
+      "https://http2.mlstatic.com/D_NQ_NP_2X_968012-MLB115784640510_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_740252-MLB117240350513_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_751540-MLB117241134981_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_964503-MLB117240350521_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
@@ -762,7 +768,6 @@ const rawVehicles: RawMlVehicle[] = [
       "https://http2.mlstatic.com/D_NQ_NP_2X_929171-MLB117240350591_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_628456-MLB115784499560_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_804908-MLB115784499562_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
-      "https://http2.mlstatic.com/D_NQ_NP_2X_968012-MLB115784640510_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_834588-MLB115784640418_092026-F-kia-sportage-20-lx-4x2-flex-aut-5p.webp"
     ]
   },
@@ -799,7 +804,7 @@ const rawVehicles: RawMlVehicle[] = [
     ],
     "description": "LAUDO CAUTELAR APROVADO!Entre em contato com a nossa equipe via WhatsApp para maiores informações e para simulações, confira também nossas avaliações no Google de 4,8 estrelas.Atendemos em sede própria e temos 44 anos de mercado.Chevrolet Prisma 2018 em cor vermelha, na versão LT automática, com carroceria sedã e proposta equilibrada para uso urbano e deslocamentos diários. As quatro portas e a capacidade para cinco ocupantes favorecem uma rotina mais prática no dia a dia.O conjunto mecânico reúne motor 1.4 flex, potência de 98 cv e câmbio automático de 6 marchas, entregando condução confortável e previsível. A direção elétrica e a tração dianteira ajudam na facilidade de manobra e no uso em diferentes trajetos.Entre os itens de conforto, o modelo conta com ar-condicionado, piloto automático, vidros elétricos dianteiros e banco traseiro retrátil. O tanque de 54 litros e o consumo médio em estrada de 14,7 km/l reforçam a proposta de um sedã funcional para viagens e uso contínuo.",
     "photos": [
-      "https://http2.mlstatic.com/D_NQ_NP_2X_826569-MLB116096602220_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
+      "https://http2.mlstatic.com/D_NQ_NP_2X_727661-MLB117577691583_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_826303-MLB116096248254_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_612696-MLB117578096831_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_750810-MLB117577749897_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
@@ -814,7 +819,7 @@ const rawVehicles: RawMlVehicle[] = [
       "https://http2.mlstatic.com/D_NQ_NP_2X_662903-MLB117578096875_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_903214-MLB117577691579_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_729645-MLB116096600510_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
-      "https://http2.mlstatic.com/D_NQ_NP_2X_727661-MLB117577691583_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
+      "https://http2.mlstatic.com/D_NQ_NP_2X_826569-MLB116096602220_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_787353-MLB116096600512_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_825747-MLB116096600516_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
       "https://http2.mlstatic.com/D_NQ_NP_2X_657075-MLB116096278054_092026-F-chevrolet-prisma-14-lt-aut-4p.webp",
