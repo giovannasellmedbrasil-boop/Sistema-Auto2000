@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Trash2, FolderSearch } from "lucide-react";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { BucketBadge } from "@/components/documentacao/BucketBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { FolderSearch } from "lucide-react";
 import { NEGOTIATION_PAYMENT_METHOD_LABELS, type Negotiation, type NegotiationBucket } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -13,7 +17,18 @@ export interface NegotiationRow {
   bucket: NegotiationBucket;
 }
 
-export function NegotiationsTable({ rows }: { rows: NegotiationRow[] }) {
+export function NegotiationsTable({ rows, canDelete }: { rows: NegotiationRow[]; canDelete?: boolean }) {
+  const router = useRouter();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function handleDelete(id: string, code: string) {
+    if (!confirm(`Excluir a venda ${code}? Isso remove também o checklist e os documentos anexados. Esta ação não pode ser desfeita.`)) return;
+    setDeletingId(id);
+    await fetch(`/api/negotiations/${id}`, { method: "DELETE" });
+    setDeletingId(null);
+    router.refresh();
+  }
+
   if (rows.length === 0) {
     return <EmptyState icon={FolderSearch} title="Nenhuma venda encontrada" description="Ajuste os filtros ou cadastre uma nova venda." />;
   }
@@ -30,6 +45,7 @@ export function NegotiationsTable({ rows }: { rows: NegotiationRow[] }) {
             <th className="px-4 py-3">Pagamento</th>
             <th className="px-4 py-3">Progresso</th>
             <th className="px-4 py-3">Status</th>
+            {canDelete && <th className="px-4 py-3 text-right">Ações</th>}
           </tr>
         </thead>
         <tbody>
@@ -56,6 +72,18 @@ export function NegotiationsTable({ rows }: { rows: NegotiationRow[] }) {
               <td className="px-4 py-3">
                 <BucketBadge bucket={bucket} />
               </td>
+              {canDelete && (
+                <td className="px-4 py-3 text-right">
+                  <button
+                    onClick={() => handleDelete(negotiation.id, negotiation.code)}
+                    disabled={deletingId === negotiation.id}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-600 hover:bg-danger-500/10 hover:text-danger-500"
+                    aria-label="Excluir venda"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

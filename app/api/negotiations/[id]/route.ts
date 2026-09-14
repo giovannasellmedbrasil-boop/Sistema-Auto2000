@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
+  deleteNegotiation,
   getChecklistItems,
   getNegotiationById,
   getNegotiationDocuments,
@@ -8,7 +9,7 @@ import {
   getVehicleById,
   updateNegotiation,
 } from "@/lib/server/db";
-import { getAdminSession } from "@/lib/server/auth";
+import { getAdminSession, hasRole } from "@/lib/server/auth";
 import { classifyNegotiation, computeProgressPercent, getMissingItems, isDeliveryReady } from "@/lib/server/documentChecklist";
 import type { NegotiationWithChecklist } from "@/lib/types";
 
@@ -111,4 +112,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const updated = await updateNegotiation(id, parsed.data, { actor: session.name, historyMessage });
   return NextResponse.json({ negotiation: updated });
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getAdminSession();
+  if (!session || !hasRole(session.role, ["MANAGER", "ADMIN"])) {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const ok = await deleteNegotiation(id);
+  if (!ok) return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
+  return NextResponse.json({ ok: true });
 }

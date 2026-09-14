@@ -11,7 +11,7 @@ import {
   Plus,
   ListChecks,
 } from "lucide-react";
-import { getAdminSession } from "@/lib/server/auth";
+import { getAdminSession, hasRole } from "@/lib/server/auth";
 import {
   getChecklistItems,
   getNegotiationDashboardMetrics,
@@ -109,7 +109,7 @@ export default async function DocumentacaoDashboardPage({
       </div>
 
       <NegotiationFiltersBar sellers={sellers} />
-      <NegotiationsTable rows={rows} />
+      <NegotiationsTable rows={rows} canDelete={hasRole(session.role, ["MANAGER", "ADMIN"])} />
     </div>
   );
 }

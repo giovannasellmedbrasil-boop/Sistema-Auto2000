@@ -1357,3 +1357,14 @@ export async function deleteContract(id: string): Promise<boolean> {
   await writeDb(db);
   return db.contracts.length < before;
 }
+
+export async function deleteNegotiation(id: string): Promise<boolean> {
+  const db = await readDb();
+  const before = db.negotiations.length;
+  db.negotiations = db.negotiations.filter((n) => n.id !== id);
+  db.checklistItems = db.checklistItems.filter((i) => i.negotiationId !== id);
+  db.negotiationDocuments = db.negotiationDocuments.filter((d) => d.negotiationId !== id);
+  db.negotiationHistory = db.negotiationHistory.filter((h) => h.negotiationId !== id);
+  await writeDb(db);
+  return db.negotiations.length < before;
+}
