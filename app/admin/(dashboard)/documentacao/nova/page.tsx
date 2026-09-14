@@ -4,8 +4,16 @@ import { NewNegotiationForm } from "@/components/documentacao/NewNegotiationForm
 
 export const metadata: Metadata = { title: "Nova venda — Documentação", robots: { index: false } };
 
-export default async function NovaVendaDocumentacaoPage() {
-  const [allVehicles, allSellers] = await Promise.all([listVehiclesAdmin(), listSalespeople()]);
+export default async function NovaVendaDocumentacaoPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const [{ veiculo }, allVehicles, allSellers] = await Promise.all([
+    searchParams,
+    listVehiclesAdmin(),
+    listSalespeople(),
+  ]);
   const vehicles = allVehicles.filter((v) => v.status !== "SOLD");
   const sellers = allSellers
     .filter((s) => s.active)
@@ -22,7 +30,7 @@ export default async function NovaVendaDocumentacaoPage() {
         </p>
       </div>
       <div className="max-w-3xl">
-        <NewNegotiationForm vehicles={vehicles} sellers={sellers} />
+        <NewNegotiationForm vehicles={vehicles} sellers={sellers} initialVehicleId={veiculo} />
       </div>
     </div>
   );

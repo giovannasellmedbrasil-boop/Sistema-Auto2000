@@ -13,9 +13,11 @@ import { formatCurrency } from "@/lib/utils";
 export function NewNegotiationForm({
   vehicles,
   sellers,
+  initialVehicleId,
 }: {
   vehicles: Pick<Vehicle, "id" | "brand" | "model" | "version" | "modelYear" | "price">[];
   sellers: { id: string; name: string }[];
+  initialVehicleId?: string;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
@@ -155,7 +157,7 @@ export function NewNegotiationForm({
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <FormGroup className="sm:col-span-2">
             <Label>Veículo</Label>
-            <Select name="vehicleId" required defaultValue="">
+            <Select name="vehicleId" required defaultValue={initialVehicleId ?? ""}>
               <option value="" disabled>Selecione um veículo do estoque</option>
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>

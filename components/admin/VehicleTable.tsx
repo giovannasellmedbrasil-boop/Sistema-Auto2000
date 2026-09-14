@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Pencil, Trash2, ExternalLink } from "lucide-react";
+import { Pencil, Trash2, ExternalLink, Handshake } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
 import { VEHICLE_STATUS_LABELS } from "@/lib/types";
 import { daysInStock, formatCurrency, formatKm } from "@/lib/utils";
@@ -56,6 +56,13 @@ export function VehicleTable({ vehicles }: { vehicles: Vehicle[] }) {
               <td className="px-4 py-3 text-ink-700">{daysInStock(v.enteredStockAt)}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-1">
+                  <Link
+                    href={`/admin/documentacao/nova?veiculo=${v.id}`}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-600 hover:bg-ink-100 hover:text-ink-700"
+                    aria-label="Nova venda"
+                  >
+                    <Handshake className="h-4 w-4" />
+                  </Link>
                   <Link
                     href={`/veiculos/${v.slug}`}
                     target="_blank"
