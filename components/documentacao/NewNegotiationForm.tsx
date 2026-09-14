@@ -201,7 +201,11 @@ export function NewNegotiationForm({
           </FormGroup>
           <FormGroup>
             <Label hint="opcional">Responsável pela documentação</Label>
-            <Input name="documentationResponsible" placeholder="Ex: Juliana" />
+            <Select name="documentationResponsible" defaultValue="">
+              <option value="">Não definido</option>
+              <option value="Cliente">Cliente</option>
+              <option value="Loja">Loja</option>
+            </Select>
           </FormGroup>
         </div>
       </Card>
