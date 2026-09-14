@@ -3,22 +3,53 @@ import type {
   DashboardFilters,
   Lead,
   LeadChannel,
-  LeadLostReason,
   MarketingCampaign,
+  Negotiation,
+  NegotiationPaymentMethod,
+  LeadLostReason,
   PeriodPreset,
-  Sale,
   Vehicle,
 } from "@/lib/types";
 import { LEAD_CHANNEL_LABELS } from "@/lib/types";
 import {
   listLeads,
   listMarketingCampaigns,
-  listSales,
+  listNegotiations,
   listSalespeople,
   listVehiclesAdmin,
   getDashboardGoals,
 } from "@/lib/server/db";
 import { countUniqueVisitors } from "@/lib/server/site-visits";
+
+// Vendas de verdade hoje são as negociações cadastradas em "Nova Venda"
+// (Negotiation), não mais o antigo modelo Sale ligado ao funil de leads —
+// esse funil de CRM foi descontinuado (seção de Leads/Marketing removida),
+// mas o cadastro de vendas continua gerando dados reais que o dashboard
+// precisa refletir. Canal/campanha não existem numa Negotiation, então
+// ficam de fora aqui (nunca inventados) — quem depende deles (tabela por
+// canal/campanha) sempre mostra 0, honestamente, em vez de um valor
+// fabricado.
+interface RealizedSale {
+  id: string;
+  ownerId: string;
+  vehicleId: string;
+  finalPrice: number;
+  paymentMethod: NegotiationPaymentMethod;
+  soldAt: string;
+}
+
+function negotiationsToSales(negotiations: Negotiation[]): RealizedSale[] {
+  return negotiations
+    .filter((n) => n.status !== "CANCELLED")
+    .map((n) => ({
+      id: n.id,
+      ownerId: n.sellerId,
+      vehicleId: n.vehicleId,
+      finalPrice: n.saleValue,
+      paymentMethod: n.paymentMethod,
+      soldAt: n.createdAt,
+    }));
+}
 
 // ---------------------------------------------------------------------------
 // Camada de agregação do Dashboard Executivo. Tudo aqui é calculado em cima
@@ -191,19 +222,13 @@ function matchesLead(lead: Lead, filters: DashboardFilters, vehiclesById: Map<st
   return true;
 }
 
-function matchesSale(sale: Sale, filters: DashboardFilters, vehiclesById: Map<string, Vehicle>, campaignsById: Map<string, MarketingCampaign>): boolean {
+function matchesSale(sale: RealizedSale, filters: DashboardFilters, vehiclesById: Map<string, Vehicle>): boolean {
   if (filters.ownerId && sale.ownerId !== filters.ownerId) return false;
   if (filters.vehicleId && sale.vehicleId !== filters.vehicleId) return false;
-  if (filters.channel && sale.channel !== filters.channel) return false;
-  if (filters.campaignId && sale.campaignId !== filters.campaignId) return false;
   if (filters.brand || filters.model) {
     const vehicle = vehiclesById.get(sale.vehicleId);
     if (filters.brand && vehicle?.brand.toLowerCase() !== filters.brand.toLowerCase()) return false;
     if (filters.model && vehicle?.model.toLowerCase() !== filters.model.toLowerCase()) return false;
-  }
-  if (filters.platform) {
-    const campaign = sale.campaignId ? campaignsById.get(sale.campaignId) : undefined;
-    if (campaign?.platform !== filters.platform) return false;
   }
   return true;
 }
@@ -423,14 +448,15 @@ function groupCount<T>(items: T[], keyFn: (item: T) => string): Map<string, numb
 }
 
 export async function getDashboardData(filters: DashboardFilters): Promise<DashboardData> {
-  const [allLeads, allSales, salespeople, campaigns, vehicles, goals] = await Promise.all([
+  const [allLeads, allNegotiations, salespeople, campaigns, vehicles, goals] = await Promise.all([
     listLeads(),
-    listSales(),
+    listNegotiations(),
     listSalespeople(),
     listMarketingCampaigns(),
     listVehiclesAdmin(),
     getDashboardGoals(),
   ]);
+  const allSales = negotiationsToSales(allNegotiations);
 
   const vehiclesById = new Map(vehicles.map((v) => [v.id, v]));
   const campaignsById = new Map(campaigns.map((c) => [c.id, c]));
@@ -439,7 +465,7 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
   const period = resolvePeriod(filters);
 
   const leadsMatchingFilters = allLeads.filter((l) => matchesLead(l, filters, vehiclesById, campaignsById));
-  const salesMatchingFilters = allSales.filter((s) => matchesSale(s, filters, vehiclesById, campaignsById));
+  const salesMatchingFilters = allSales.filter((s) => matchesSale(s, filters, vehiclesById));
 
   const cohort = leadsMatchingFilters.filter((l) => inRange(l.createdAt, period.from, period.to));
   const prevCohort = leadsMatchingFilters.filter((l) => inRange(l.createdAt, period.prevFrom, period.prevTo));
@@ -480,7 +506,9 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
   const originBreakdown = channelValues
     .map((channel) => {
       const channelCohort = cohort.filter((l) => l.channel === channel);
-      const channelSales = periodSales.filter((s) => s.channel === channel);
+      // Vendas não têm mais canal atribuído (Negotiation não rastreia isso)
+      // — nunca inventado, fica honestamente zerado em vez de um valor falso.
+      const channelSales: RealizedSale[] = [];
       return {
         channel,
         label: LEAD_CHANNEL_LABELS[channel],
@@ -502,7 +530,7 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
         (!filters.platform || c.platform === filters.platform)
     );
     const investment = sum(channelCampaigns.map((c) => c.cost));
-    const revenue = sum(periodSales.filter((s) => s.channel === row.channel).map((s) => s.finalPrice));
+    const revenue = 0; // idem — vendas não têm canal para atribuir receita
     const proposalsCount = cohort.filter((l) => l.channel === row.channel && l.proposalAt).length;
     return {
       channel: row.channel,
@@ -536,8 +564,9 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
     .filter((c) => (filters.campaignId ? c.id === filters.campaignId : true) && (filters.platform ? c.platform === filters.platform : true) && (filters.channel ? c.channel === filters.channel : true))
     .map((c) => {
       const campaignCohort = cohort.filter((l) => l.campaignId === c.id);
-      const campaignSales = periodSales.filter((s) => s.campaignId === c.id);
-      const revenue = sum(campaignSales.map((s) => s.finalPrice));
+      // Idem: vendas não carregam mais campanha de origem.
+      const campaignSales: RealizedSale[] = [];
+      const revenue = 0;
       return {
         id: c.id,
         name: c.name,
@@ -696,7 +725,7 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
   });
 
   // --- Distribuição de vendas ----------------------------------------------
-  function distributionBy(keyFn: (s: Sale, vehicle: Vehicle | undefined) => string | null): DistributionRow[] {
+  function distributionBy(keyFn: (s: RealizedSale, vehicle: Vehicle | undefined) => string | null): DistributionRow[] {
     const map = new Map<string, DistributionRow>();
     for (const s of periodSales) {
       const vehicle = vehiclesById.get(s.vehicleId);
@@ -716,7 +745,8 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
     priceRange: distributionBy((s) => priceRangeLabel(s.finalPrice)),
     bodyType: distributionBy((_s, v) => (v ? bodyTypeLabel(v.bodyType) : null)),
     salesperson: distributionBy((s) => salespeopleById.get(s.ownerId)?.name ?? null),
-    channel: distributionBy((s) => LEAD_CHANNEL_LABELS[s.channel] ?? null),
+    // Vendas não carregam mais canal de origem — nunca inventado.
+    channel: distributionBy(() => null),
   };
 
   // --- Motivos de perda -----------------------------------------------------
@@ -831,14 +861,14 @@ export async function getDrilldownLeads(filters: DashboardFilters, metric: Drill
   return leads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-export async function getDrilldownSales(filters: DashboardFilters): Promise<Sale[]> {
-  const [allSales, vehicles, campaigns] = await Promise.all([listSales(), listVehiclesAdmin(), listMarketingCampaigns()]);
+export async function getDrilldownSales(filters: DashboardFilters): Promise<RealizedSale[]> {
+  const [allNegotiations, vehicles] = await Promise.all([listNegotiations(), listVehiclesAdmin()]);
+  const allSales = negotiationsToSales(allNegotiations);
   const vehiclesById = new Map(vehicles.map((v) => [v.id, v]));
-  const campaignsById = new Map(campaigns.map((c) => [c.id, c]));
   const period = resolvePeriod(filters);
 
   return allSales
-    .filter((s) => matchesSale(s, filters, vehiclesById, campaignsById) && inRange(s.soldAt, period.from, period.to))
+    .filter((s) => matchesSale(s, filters, vehiclesById) && inRange(s.soldAt, period.from, period.to))
     .sort((a, b) => new Date(b.soldAt).getTime() - new Date(a.soldAt).getTime());
 }
 

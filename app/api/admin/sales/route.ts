@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/server/auth";
 import { getVehicleById, getSalespersonById } from "@/lib/server/db";
 import { getDrilldownSales, parseDashboardFilters } from "@/lib/server/dashboard";
-import { LEAD_CHANNEL_LABELS } from "@/lib/types";
+import { NEGOTIATION_PAYMENT_METHOD_LABELS } from "@/lib/types";
 
 export async function GET(request: Request) {
   const session = await getAdminSession();
@@ -19,9 +19,8 @@ export async function GET(request: Request) {
         id: sale.id,
         vehicle: vehicle ? `${vehicle.brand} ${vehicle.model} ${vehicle.version}` : sale.vehicleId,
         owner: owner?.name ?? sale.ownerId,
-        channel: LEAD_CHANNEL_LABELS[sale.channel],
         finalPrice: sale.finalPrice,
-        paymentMethod: sale.paymentMethod,
+        paymentMethod: NEGOTIATION_PAYMENT_METHOD_LABELS[sale.paymentMethod],
         soldAt: sale.soldAt,
       };
     })

@@ -24,7 +24,6 @@ interface SaleRow {
   id: string;
   vehicle: string;
   owner: string;
-  channel: string;
   finalPrice: number;
   paymentMethod: string;
   soldAt: string;
@@ -44,7 +43,6 @@ const LEAD_COLUMNS: CsvColumn<LeadRow>[] = [
 const SALE_COLUMNS: CsvColumn<SaleRow>[] = [
   { header: "Veículo", value: (r) => r.vehicle },
   { header: "Vendedor", value: (r) => r.owner },
-  { header: "Origem", value: (r) => r.channel },
   { header: "Valor", value: (r) => r.finalPrice },
   { header: "Forma de pagamento", value: (r) => r.paymentMethod },
   { header: "Data", value: (r) => new Date(r.soldAt).toLocaleString("pt-BR") },
@@ -154,7 +152,6 @@ export function RecordsDrawer({
                 <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-ink-600">
                   <th className="px-4 py-3 font-medium">Veículo</th>
                   <th className="px-4 py-3 font-medium">Vendedor</th>
-                  <th className="px-4 py-3 font-medium">Origem</th>
                   <th className="px-4 py-3 font-medium">Valor</th>
                   <th className="px-4 py-3 font-medium">Pagamento</th>
                   <th className="px-4 py-3 font-medium">Data</th>
@@ -165,7 +162,6 @@ export function RecordsDrawer({
                   <tr key={sale.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.03]">
                     <td className="px-4 py-3 text-ink-900">{sale.vehicle}</td>
                     <td className="px-4 py-3 text-ink-700">{sale.owner}</td>
-                    <td className="px-4 py-3 text-ink-700">{sale.channel}</td>
                     <td className="px-4 py-3 text-ink-700">{formatCurrency(sale.finalPrice)}</td>
                     <td className="px-4 py-3 text-ink-700">{sale.paymentMethod}</td>
                     <td className="px-4 py-3 text-ink-500">{new Date(sale.soldAt).toLocaleDateString("pt-BR")}</td>
