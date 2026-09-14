@@ -7,6 +7,7 @@ import { simulateFinancing, incomeCommitmentRatio } from "@/lib/finance";
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { FormGroup, Input, Label, Select } from "@/components/ui/Field";
+import { ControlledMoneyInput } from "@/components/ui/MoneyInput";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 
 // Simulador de capacidade financeira (seção 6) + veículos compatíveis
@@ -62,14 +63,7 @@ export function FinancingWorkspace({
           </FormGroup>
           <FormGroup>
             <Label htmlFor="wk-down">Entrada</Label>
-            <Input
-              id="wk-down"
-              type="number"
-              min={0}
-              step={1}
-              value={downPayment}
-              onChange={(e) => setDownPayment(Number(e.target.value))}
-            />
+            <ControlledMoneyInput id="wk-down" value={downPayment} onValueChange={setDownPayment} />
           </FormGroup>
           <FormGroup>
             <Label>Valor estimado financiado</Label>

@@ -8,6 +8,7 @@ import { CUSTOMER_KIND_LABELS, NEGOTIATION_PAYMENT_METHOD_LABELS, VEHICLE_CONDIT
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormGroup, Input, Label, Select } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatCurrency } from "@/lib/utils";
 
 export function NewNegotiationForm({
@@ -189,7 +190,7 @@ export function NewNegotiationForm({
           </FormGroup>
           <FormGroup>
             <Label>Valor da venda</Label>
-            <Input name="saleValue" type="number" min={0} step={1} required />
+            <MoneyInput name="saleValue" required />
           </FormGroup>
           <FormGroup>
             <Label>Forma de pagamento</Label>
@@ -220,11 +221,11 @@ export function NewNegotiationForm({
             </FormGroup>
             <FormGroup>
               <Label>Valor financiado</Label>
-              <Input name="financedAmount" type="number" min={0} step={1} required />
+              <MoneyInput name="financedAmount" required />
             </FormGroup>
             <FormGroup>
               <Label>Entrada</Label>
-              <Input name="downPayment" type="number" min={0} step={1} required />
+              <MoneyInput name="downPayment" required />
             </FormGroup>
             <FormGroup>
               <Label>Quantidade de parcelas</Label>
@@ -232,7 +233,7 @@ export function NewNegotiationForm({
             </FormGroup>
             <FormGroup>
               <Label>Valor de cada parcela</Label>
-              <Input name="installmentValue" type="number" min={0} step={1} required placeholder="Ex: 1459" />
+              <MoneyInput name="installmentValue" required placeholder="Ex: 1.459" />
             </FormGroup>
           </div>
         </Card>
@@ -282,7 +283,7 @@ export function NewNegotiationForm({
             </FormGroup>
             <FormGroup>
               <Label>Valor solicitado pelo cliente</Label>
-              <Input name="tradeInRequestedValue" type="number" min={0} step={1} required />
+              <MoneyInput name="tradeInRequestedValue" required />
             </FormGroup>
           </div>
         )}

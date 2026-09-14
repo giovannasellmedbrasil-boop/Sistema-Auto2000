@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { buildMarketSearchLinks, formatCurrency } from "@/lib/utils";
 import type { MarketPriceSample } from "@/lib/types";
 
@@ -89,7 +90,7 @@ export function MarketPricingPanel({
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
             <form onSubmit={(e) => handleQuickAdd(e, p.label)} className="flex flex-1 flex-wrap items-center gap-2">
-              <Input name="price" type="number" min={0} step={1} placeholder="Preço encontrado" className="w-36" />
+              <MoneyInput name="price" placeholder="Preço encontrado" className="w-36" />
               <Input name="url" type="url" placeholder="Link do anúncio (opcional)" className="min-w-0 flex-1" />
               <Button type="submit" size="sm" variant="outline" disabled={savingPlatform === p.label}>
                 {savingPlatform === p.label ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Registrar"}

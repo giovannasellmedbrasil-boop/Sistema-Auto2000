@@ -6,6 +6,7 @@ import { Loader2, Search } from "lucide-react";
 import { CONTRACT_FIELDS, CONTRACT_TYPE_LABELS, type ContractType } from "@/lib/contracts/config";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FormGroup, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Card } from "@/components/ui/Card";
 
 export function ContractForm({ initialType }: { initialType?: ContractType }) {
@@ -142,6 +143,20 @@ export function ContractForm({ initialType }: { initialType?: ContractType }) {
                     defaultValue={prefill[f.key] ?? f.defaultValue}
                     placeholder={f.placeholder}
                     required={f.required}
+                  />
+                ) : f.type === "money" ? (
+                  <MoneyInput
+                    key={`${f.key}-${prefillVersion}`}
+                    name={f.key}
+                    required={f.required}
+                    defaultValue={
+                      prefill[f.key] != null && prefill[f.key] !== ""
+                        ? Number(prefill[f.key])
+                        : f.defaultValue != null
+                          ? Number(f.defaultValue)
+                          : undefined
+                    }
+                    placeholder={f.placeholder}
                   />
                 ) : (
                   <Input

@@ -13,6 +13,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormGroup, Input, Label, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 
 export function VehicleForm({ vehicle }: { vehicle?: Vehicle }) {
   const router = useRouter();
@@ -116,11 +117,11 @@ export function VehicleForm({ vehicle }: { vehicle?: Vehicle }) {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <FormGroup>
             <Label>Preço de venda</Label>
-            <Input name="price" type="number" min={0} step={1} required defaultValue={vehicle?.price} />
+            <MoneyInput name="price" required defaultValue={vehicle?.price} />
           </FormGroup>
           <FormGroup>
             <Label hint="uso interno, não exibido no site">Preço de custo</Label>
-            <Input name="costPrice" type="number" min={0} step={1} defaultValue={vehicle?.costPrice ?? undefined} />
+            <MoneyInput name="costPrice" defaultValue={vehicle?.costPrice} />
           </FormGroup>
           <FormGroup>
             <Label>Quilometragem</Label>

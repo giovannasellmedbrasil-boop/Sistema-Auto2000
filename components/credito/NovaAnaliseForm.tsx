@@ -6,6 +6,7 @@ import { Loader2, ShieldCheck } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormGroup, Input, Label } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatCpfInput, isValidCpf } from "@/lib/utils";
 
 export function NovaAnaliseForm() {
@@ -95,11 +96,11 @@ export function NovaAnaliseForm() {
           </FormGroup>
           <FormGroup>
             <Label htmlFor="monthlyIncome">Renda mensal declarada</Label>
-            <Input id="monthlyIncome" name="monthlyIncome" type="number" min={0} step={1} required placeholder="R$ 0,00" />
+            <MoneyInput id="monthlyIncome" name="monthlyIncome" required />
           </FormGroup>
           <FormGroup>
             <Label htmlFor="downPayment">Valor aproximado da entrada</Label>
-            <Input id="downPayment" name="downPayment" type="number" min={0} step={1} required placeholder="R$ 0,00" />
+            <MoneyInput id="downPayment" name="downPayment" required />
           </FormGroup>
           <FormGroup>
             <Label htmlFor="vehicleInterest">Veículo de interesse</Label>
@@ -107,7 +108,7 @@ export function NovaAnaliseForm() {
           </FormGroup>
           <FormGroup>
             <Label htmlFor="vehiclePrice">Valor do veículo</Label>
-            <Input id="vehiclePrice" name="vehiclePrice" type="number" min={0} step={1} required placeholder="R$ 0,00" />
+            <MoneyInput id="vehiclePrice" name="vehiclePrice" required />
           </FormGroup>
         </div>
 

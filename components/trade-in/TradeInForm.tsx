@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { FormGroup, Input, Label, Select } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { buildWhatsAppLink } from "@/lib/utils";
 
 export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: string }) {
@@ -117,7 +118,7 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
           </FormGroup>
           <FormGroup>
             <Label hint="opcional">Valor esperado</Label>
-            <Input name="expectedValue" type="number" min={0} step={1} placeholder="R$ 0,00" />
+            <MoneyInput name="expectedValue" />
           </FormGroup>
         </div>
       </Card>

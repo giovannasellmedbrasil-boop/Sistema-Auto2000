@@ -15,7 +15,7 @@ export const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
 export interface ContractFieldConfig {
   key: string;
   label: string;
-  type: "text" | "number" | "date" | "time" | "textarea" | "checkbox";
+  type: "text" | "number" | "money" | "date" | "time" | "textarea" | "checkbox";
   required?: boolean;
   placeholder?: string;
   defaultValue?: string;
@@ -36,7 +36,7 @@ export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
     { key: "mileageEntry", label: "Quilometragem de entrada", type: "number", required: true },
     { key: "fuel", label: "Combustível", type: "text", required: true, placeholder: "Ex: Flex e GNV" },
     { key: "extraItems", label: "Itens que ficaram com o carro (opcional)", type: "textarea" },
-    { key: "netValue", label: "Valor líquido a repassar ao proprietário", type: "number", required: true },
+    { key: "netValue", label: "Valor líquido a repassar ao proprietário", type: "money", required: true },
     { key: "termDays", label: "Prazo (dias)", type: "number", required: true, defaultValue: "60" },
     { key: "contractDate", label: "Data do contrato", type: "date", required: true },
     { key: "contractTime", label: "Hora (opcional)", type: "time" },
@@ -54,7 +54,7 @@ export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
     { key: "vehicleYear", label: "Ano", type: "text", required: true, placeholder: "Ex: 2019/2020" },
     { key: "chassi", label: "Chassi", type: "text", required: true },
     { key: "plate", label: "Placa", type: "text", required: true },
-    { key: "saleValue", label: "Valor da venda", type: "number", required: true },
+    { key: "saleValue", label: "Valor da venda", type: "money", required: true },
     { key: "paymentDescription", label: "Pago com (forma de pagamento completa)", type: "textarea", required: true, placeholder: "Ex: Um auto FIAT UNO... no valor de R$ 23.000,00 mais financiamento pelo banco Itaú no valor de R$ 49.990,00 em 60 parcelas de R$ 1.459,52." },
     { key: "hasTradeIn", label: "Houve veículo dado como parte de pagamento (troca)?", type: "checkbox" },
     { key: "testDriveObs", label: "Observação sobre test-drive/garantia/km de entrega (opcional)", type: "textarea" },
@@ -76,7 +76,7 @@ export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
     { key: "chassi", label: "Chassi", type: "text", required: true },
     { key: "mileage", label: "Quilometragem", type: "number", required: true },
     { key: "plate", label: "Placa", type: "text", required: true },
-    { key: "value", label: "Valor pago", type: "number", required: true },
+    { key: "value", label: "Valor pago", type: "money", required: true },
     { key: "paymentDescription", label: "Negociação (forma de pagamento)", type: "text", required: true, placeholder: "Ex: foi pago o valor de R$ 15.500,00 à vista" },
     { key: "purchaseDate", label: "Data da compra", type: "date", required: true },
     { key: "purchaseTime", label: "Hora (opcional)", type: "time" },
