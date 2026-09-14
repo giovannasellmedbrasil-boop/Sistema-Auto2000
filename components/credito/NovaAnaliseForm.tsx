@@ -95,7 +95,7 @@ export function NovaAnaliseForm() {
           </FormGroup>
           <FormGroup>
             <Label htmlFor="monthlyIncome">Renda mensal declarada</Label>
-            <Input id="monthlyIncome" name="monthlyIncome" type="number" min={0} step={100} required placeholder="R$ 0,00" />
+            <Input id="monthlyIncome" name="monthlyIncome" type="number" min={0} step={1} required placeholder="R$ 0,00" />
           </FormGroup>
           <FormGroup>
             <Label htmlFor="downPayment">Valor aproximado da entrada</Label>

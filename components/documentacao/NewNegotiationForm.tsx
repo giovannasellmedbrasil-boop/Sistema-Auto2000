@@ -185,7 +185,7 @@ export function NewNegotiationForm({
           </FormGroup>
           <FormGroup>
             <Label>Valor da venda</Label>
-            <Input name="saleValue" type="number" min={0} step={100} required />
+            <Input name="saleValue" type="number" min={0} step={1} required />
           </FormGroup>
           <FormGroup>
             <Label>Forma de pagamento</Label>
@@ -212,11 +212,11 @@ export function NewNegotiationForm({
             </FormGroup>
             <FormGroup>
               <Label>Valor financiado</Label>
-              <Input name="financedAmount" type="number" min={0} step={100} required />
+              <Input name="financedAmount" type="number" min={0} step={1} required />
             </FormGroup>
             <FormGroup>
               <Label>Entrada</Label>
-              <Input name="downPayment" type="number" min={0} step={100} required />
+              <Input name="downPayment" type="number" min={0} step={1} required />
             </FormGroup>
             <FormGroup>
               <Label>Parcelas</Label>
@@ -271,7 +271,7 @@ export function NewNegotiationForm({
             </FormGroup>
             <FormGroup>
               <Label>Valor solicitado pelo cliente</Label>
-              <Input name="tradeInRequestedValue" type="number" min={0} step={100} required />
+              <Input name="tradeInRequestedValue" type="number" min={0} step={1} required />
             </FormGroup>
           </div>
         )}

@@ -89,7 +89,7 @@ export function MarketPricingPanel({
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
             <form onSubmit={(e) => handleQuickAdd(e, p.label)} className="flex flex-1 flex-wrap items-center gap-2">
-              <Input name="price" type="number" min={0} step={100} placeholder="Preço encontrado" className="w-36" />
+              <Input name="price" type="number" min={0} step={1} placeholder="Preço encontrado" className="w-36" />
               <Input name="url" type="url" placeholder="Link do anúncio (opcional)" className="min-w-0 flex-1" />
               <Button type="submit" size="sm" variant="outline" disabled={savingPlatform === p.label}>
                 {savingPlatform === p.label ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Registrar"}
