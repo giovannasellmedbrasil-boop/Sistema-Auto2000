@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import type { Vehicle } from "@/lib/types";
+import type { NegotiationPaymentMethod, Vehicle } from "@/lib/types";
 import { CUSTOMER_KIND_LABELS, NEGOTIATION_PAYMENT_METHOD_LABELS, VEHICLE_CONDITION_LABELS } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -25,12 +25,16 @@ export function NewNegotiationForm({
 
   const [customerKind, setCustomerKind] = useState<"INDIVIDUAL" | "COMPANY">("INDIVIDUAL");
   const [hasRepresentativeProcuration, setHasRepresentativeProcuration] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "FINANCING">("CASH");
-  const [hasTradeIn, setHasTradeIn] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<NegotiationPaymentMethod>("CASH");
   const [vehicleCondition, setVehicleCondition] = useState<"NEW" | "USED">("USED");
   const [needsTransfer, setNeedsTransfer] = useState(true);
   const [interstate, setInterstate] = useState(false);
   const [needsCourier, setNeedsCourier] = useState(false);
+
+  // A forma de pagamento já diz se há financiamento e/ou troca — em vez de
+  // pedir de novo em checkboxes separados que poderiam ficar dessincronizados.
+  const hasFinancing = paymentMethod.includes("FINANCING");
+  const hasTradeIn = paymentMethod.includes("TRADE_IN");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,16 +57,15 @@ export function NewNegotiationForm({
       sellerName,
       saleValue: form.get("saleValue"),
       paymentMethod,
-      financing:
-        paymentMethod === "FINANCING"
-          ? {
-              financierName: form.get("financierName"),
-              financedAmount: form.get("financedAmount"),
-              downPayment: form.get("downPayment"),
-              installments: form.get("installments"),
-              status: "PREPARING_DOCS",
-            }
-          : undefined,
+      financing: hasFinancing
+        ? {
+            financierName: form.get("financierName"),
+            financedAmount: form.get("financedAmount"),
+            downPayment: form.get("downPayment"),
+            installments: form.get("installments"),
+            status: "PREPARING_DOCS",
+          }
+        : undefined,
       hasTradeIn,
       tradeIn: hasTradeIn
         ? {
@@ -202,7 +205,7 @@ export function NewNegotiationForm({
         </div>
       </Card>
 
-      {paymentMethod === "FINANCING" && (
+      {hasFinancing && (
         <Card className="flex flex-col gap-4 p-6">
           <h2 className="text-sm font-semibold text-accent-400">Financiamento</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -241,14 +244,13 @@ export function NewNegotiationForm({
             <input type="checkbox" checked={needsCourier} onChange={(e) => setNeedsCourier(e.target.checked)} />
             Usar despachante
           </label>
-          <label className="flex items-center gap-2 text-sm text-ink-700">
-            <input type="checkbox" checked={hasTradeIn} onChange={(e) => setHasTradeIn(e.target.checked)} />
-            Cliente dará veículo usado como entrada
-          </label>
         </div>
 
         {hasTradeIn && (
           <div className="grid grid-cols-2 gap-4 border-t border-white/8 pt-4 sm:grid-cols-3">
+            <p className="col-span-2 text-xs text-ink-500 sm:col-span-3">
+              Dados do veículo usado dado como entrada (forma de pagamento inclui troca):
+            </p>
             <FormGroup>
               <Label>Placa</Label>
               <Input name="tradeInPlate" required />

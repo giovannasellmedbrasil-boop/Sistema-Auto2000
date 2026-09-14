@@ -596,11 +596,21 @@ export const CUSTOMER_KIND_LABELS: Record<CustomerKind, string> = {
   COMPANY: "Pessoa jurídica",
 };
 
-export type NegotiationPaymentMethod = "CASH" | "FINANCING";
+export type NegotiationPaymentMethod =
+  | "CASH"
+  | "FINANCING"
+  | "CASH_FINANCING_TRADE_IN"
+  | "CASH_TRADE_IN"
+  | "CASH_FINANCING"
+  | "FINANCING_TRADE_IN";
 
 export const NEGOTIATION_PAYMENT_METHOD_LABELS: Record<NegotiationPaymentMethod, string> = {
   CASH: "À vista",
   FINANCING: "Financiamento",
+  CASH_FINANCING_TRADE_IN: "À vista/Financiamento/Troca",
+  CASH_TRADE_IN: "À vista/Troca",
+  CASH_FINANCING: "À vista/Financiamento",
+  FINANCING_TRADE_IN: "Financiamento/Troca",
 };
 
 export type VehicleCondition = "NEW" | "USED";
