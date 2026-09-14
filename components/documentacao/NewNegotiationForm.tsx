@@ -63,6 +63,7 @@ export function NewNegotiationForm({
             financedAmount: form.get("financedAmount"),
             downPayment: form.get("downPayment"),
             installments: form.get("installments"),
+            installmentValue: form.get("installmentValue"),
             status: "PREPARING_DOCS",
           }
         : undefined,
@@ -222,8 +223,12 @@ export function NewNegotiationForm({
               <Input name="downPayment" type="number" min={0} step={1} required />
             </FormGroup>
             <FormGroup>
-              <Label>Parcelas</Label>
-              <Input name="installments" type="number" min={1} required />
+              <Label>Quantidade de parcelas</Label>
+              <Input name="installments" type="number" min={1} step={1} required placeholder="Ex: 48" />
+            </FormGroup>
+            <FormGroup>
+              <Label>Valor de cada parcela</Label>
+              <Input name="installmentValue" type="number" min={0} step={1} required placeholder="Ex: 1459" />
             </FormGroup>
           </div>
         </Card>

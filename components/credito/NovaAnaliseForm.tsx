@@ -99,7 +99,7 @@ export function NovaAnaliseForm() {
           </FormGroup>
           <FormGroup>
             <Label htmlFor="downPayment">Valor aproximado da entrada</Label>
-            <Input id="downPayment" name="downPayment" type="number" min={0} step={500} required placeholder="R$ 0,00" />
+            <Input id="downPayment" name="downPayment" type="number" min={0} step={1} required placeholder="R$ 0,00" />
           </FormGroup>
           <FormGroup>
             <Label htmlFor="vehicleInterest">Veículo de interesse</Label>
@@ -107,7 +107,7 @@ export function NovaAnaliseForm() {
           </FormGroup>
           <FormGroup>
             <Label htmlFor="vehiclePrice">Valor do veículo</Label>
-            <Input id="vehiclePrice" name="vehiclePrice" type="number" min={0} step={500} required placeholder="R$ 0,00" />
+            <Input id="vehiclePrice" name="vehiclePrice" type="number" min={0} step={1} required placeholder="R$ 0,00" />
           </FormGroup>
         </div>
 

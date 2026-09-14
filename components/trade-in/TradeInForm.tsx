@@ -117,7 +117,7 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
           </FormGroup>
           <FormGroup>
             <Label hint="opcional">Valor esperado</Label>
-            <Input name="expectedValue" type="number" min={0} step={500} placeholder="R$ 0,00" />
+            <Input name="expectedValue" type="number" min={0} step={1} placeholder="R$ 0,00" />
           </FormGroup>
         </div>
       </Card>

@@ -778,7 +778,8 @@ export interface FinancingDetails {
   financierName: string;
   financedAmount: number;
   downPayment: number;
-  installments: number;
+  installments: number; // quantidade de parcelas
+  installmentValue: number; // valor de cada parcela
   status: FinancingStatus;
 }
 

@@ -66,7 +66,7 @@ export function FinancingWorkspace({
               id="wk-down"
               type="number"
               min={0}
-              step={500}
+              step={1}
               value={downPayment}
               onChange={(e) => setDownPayment(Number(e.target.value))}
             />

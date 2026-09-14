@@ -96,6 +96,12 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
               <span className="text-xs text-ink-500">Financeira</span>
               <span className="text-sm font-medium text-ink-900">{negotiation.financing.financierName}</span>
             </Card>
+            <Card className="flex flex-col gap-1.5 p-5">
+              <span className="text-xs text-ink-500">Parcelas</span>
+              <span className="text-sm font-medium text-ink-900">
+                {negotiation.financing.installments}x de {formatCurrency(negotiation.financing.installmentValue)}
+              </span>
+            </Card>
           </>
         )}
       </div>

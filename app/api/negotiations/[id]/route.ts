@@ -58,6 +58,7 @@ const patchSchema = z.object({
       financedAmount: z.coerce.number().min(0),
       downPayment: z.coerce.number().min(0),
       installments: z.coerce.number().int().min(1),
+      installmentValue: z.coerce.number().min(0),
       status: z.enum([
         "PREPARING_DOCS",
         "SUBMITTED",
