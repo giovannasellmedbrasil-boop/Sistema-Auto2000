@@ -153,7 +153,7 @@ export default async function NegotiationDetailPage({ params }: { params: Promis
           <Card className="flex flex-col gap-2 p-6">
             <h3 className="text-base font-semibold text-accent-400">Avaliação do veículo de entrada</h3>
             <p className="text-sm text-ink-700">
-              {negotiation.tradeIn.brand} {negotiation.tradeIn.model} {negotiation.tradeIn.year} · {formatKm(negotiation.tradeIn.mileageKm)} · placa {negotiation.tradeIn.plate}
+              {negotiation.tradeIn.brand} {negotiation.tradeIn.model} {negotiation.tradeIn.manufactureYear}/{negotiation.tradeIn.modelYear} · {formatKm(negotiation.tradeIn.mileageKm)} · placa {negotiation.tradeIn.plate}
             </p>
             <div className="grid grid-cols-2 gap-3 pt-2 sm:grid-cols-4">
               <div>

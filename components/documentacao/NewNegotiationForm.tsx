@@ -79,7 +79,8 @@ export function NewNegotiationForm({
             plate: form.get("tradeInPlate"),
             brand: form.get("tradeInBrand"),
             model: form.get("tradeInModel"),
-            year: form.get("tradeInYear"),
+            manufactureYear: form.get("tradeInManufactureYear"),
+            modelYear: form.get("tradeInModelYear"),
             mileageKm: form.get("tradeInMileage"),
             requestedValue: form.get("tradeInRequestedValue"),
           }
@@ -297,8 +298,17 @@ export function NewNegotiationForm({
               <Input name="tradeInModel" required defaultValue={negotiation?.tradeIn?.model} />
             </FormGroup>
             <FormGroup>
-              <Label>Ano</Label>
-              <Input name="tradeInYear" type="number" required defaultValue={negotiation?.tradeIn?.year} />
+              <Label>Ano fabricação</Label>
+              <Input
+                name="tradeInManufactureYear"
+                type="number"
+                required
+                defaultValue={negotiation?.tradeIn?.manufactureYear}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>Ano modelo</Label>
+              <Input name="tradeInModelYear" type="number" required defaultValue={negotiation?.tradeIn?.modelYear} />
             </FormGroup>
             <FormGroup>
               <Label>Quilometragem</Label>

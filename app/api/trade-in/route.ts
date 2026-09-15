@@ -11,7 +11,8 @@ const tradeInSchema = z.object({
   brand: z.string().trim().min(1),
   model: z.string().trim().min(1),
   version: z.string().trim().optional(),
-  year: z.coerce.number().int().min(1980).max(new Date().getFullYear() + 1),
+  manufactureYear: z.coerce.number().int().min(1980).max(new Date().getFullYear() + 1),
+  modelYear: z.coerce.number().int().min(1980).max(new Date().getFullYear() + 2),
   mileageKm: z.coerce.number().int().min(0),
   color: z.string().trim().min(1),
   hasFinancing: z.boolean(),
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   const d = parsed.data;
   const message = [
     `Avaliação de usado para troca/venda:`,
-    `${d.brand} ${d.model} ${d.version ?? ""} ${d.year} — placa ${d.plate.toUpperCase()}`,
+    `${d.brand} ${d.model} ${d.version ?? ""} ${d.manufactureYear}/${d.modelYear} — placa ${d.plate.toUpperCase()}`,
     `${d.mileageKm.toLocaleString("pt-BR")} km, cor ${d.color}`,
     d.hasFinancing ? "Possui financiamento em aberto." : "Sem financiamento.",
     d.expectedValue ? `Valor esperado pelo cliente: ${formatCurrency(d.expectedValue)}.` : null,

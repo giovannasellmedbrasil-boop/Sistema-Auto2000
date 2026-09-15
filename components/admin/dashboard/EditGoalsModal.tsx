@@ -6,6 +6,7 @@ import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input, Label, FormGroup } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 
 export function EditGoalsModal({
   salesUnitsTarget,
@@ -59,10 +60,8 @@ export function EditGoalsModal({
               <Input id="salesUnitsTarget" name="salesUnitsTarget" type="number" min={0} required defaultValue={salesUnitsTarget} />
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="revenueTarget" hint="em reais">
-                Meta de faturamento
-              </Label>
-              <Input id="revenueTarget" name="revenueTarget" type="number" min={0} step="0.01" required defaultValue={revenueTarget} />
+              <Label htmlFor="revenueTarget">Meta de faturamento</Label>
+              <MoneyInput id="revenueTarget" name="revenueTarget" required defaultValue={revenueTarget} />
             </FormGroup>
             {error && <p className="text-sm text-danger-500">{error}</p>}
             <div className="mt-2 flex justify-end gap-2">

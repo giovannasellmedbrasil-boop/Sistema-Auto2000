@@ -32,7 +32,8 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
           brand: form.get("brand"),
           model: form.get("model"),
           version: form.get("version") || undefined,
-          year: form.get("year"),
+          manufactureYear: form.get("manufactureYear"),
+          modelYear: form.get("modelYear"),
           mileageKm: form.get("mileageKm"),
           color: form.get("color"),
           hasFinancing: hasFinancing === "sim",
@@ -98,8 +99,26 @@ export function TradeInForm({ desiredVehicleSlug }: { desiredVehicleSlug?: strin
             <Input name="version" placeholder="Ex: XEi" />
           </FormGroup>
           <FormGroup>
-            <Label>Ano</Label>
-            <Input name="year" type="number" required min={1980} max={new Date().getFullYear() + 1} placeholder="2022" />
+            <Label>Ano fabricação</Label>
+            <Input
+              name="manufactureYear"
+              type="number"
+              required
+              min={1980}
+              max={new Date().getFullYear() + 1}
+              placeholder="2022"
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Ano modelo</Label>
+            <Input
+              name="modelYear"
+              type="number"
+              required
+              min={1980}
+              max={new Date().getFullYear() + 2}
+              placeholder="2023"
+            />
           </FormGroup>
           <FormGroup>
             <Label>Quilometragem</Label>

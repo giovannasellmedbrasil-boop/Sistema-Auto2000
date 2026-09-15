@@ -10,6 +10,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Input, Label, FormGroup, Select, Textarea } from "@/components/ui/Field";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatCurrency } from "@/lib/utils";
 
 // CNPJ da própria loja não é mascarado — ao contrário do CPF/CNPJ de um
@@ -343,12 +344,9 @@ export function InvoiceManager({
             </FormGroup>
             <FormGroup>
               <Label htmlFor="value">Valor da nota</Label>
-              <Input
+              <MoneyInput
                 id="value"
                 name="value"
-                type="number"
-                min={0.01}
-                step={0.01}
                 required
                 defaultValue={selectedVehicle?.price}
                 key={selectedVehicleId}

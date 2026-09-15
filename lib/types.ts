@@ -769,7 +769,8 @@ export interface TradeInVehicle {
   plate: string;
   brand: string;
   model: string;
-  year: number;
+  manufactureYear: number;
+  modelYear: number;
   mileageKm: number;
   requestedValue: number;
   marketValue?: number | null;
