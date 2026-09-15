@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { listVehiclesAdmin } from "@/lib/server/db";
 import { ContractForm } from "@/components/contratos/ContractForm";
 
 export const metadata: Metadata = { title: "Novo contrato", robots: { index: false } };
 
-export default function NovoContratoPage() {
+export default async function NovoContratoPage() {
+  const vehicles = await listVehiclesAdmin();
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -14,7 +17,7 @@ export default function NovoContratoPage() {
         </p>
       </div>
       <div className="max-w-3xl">
-        <ContractForm />
+        <ContractForm vehicles={vehicles} />
       </div>
     </div>
   );

@@ -8,8 +8,17 @@ import { Button } from "@/components/ui/Button";
 import { Input, Label, FormGroup, Select, Textarea } from "@/components/ui/Field";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Card } from "@/components/ui/Card";
+import type { Vehicle } from "@/lib/types";
 
-export function ContractForm({ initialType }: { initialType?: ContractType }) {
+type StockVehicle = Pick<Vehicle, "id" | "brand" | "model" | "version" | "manufactureYear" | "modelYear">;
+
+export function ContractForm({
+  initialType,
+  vehicles = [],
+}: {
+  initialType?: ContractType;
+  vehicles?: StockVehicle[];
+}) {
   const router = useRouter();
   const [type, setType] = useState<ContractType>(initialType ?? "CONSIGNACAO");
   const [submitting, setSubmitting] = useState(false);
@@ -18,8 +27,24 @@ export function ContractForm({ initialType }: { initialType?: ContractType }) {
   const [saleCode, setSaleCode] = useState("");
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [prefill, setPrefill] = useState<Record<string, string>>({});
   const [prefillVersion, setPrefillVersion] = useState(0);
+
+  // Preenche marca/modelo/ano a partir de um veículo do estoque — sem
+  // travar os campos: continuam editáveis, para carros de consignação ou
+  // de compra de terceiro que ainda não estão no estoque.
+  function handleSelectVehicle(vehicleId: string) {
+    setSelectedVehicleId(vehicleId);
+    const vehicle = vehicles.find((v) => v.id === vehicleId);
+    if (!vehicle) return;
+    setPrefill((prev) => ({
+      ...prev,
+      vehicleBrandModel: `${vehicle.brand}/${vehicle.model} ${vehicle.version}`,
+      vehicleYear: `${vehicle.manufactureYear}/${vehicle.modelYear}`,
+    }));
+    setPrefillVersion((v) => v + 1);
+  }
 
   // Busca a venda pelo código (#1024) já cadastrada em "Nova Venda" e
   // preenche o que já existe no sistema — dados do cliente e do veículo do
@@ -44,7 +69,8 @@ export function ContractForm({ initialType }: { initialType?: ContractType }) {
       const vehicle: { brand?: string; model?: string; version?: string; manufactureYear?: number; modelYear?: number } | undefined =
         vData?.vehicles?.[0];
 
-      setPrefill({
+      setPrefill((prev) => ({
+        ...prev,
         buyerName: negotiation.customerName ?? "",
         buyerCpf: negotiation.customerDocument ?? "",
         buyerAddress: negotiation.customerAddress ?? "",
@@ -54,7 +80,8 @@ export function ContractForm({ initialType }: { initialType?: ContractType }) {
         vehicleBrandModel: vehicle ? `${vehicle.brand}/${vehicle.model} ${vehicle.version}` : "",
         vehicleYear: vehicle ? `${vehicle.manufactureYear}/${vehicle.modelYear}` : "",
         saleValue: negotiation.saleValue != null ? String(negotiation.saleValue) : "",
-      });
+      }));
+      if (negotiation.vehicleId) setSelectedVehicleId(negotiation.vehicleId);
       setPrefillVersion((v) => v + 1);
     } catch {
       setLookupError("Não foi possível buscar a venda agora.");
@@ -124,6 +151,21 @@ export function ContractForm({ initialType }: { initialType?: ContractType }) {
           </p>
         </Card>
       )}
+
+      <FormGroup className="max-w-md">
+        <Label hint="opcional">Selecionar veículo do estoque</Label>
+        <Select value={selectedVehicleId} onChange={(e) => handleSelectVehicle(e.target.value)}>
+          <option value="">Digitar manualmente</option>
+          {vehicles.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.brand} {v.model} {v.version} {v.modelYear}
+            </option>
+          ))}
+        </Select>
+        <p className="mt-1 text-xs text-ink-500">
+          Preenche marca/modelo e ano do veículo abaixo — os campos continuam editáveis.
+        </p>
+      </FormGroup>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {CONTRACT_FIELDS[type].map((f) => (
