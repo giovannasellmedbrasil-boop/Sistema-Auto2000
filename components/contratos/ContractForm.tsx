@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Label, FormGroup, Select, Textarea } from "@/components/ui/Field";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Card } from "@/components/ui/Card";
-import { FUEL_LABELS, type Vehicle } from "@/lib/types";
+import { FUEL_LABELS, type Contract, type Vehicle } from "@/lib/types";
 
 type StockVehicle = Pick<
   Vehicle,
@@ -29,12 +29,15 @@ type StockVehicle = Pick<
 export function ContractForm({
   initialType,
   vehicles = [],
+  contract,
 }: {
   initialType?: ContractType;
   vehicles?: StockVehicle[];
+  contract?: Contract;
 }) {
   const router = useRouter();
-  const [type, setType] = useState<ContractType>(initialType ?? "CONSIGNACAO");
+  const isEdit = Boolean(contract);
+  const [type, setType] = useState<ContractType>(contract?.type ?? initialType ?? "CONSIGNACAO");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +45,7 @@ export function ContractForm({
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
-  const [prefill, setPrefill] = useState<Record<string, string>>({});
+  const [prefill, setPrefill] = useState<Record<string, string>>(contract?.fields ?? {});
   const [prefillVersion, setPrefillVersion] = useState(0);
 
   // Preenche todos os dados do veículo do estoque disponíveis no contrato
@@ -125,15 +128,15 @@ export function ContractForm({
       fields[f.key] = f.type === "checkbox" ? String(form.get(f.key) === "on") : String(form.get(f.key) ?? "");
     }
 
-    const res = await fetch("/api/contratos", {
-      method: "POST",
+    const res = await fetch(isEdit ? `/api/contratos/${contract!.id}` : "/api/contratos", {
+      method: isEdit ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type, fields }),
     });
 
     if (!res.ok) {
       const data = await res.json().catch(() => null);
-      setError(data?.error ?? "Não foi possível gerar o contrato.");
+      setError(data?.error ?? "Não foi possível salvar o contrato.");
       setSubmitting(false);
       return;
     }
@@ -198,7 +201,12 @@ export function ContractForm({
           <FormGroup key={f.key} className={f.type === "textarea" ? "sm:col-span-2" : undefined}>
             {f.type === "checkbox" ? (
               <label className="mt-6 flex items-center gap-2 text-sm text-white/85">
-                <input type="checkbox" name={f.key} />
+                <input
+                  key={`${f.key}-${prefillVersion}`}
+                  type="checkbox"
+                  name={f.key}
+                  defaultChecked={(prefill[f.key] ?? f.defaultValue) === "true"}
+                />
                 {f.label}
               </label>
             ) : (
@@ -248,9 +256,9 @@ export function ContractForm({
       <div className="flex gap-3">
         <Button type="submit" disabled={submitting}>
           {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          Gerar contrato
+          {isEdit ? "Salvar alterações" : "Gerar contrato"}
         </Button>
-        <Button href="/admin/contratos" variant="outline">
+        <Button href={isEdit ? `/admin/contratos/${contract!.id}` : "/admin/contratos"} variant="outline">
           Cancelar
         </Button>
       </div>
