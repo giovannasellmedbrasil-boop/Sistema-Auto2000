@@ -819,6 +819,43 @@ export async function createNegotiation(input: NegotiationInput): Promise<Negoti
     db.salesCustomers[customerIdx] = { ...db.salesCustomers[customerIdx], ...customerFields, updatedAt: now };
   }
 
+  // O carro dado como entrada (troca) passa a ser propriedade da loja —
+  // entra automaticamente no estoque interno (nunca no Mercado Livre, então
+  // nunca aparece no site público) como "Em preparação", já que specs como
+  // versão/carroceria/câmbio/combustível/cor não são coletadas na avaliação
+  // de troca e precisam ser conferidas/preenchidas por alguém antes de
+  // colocar o carro à venda.
+  if (input.hasTradeIn && input.tradeIn) {
+    const t = input.tradeIn;
+    const acquisitionValue = t.approvedValue ?? t.storeAppraisalValue ?? t.requestedValue;
+    const vehicleId = genId("veh");
+    db.vehicles.unshift({
+      id: vehicleId,
+      slug: uniqueSlug(db.vehicles, vehicleSlug({ brand: t.brand, model: t.model, version: "", modelYear: t.modelYear })),
+      brand: t.brand,
+      model: t.model,
+      version: "",
+      bodyType: "SEDAN",
+      manufactureYear: t.manufactureYear,
+      modelYear: t.modelYear,
+      mileageKm: t.mileageKm,
+      price: acquisitionValue,
+      costPrice: acquisitionValue,
+      transmission: "AUTOMATIC",
+      fuel: "FLEX",
+      color: "",
+      plate: t.plate,
+      doors: 4,
+      features: [],
+      status: "PREPARING",
+      enteredStockAt: now,
+      createdAt: now,
+      updatedAt: now,
+      photos: [],
+      source: "SITE",
+    });
+  }
+
   await writeDb(db);
   return negotiation;
 }
