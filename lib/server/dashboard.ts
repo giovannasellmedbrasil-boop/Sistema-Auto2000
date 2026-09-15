@@ -787,14 +787,24 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
 
   const siteVisitors = await countUniqueVisitors(new Date(period.from), new Date(period.to));
 
-  // Veículos comprados no período — vem dos contratos de "Recibo de Compra"
-  // (a loja comprando de um particular), nunca dos de consignação/venda.
+  // Veículos comprados no período — soma dois casos em que a loja passa a
+  // ser dona de um carro que não veio de estoque próprio: contratos de
+  // "Recibo de Compra" (compra direta de um particular) e os veículos
+  // recebidos como parte de pagamento (troca) numa venda.
   const periodPurchaseContracts = allContracts.filter(
     (c) => c.type === "RECIBO_COMPRA" && inRange(c.createdAt, period.from, period.to)
   );
+  const periodTradeIns = allNegotiations.filter(
+    (n) => n.status !== "CANCELLED" && n.hasTradeIn && n.tradeIn && inRange(n.createdAt, period.from, period.to)
+  );
   const purchasedVehicles = {
-    count: periodPurchaseContracts.length,
-    totalValue: periodPurchaseContracts.reduce((sum, c) => sum + (Number(c.fields.value) || 0), 0),
+    count: periodPurchaseContracts.length + periodTradeIns.length,
+    totalValue:
+      periodPurchaseContracts.reduce((sum, c) => sum + (Number(c.fields.value) || 0), 0) +
+      periodTradeIns.reduce(
+        (sum, n) => sum + (n.tradeIn!.approvedValue ?? n.tradeIn!.storeAppraisalValue ?? n.tradeIn!.requestedValue ?? 0),
+        0
+      ),
   };
 
   const insights = buildInsights({
