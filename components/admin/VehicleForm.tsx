@@ -45,6 +45,9 @@ export function VehicleForm({ vehicle }: { vehicle?: Vehicle }) {
       fuel: form.get("fuel"),
       color: form.get("color"),
       plateEnding: form.get("plateEnding") || undefined,
+      plate: form.get("plate") || undefined,
+      chassi: form.get("chassi") || undefined,
+      renavam: form.get("renavam") || undefined,
       doors: form.get("doors"),
       engine: form.get("engine") || undefined,
       powerHp: form.get("powerHp") || undefined,
@@ -150,6 +153,18 @@ export function VehicleForm({ vehicle }: { vehicle?: Vehicle }) {
           <FormGroup>
             <Label hint="opcional">Placa (final)</Label>
             <Input name="plateEnding" maxLength={2} defaultValue={vehicle?.plateEnding ?? undefined} />
+          </FormGroup>
+          <FormGroup>
+            <Label hint="opcional">Placa</Label>
+            <Input name="plate" placeholder="Ex: ABC1D23" defaultValue={vehicle?.plate ?? undefined} />
+          </FormGroup>
+          <FormGroup>
+            <Label hint="opcional">Chassi</Label>
+            <Input name="chassi" defaultValue={vehicle?.chassi ?? undefined} />
+          </FormGroup>
+          <FormGroup>
+            <Label hint="opcional">Renavam</Label>
+            <Input name="renavam" defaultValue={vehicle?.renavam ?? undefined} />
           </FormGroup>
           <FormGroup>
             <Label>Portas</Label>

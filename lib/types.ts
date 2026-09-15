@@ -51,6 +51,9 @@ export interface Vehicle {
   fuel: FuelType;
   color: string;
   plateEnding?: string | null;
+  plate?: string | null; // placa completa
+  chassi?: string | null;
+  renavam?: string | null;
   doors: number;
   engine?: string | null;
   powerHp?: number | null;

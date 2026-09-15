@@ -12,7 +12,18 @@ import { FUEL_LABELS, type Vehicle } from "@/lib/types";
 
 type StockVehicle = Pick<
   Vehicle,
-  "id" | "brand" | "model" | "version" | "manufactureYear" | "modelYear" | "color" | "fuel" | "mileageKm"
+  | "id"
+  | "brand"
+  | "model"
+  | "version"
+  | "manufactureYear"
+  | "modelYear"
+  | "color"
+  | "fuel"
+  | "mileageKm"
+  | "plate"
+  | "chassi"
+  | "renavam"
 >;
 
 export function ContractForm({
@@ -35,10 +46,9 @@ export function ContractForm({
   const [prefillVersion, setPrefillVersion] = useState(0);
 
   // Preenche todos os dados do veículo do estoque disponíveis no contrato
-  // (marca/modelo, ano, cor, combustível, km) — sem travar os campos:
-  // continuam editáveis, para carros de consignação ou de compra de
-  // terceiro que ainda não estão no estoque. Chassi, placa completa e
-  // renavam não são rastreados no estoque, então continuam manuais.
+  // (marca/modelo, ano, cor, combustível, km, placa, chassi, renavam) — sem
+  // travar os campos: continuam editáveis, para carros de consignação ou de
+  // compra de terceiro que ainda não estão no estoque.
   function handleSelectVehicle(vehicleId: string) {
     setSelectedVehicleId(vehicleId);
     const vehicle = vehicles.find((v) => v.id === vehicleId);
@@ -50,14 +60,16 @@ export function ContractForm({
       vehicleColor: vehicle.color,
       fuel: FUEL_LABELS[vehicle.fuel],
       mileageEntry: String(vehicle.mileageKm),
+      plate: vehicle.plate ?? "",
+      chassi: vehicle.chassi ?? "",
+      renavam: vehicle.renavam ?? "",
     }));
     setPrefillVersion((v) => v + 1);
   }
 
   // Busca a venda pelo código (#1024) já cadastrada em "Nova Venda" e
   // preenche o que já existe no sistema — dados do cliente e do veículo do
-  // estoque. Chassi, placa e renavam não são rastreados no estoque hoje,
-  // então continuam em branco mesmo após a busca.
+  // estoque, incluindo placa/chassi/renavam quando cadastrados.
   async function handleLookup() {
     const code = saleCode.trim();
     if (!code) return;
@@ -74,8 +86,7 @@ export function ContractForm({
 
       const vRes = await fetch(`/api/vehicles?ids=${negotiation.vehicleId}`);
       const vData = await vRes.json().catch(() => null);
-      const vehicle: { brand?: string; model?: string; version?: string; manufactureYear?: number; modelYear?: number } | undefined =
-        vData?.vehicles?.[0];
+      const vehicle: StockVehicle | undefined = vData?.vehicles?.[0];
 
       setPrefill((prev) => ({
         ...prev,
@@ -87,6 +98,12 @@ export function ContractForm({
         buyerEmail: negotiation.customerEmail ?? "",
         vehicleBrandModel: vehicle ? `${vehicle.brand}/${vehicle.model} ${vehicle.version}` : "",
         vehicleYear: vehicle ? `${vehicle.manufactureYear}/${vehicle.modelYear}` : "",
+        vehicleColor: vehicle?.color ?? "",
+        fuel: vehicle ? FUEL_LABELS[vehicle.fuel] : "",
+        mileageEntry: vehicle ? String(vehicle.mileageKm) : "",
+        plate: vehicle?.plate ?? "",
+        chassi: vehicle?.chassi ?? "",
+        renavam: vehicle?.renavam ?? "",
         saleValue: negotiation.saleValue != null ? String(negotiation.saleValue) : "",
       }));
       if (negotiation.vehicleId) setSelectedVehicleId(negotiation.vehicleId);
@@ -154,8 +171,8 @@ export function ContractForm({
           </div>
           {lookupError && <p className="text-xs text-danger-500">{lookupError}</p>}
           <p className="text-xs text-ink-500">
-            Preenche cliente e veículo com o que já está no sistema. Chassi, placa e renavam não são
-            rastreados no estoque — continuam manuais.
+            Preenche cliente e veículo com o que já está no sistema, incluindo placa, chassi e renavam
+            quando cadastrados no estoque.
           </p>
         </Card>
       )}
@@ -171,7 +188,8 @@ export function ContractForm({
           ))}
         </Select>
         <p className="mt-1 text-xs text-ink-500">
-          Preenche marca/modelo e ano do veículo abaixo — os campos continuam editáveis.
+          Preenche marca/modelo, ano, cor, combustível, km, placa, chassi e renavam do veículo abaixo —
+          os campos continuam editáveis.
         </p>
       </FormGroup>
 
