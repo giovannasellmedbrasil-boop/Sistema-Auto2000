@@ -1348,11 +1348,10 @@ export async function getContractById(id: string): Promise<Contract | undefined>
   return (await readDb()).contracts.find((c) => c.id === id);
 }
 
-// A pessoa que vende um carro para a loja (consignação) ou compra um carro
-// da loja (venda e troca) também alimenta o cadastro em "Clientes" — mesmo
-// casamento por CPF/CNPJ (dígitos) usado em createNegotiation, pra não
-// duplicar quem já é cliente. Recibo de compra fica de fora: ali é a loja
-// comprando de um terceiro, não um cliente da loja.
+// A pessoa que vende um carro para a loja (consignação ou recibo de compra)
+// ou compra um carro da loja (venda e troca) também alimenta o cadastro em
+// "Clientes" — mesmo casamento por CPF/CNPJ (dígitos) usado em
+// createNegotiation, pra não duplicar quem já é cliente.
 function syncContractCustomer(db: DbShape, input: ContractInput, now: string) {
   const f = input.fields;
   let fields: { name: string; document: string; phone: string; address: string; cep: string } | null = null;
@@ -1371,6 +1370,14 @@ function syncContractCustomer(db: DbShape, input: ContractInput, now: string) {
       phone: f.buyerPhone ?? "",
       address: f.buyerAddress ?? "",
       cep: f.buyerCep ?? "",
+    };
+  } else if (input.type === "RECIBO_COMPRA" && f.sellerName && f.sellerCpf) {
+    fields = {
+      name: f.sellerName,
+      document: f.sellerCpf,
+      phone: f.sellerPhone ?? "",
+      address: f.sellerAddress ?? "",
+      cep: f.sellerCep ?? "",
     };
   }
   if (!fields) return;
