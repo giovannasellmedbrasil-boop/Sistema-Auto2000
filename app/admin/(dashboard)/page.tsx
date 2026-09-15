@@ -98,6 +98,13 @@ export default async function AdminDashboardPage({
           icon="receipt"
           filtersQuery={filtersQuery}
         />
+        <StatCard
+          label="Veículos comprados"
+          value={String(data.purchasedVehicles.count)}
+          sublabel={<>Total pago: <Money value={data.purchasedVehicles.totalValue} /></>}
+          icon="car"
+          filtersQuery={filtersQuery}
+        />
       </div>
 
       {/* Performance dos vendedores (seção 8) */}

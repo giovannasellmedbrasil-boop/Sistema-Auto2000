@@ -44,7 +44,7 @@ export function StatCard({
   label: string;
   value: ReactNode;
   icon: keyof typeof ICONS;
-  sublabel?: string;
+  sublabel?: ReactNode;
   deltaPct?: number | null;
   direction?: "up" | "down" | "flat";
   drill?: { metric: DrillMetric; kind: DrillKind; title: string };

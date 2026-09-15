@@ -12,6 +12,7 @@ import type {
 } from "@/lib/types";
 import { LEAD_CHANNEL_LABELS } from "@/lib/types";
 import {
+  listContracts,
   listLeads,
   listMarketingCampaigns,
   listNegotiations,
@@ -412,6 +413,7 @@ export interface DashboardData {
   lostReasons: { reason: LeadLostReason; label: string; count: number }[];
   insights: string[];
   filterOptions: FilterOptions;
+  purchasedVehicles: { count: number; totalValue: number };
 }
 
 const LOST_REASON_LABELS_LOCAL: Record<LeadLostReason, string> = {
@@ -448,13 +450,14 @@ function groupCount<T>(items: T[], keyFn: (item: T) => string): Map<string, numb
 }
 
 export async function getDashboardData(filters: DashboardFilters): Promise<DashboardData> {
-  const [allLeads, allNegotiations, salespeople, campaigns, vehicles, goals] = await Promise.all([
+  const [allLeads, allNegotiations, salespeople, campaigns, vehicles, goals, allContracts] = await Promise.all([
     listLeads(),
     listNegotiations(),
     listSalespeople(),
     listMarketingCampaigns(),
     listVehiclesAdmin(),
     getDashboardGoals(),
+    listContracts(),
   ]);
   const allSales = negotiationsToSales(allNegotiations);
 
@@ -784,6 +787,16 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
 
   const siteVisitors = await countUniqueVisitors(new Date(period.from), new Date(period.to));
 
+  // Veículos comprados no período — vem dos contratos de "Recibo de Compra"
+  // (a loja comprando de um particular), nunca dos de consignação/venda.
+  const periodPurchaseContracts = allContracts.filter(
+    (c) => c.type === "RECIBO_COMPRA" && inRange(c.createdAt, period.from, period.to)
+  );
+  const purchasedVehicles = {
+    count: periodPurchaseContracts.length,
+    totalValue: periodPurchaseContracts.reduce((sum, c) => sum + (Number(c.fields.value) || 0), 0),
+  };
+
   const insights = buildInsights({
     kpis,
     originBreakdown,
@@ -815,6 +828,7 @@ export async function getDashboardData(filters: DashboardFilters): Promise<Dashb
     lostReasons,
     insights,
     filterOptions,
+    purchasedVehicles,
   };
 }
 
