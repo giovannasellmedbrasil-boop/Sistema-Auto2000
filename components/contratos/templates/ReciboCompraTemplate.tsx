@@ -35,6 +35,58 @@ export function ReciboCompraTemplate({ fields }: { fields: Record<string, string
         <p>Negociação: {fields.paymentDescription}</p>
       </div>
 
+      <div className="flex flex-col gap-2 text-justify">
+        <p className="font-semibold">
+          CLÁUSULA – DA RESPONSABILIDADE DO VENDEDOR, DÉBITOS E PROCEDÊNCIA DO VEÍCULO
+        </p>
+        <p>
+          O VENDEDOR declara, sob sua inteira responsabilidade, que o veículo objeto deste contrato é
+          de sua legítima propriedade e possui procedência lícita, não sendo produto de furto, roubo,
+          fraude, apropriação indébita, adulteração de sinais identificadores ou qualquer outra origem
+          ilícita.
+        </p>
+        <p>
+          O VENDEDOR declara, ainda, que, salvo as situações expressamente informadas neste contrato, o
+          veículo encontra-se livre e desembaraçado de quaisquer ônus, gravames, restrições judiciais ou
+          administrativas, bloqueios, débitos, multas, tributos, taxas, encargos, financiamentos ou
+          obrigações perante terceiros.
+        </p>
+        <p>
+          Todos os débitos, multas, impostos, taxas, encargos e demais obrigações cujo fato gerador
+          tenha ocorrido antes da data e horário da efetiva entrega do veículo à COMPRADORA serão de
+          exclusiva responsabilidade do VENDEDOR, ainda que venham a ser lançados, identificados,
+          cobrados ou comunicados após a conclusão da compra e transferência do veículo.
+        </p>
+        <p>
+          Caso a COMPRADORA seja obrigada a efetuar qualquer pagamento referente a obrigação de
+          responsabilidade do VENDEDOR, este deverá realizar o reembolso integral dos valores pagos,
+          incluindo eventuais multas, juros, despesas administrativas e demais custos decorrentes da
+          regularização.
+        </p>
+        <p>
+          O VENDEDOR declara também que prestou informações verdadeiras e completas acerca do estado do
+          veículo, de seu histórico e de eventuais avarias, sinistros, reparos relevantes, restrições ou
+          ocorrências de que tenha conhecimento, responsabilizando-se pela veracidade das informações
+          fornecidas.
+        </p>
+        <p>
+          O VENDEDOR responsabiliza-se pela regularidade documental, identificação e procedência do
+          veículo, inclusive quanto à autenticidade de seus sinais identificadores, numeração de chassi,
+          motor, etiquetas, vidros e demais elementos de identificação, declarando desconhecer qualquer
+          adulteração ou irregularidade.
+        </p>
+        <p>
+          Na hipótese de ser posteriormente constatada irregularidade preexistente à compra, relacionada
+          à procedência, propriedade, documentação, identificação, débitos ou qualquer fato omitido pelo
+          VENDEDOR, este ficará responsável pelos prejuízos comprovadamente suportados pela COMPRADORA,
+          sem prejuízo das demais medidas legais cabíveis.
+        </p>
+        <p>
+          As responsabilidades previstas nesta cláusula permanecem válidas mesmo após a transferência do
+          veículo para a COMPRADORA.
+        </p>
+      </div>
+
       <p>
         São Paulo {formatDateExtended(fields.purchaseDate)}
         {fields.purchaseTime ? ` - ${fields.purchaseTime}h` : ""}
