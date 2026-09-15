@@ -1348,11 +1348,54 @@ export async function getContractById(id: string): Promise<Contract | undefined>
   return (await readDb()).contracts.find((c) => c.id === id);
 }
 
+// A pessoa que vende um carro para a loja (consignação) ou compra um carro
+// da loja (venda e troca) também alimenta o cadastro em "Clientes" — mesmo
+// casamento por CPF/CNPJ (dígitos) usado em createNegotiation, pra não
+// duplicar quem já é cliente. Recibo de compra fica de fora: ali é a loja
+// comprando de um terceiro, não um cliente da loja.
+function syncContractCustomer(db: DbShape, input: ContractInput, now: string) {
+  const f = input.fields;
+  let fields: { name: string; document: string; phone: string; address: string; cep: string } | null = null;
+  if (input.type === "CONSIGNACAO" && f.consignanteName && f.consignanteCpf) {
+    fields = {
+      name: f.consignanteName,
+      document: f.consignanteCpf,
+      phone: f.consignantePhone ?? "",
+      address: f.consignanteAddress ?? "",
+      cep: "",
+    };
+  } else if (input.type === "VENDA_TROCA" && f.buyerName && f.buyerCpf) {
+    fields = {
+      name: f.buyerName,
+      document: f.buyerCpf,
+      phone: f.buyerPhone ?? "",
+      address: f.buyerAddress ?? "",
+      cep: f.buyerCep ?? "",
+    };
+  }
+  if (!fields) return;
+
+  const customerIdx = db.salesCustomers.findIndex((c) => onlyDigits(c.document) === onlyDigits(fields!.document));
+  if (customerIdx === -1) {
+    db.salesCustomers.unshift({
+      id: genId("cust_sale"),
+      ...fields,
+      email: input.type === "VENDA_TROCA" ? f.buyerEmail ?? null : null,
+      cnhNumber: "",
+      createdAt: now,
+      updatedAt: now,
+    });
+  } else {
+    db.salesCustomers[customerIdx] = { ...db.salesCustomers[customerIdx], ...fields, updatedAt: now };
+  }
+}
+
 export async function createContract(input: ContractInput): Promise<Contract> {
   const db = await readDb();
   const now = new Date().toISOString();
   const contract: Contract = { ...input, id: genId("contract"), createdAt: now, updatedAt: now };
   db.contracts.unshift(contract);
+  syncContractCustomer(db, input, now);
   await writeDb(db);
   return contract;
 }
@@ -1361,7 +1404,9 @@ export async function updateContract(id: string, input: ContractInput): Promise<
   const db = await readDb();
   const idx = db.contracts.findIndex((c) => c.id === id);
   if (idx === -1) return undefined;
-  db.contracts[idx] = { ...db.contracts[idx], ...input, updatedAt: new Date().toISOString() };
+  const now = new Date().toISOString();
+  db.contracts[idx] = { ...db.contracts[idx], ...input, updatedAt: now };
+  syncContractCustomer(db, input, now);
   await writeDb(db);
   return db.contracts[idx];
 }

@@ -8,9 +8,12 @@ import { Button } from "@/components/ui/Button";
 import { Input, Label, FormGroup, Select, Textarea } from "@/components/ui/Field";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Card } from "@/components/ui/Card";
-import type { Vehicle } from "@/lib/types";
+import { FUEL_LABELS, type Vehicle } from "@/lib/types";
 
-type StockVehicle = Pick<Vehicle, "id" | "brand" | "model" | "version" | "manufactureYear" | "modelYear">;
+type StockVehicle = Pick<
+  Vehicle,
+  "id" | "brand" | "model" | "version" | "manufactureYear" | "modelYear" | "color" | "fuel" | "mileageKm"
+>;
 
 export function ContractForm({
   initialType,
@@ -31,9 +34,11 @@ export function ContractForm({
   const [prefill, setPrefill] = useState<Record<string, string>>({});
   const [prefillVersion, setPrefillVersion] = useState(0);
 
-  // Preenche marca/modelo/ano a partir de um veículo do estoque — sem
-  // travar os campos: continuam editáveis, para carros de consignação ou
-  // de compra de terceiro que ainda não estão no estoque.
+  // Preenche todos os dados do veículo do estoque disponíveis no contrato
+  // (marca/modelo, ano, cor, combustível, km) — sem travar os campos:
+  // continuam editáveis, para carros de consignação ou de compra de
+  // terceiro que ainda não estão no estoque. Chassi, placa completa e
+  // renavam não são rastreados no estoque, então continuam manuais.
   function handleSelectVehicle(vehicleId: string) {
     setSelectedVehicleId(vehicleId);
     const vehicle = vehicles.find((v) => v.id === vehicleId);
@@ -42,6 +47,9 @@ export function ContractForm({
       ...prev,
       vehicleBrandModel: `${vehicle.brand}/${vehicle.model} ${vehicle.version}`,
       vehicleYear: `${vehicle.manufactureYear}/${vehicle.modelYear}`,
+      vehicleColor: vehicle.color,
+      fuel: FUEL_LABELS[vehicle.fuel],
+      mileageEntry: String(vehicle.mileageKm),
     }));
     setPrefillVersion((v) => v + 1);
   }
