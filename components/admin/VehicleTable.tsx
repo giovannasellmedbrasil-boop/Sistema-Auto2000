@@ -34,7 +34,8 @@ export function VehicleTable({ vehicles }: { vehicles: Vehicle[] }) {
         <thead>
           <tr className="border-b border-ink-100 text-left text-xs uppercase tracking-wide text-ink-600">
             <th className="px-4 py-3 font-medium">Veículo</th>
-            <th className="px-4 py-3 font-medium">Preço</th>
+            <th className="px-4 py-3 font-medium">Preço de compra</th>
+            <th className="px-4 py-3 font-medium">Preço de venda</th>
             <th className="px-4 py-3 font-medium">Km</th>
             <th className="px-4 py-3 font-medium">Status</th>
             <th className="px-4 py-3 font-medium">Dias em estoque</th>
@@ -48,6 +49,7 @@ export function VehicleTable({ vehicles }: { vehicles: Vehicle[] }) {
                 <div className="font-medium text-ink-900">{v.brand} {v.model}</div>
                 <div className="text-xs text-ink-600">{v.version} · {v.modelYear}</div>
               </td>
+              <td className="px-4 py-3 text-ink-700">{v.costPrice != null ? formatCurrency(v.costPrice) : "—"}</td>
               <td className="px-4 py-3 text-ink-700">{formatCurrency(v.price)}</td>
               <td className="px-4 py-3 text-ink-700">{formatKm(v.mileageKm)}</td>
               <td className="px-4 py-3">
