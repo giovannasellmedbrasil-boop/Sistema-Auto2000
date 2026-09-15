@@ -143,6 +143,7 @@ export function ContractForm({ initialType }: { initialType?: ContractType }) {
                     defaultValue={prefill[f.key] ?? f.defaultValue}
                     placeholder={f.placeholder}
                     required={f.required}
+                    className={f.large ? "min-h-48" : undefined}
                   />
                 ) : f.type === "money" ? (
                   <MoneyInput

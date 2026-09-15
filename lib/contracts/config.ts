@@ -19,6 +19,7 @@ export interface ContractFieldConfig {
   required?: boolean;
   placeholder?: string;
   defaultValue?: string;
+  large?: boolean; // textarea maior — para textos longos como forma de pagamento completa
 }
 
 export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
@@ -55,7 +56,7 @@ export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
     { key: "chassi", label: "Chassi", type: "text", required: true },
     { key: "plate", label: "Placa", type: "text", required: true },
     { key: "saleValue", label: "Valor da venda", type: "money", required: true },
-    { key: "paymentDescription", label: "Pago com (forma de pagamento completa)", type: "textarea", required: true, placeholder: "Ex: Um auto FIAT UNO... no valor de R$ 23.000,00 mais financiamento pelo banco Itaú no valor de R$ 49.990,00 em 60 parcelas de R$ 1.459,52." },
+    { key: "paymentDescription", label: "Pago com (forma de pagamento completa)", type: "textarea", required: true, large: true, placeholder: "Ex: Um auto FIAT UNO... no valor de R$ 23.000,00 mais financiamento pelo banco Itaú no valor de R$ 49.990,00 em 60 parcelas de R$ 1.459,52." },
     { key: "hasTradeIn", label: "Houve veículo dado como parte de pagamento (troca)?", type: "checkbox" },
     { key: "testDriveObs", label: "Observação sobre test-drive/garantia/km de entrega (opcional)", type: "textarea" },
     { key: "transferObs", label: "Observação sobre transferência/IPVA (opcional)", type: "textarea" },
@@ -77,7 +78,7 @@ export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
     { key: "mileage", label: "Quilometragem", type: "number", required: true },
     { key: "plate", label: "Placa", type: "text", required: true },
     { key: "value", label: "Valor pago", type: "money", required: true },
-    { key: "paymentDescription", label: "Negociação (forma de pagamento)", type: "text", required: true, placeholder: "Ex: foi pago o valor de R$ 15.500,00 à vista" },
+    { key: "paymentDescription", label: "Negociação (forma de pagamento)", type: "textarea", required: true, large: true, placeholder: "Ex: foi pago o valor de R$ 15.500,00 à vista" },
     { key: "purchaseDate", label: "Data da compra", type: "date", required: true },
     { key: "purchaseTime", label: "Hora (opcional)", type: "time" },
   ],
