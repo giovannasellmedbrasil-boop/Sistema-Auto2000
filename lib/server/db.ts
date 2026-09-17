@@ -317,26 +317,61 @@ export async function deleteVehicle(id: string): Promise<boolean> {
   return db.vehicles.length < before;
 }
 
+// Um carro que entrou no estoque por outro caminho (ex: recebido em troca,
+// ver createNegotiation) pode ser o MESMO carro que acabou de aparecer num
+// anúncio do Mercado Livre — casa por marca/modelo/ano quando o veículo
+// ainda não tem mercadoLivreId, pra virar um merge em vez de uma linha
+// duplicada no estoque.
+function findUnlinkedStockMatch(vehicles: Vehicle[], incoming: Vehicle): Vehicle | undefined {
+  return vehicles.find(
+    (v) =>
+      v.mercadoLivreId == null &&
+      v.brand.trim().toLowerCase() === incoming.brand.trim().toLowerCase() &&
+      v.model.trim().toLowerCase() === incoming.model.trim().toLowerCase() &&
+      v.manufactureYear === incoming.manufactureYear &&
+      v.modelYear === incoming.modelYear
+  );
+}
+
 // Reimporta os anúncios ativos da loja no Mercado Livre (ver
 // seed-mercadolivre.ts) para o estoque. Faz upsert por mercadoLivreId — um
 // anúncio já importado tem seus dados atualizados (inclui reprecificação)
-// em vez de duplicar; um anúncio novo é inserido. Também remove veículos
-// importados do ML que não estão mais entre os anúncios ativos (encerrados
-// no Mercado Livre) — exceto os já marcados como SOLD por aqui, que ficam
-// preservados como histórico de venda mesmo que o anúncio original tenha
-// saído do ar.
+// em vez de duplicar; um anúncio novo cujo carro já está cadastrado no
+// estoque (ex: chegou como troca e depois foi anunciado no ML) é mesclado
+// na entrada existente em vez de criar uma linha duplicada — só então um
+// anúncio realmente novo vira uma linha nova. O status (disponível,
+// reservado, em preparação, vendido) é sempre decidido por aqui, nunca pelo
+// anúncio: uma edição manual (ex: tirar do site colocando "Em preparação")
+// nunca é desfeita por uma reimportação futura.
 export async function importMercadoLivreVehicles(): Promise<{
   imported: number;
   updated: number;
+  merged: number;
   removed: number;
 }> {
   const db = await readDb();
   let imported = 0;
   let updated = 0;
+  let merged = 0;
 
   for (const incoming of mercadoLivreSeedVehicles) {
     const idx = db.vehicles.findIndex((v) => v.mercadoLivreId === incoming.mercadoLivreId);
     if (idx === -1) {
+      const existingMatch = findUnlinkedStockMatch(db.vehicles, incoming);
+      if (existingMatch) {
+        const mIdx = db.vehicles.findIndex((v) => v.id === existingMatch.id);
+        db.vehicles[mIdx] = {
+          ...incoming,
+          id: existingMatch.id,
+          slug: existingMatch.slug,
+          status: existingMatch.status,
+          soldAt: existingMatch.soldAt,
+          createdAt: existingMatch.createdAt,
+          updatedAt: new Date().toISOString(),
+        };
+        merged += 1;
+        continue;
+      }
       db.vehicles.push({ ...incoming, id: genId("veh_ml") });
       imported += 1;
     } else {
@@ -345,7 +380,7 @@ export async function importMercadoLivreVehicles(): Promise<{
         ...incoming,
         id: current.id,
         slug: current.slug,
-        status: current.status === "SOLD" ? current.status : incoming.status,
+        status: current.status,
         soldAt: current.soldAt,
         createdAt: current.createdAt,
         updatedAt: new Date().toISOString(),
@@ -362,7 +397,7 @@ export async function importMercadoLivreVehicles(): Promise<{
   const removed = before - db.vehicles.length;
 
   await writeDb(db);
-  return { imported, updated, removed };
+  return { imported, updated, merged, removed };
 }
 
 function uniqueSlug(existing: Vehicle[], slug: string): string {
@@ -752,6 +787,48 @@ function nextNegotiationCode(db: DbShape): string {
   return `#${max + 1}`;
 }
 
+// Todo carro que entra na loja como troca (numa venda ou num contrato de
+// venda e troca) vira automaticamente um veículo no estoque interno —
+// nunca no Mercado Livre, então nunca aparece no site público — como "Em
+// preparação", já que specs como versão/carroceria/câmbio/combustível/cor
+// não são coletadas na avaliação de troca e precisam ser conferidas por
+// alguém antes de colocar o carro à venda. Casa por placa pra não duplicar
+// se a mesma troca for reprocessada (ex: editar o mesmo contrato de novo).
+function pushTradeInVehicleToStock(
+  db: DbShape,
+  t: { brand: string; model: string; manufactureYear: number; modelYear: number; mileageKm: number; plate: string; value: number },
+  now: string
+) {
+  if (t.plate && db.vehicles.some((v) => v.plate && v.plate.toUpperCase() === t.plate.toUpperCase())) return;
+
+  const vehicleId = genId("veh");
+  db.vehicles.unshift({
+    id: vehicleId,
+    slug: uniqueSlug(db.vehicles, vehicleSlug({ brand: t.brand, model: t.model, version: "", modelYear: t.modelYear })),
+    brand: t.brand,
+    model: t.model,
+    version: "",
+    bodyType: "SEDAN",
+    manufactureYear: t.manufactureYear,
+    modelYear: t.modelYear,
+    mileageKm: t.mileageKm,
+    price: t.value,
+    costPrice: t.value,
+    transmission: "AUTOMATIC",
+    fuel: "FLEX",
+    color: "",
+    plate: t.plate,
+    doors: 4,
+    features: [],
+    status: "PREPARING",
+    enteredStockAt: now,
+    createdAt: now,
+    updatedAt: now,
+    photos: [],
+    source: "SITE",
+  });
+}
+
 export async function createNegotiation(input: NegotiationInput): Promise<Negotiation> {
   const db = await readDb();
   const id = genId("neg");
@@ -819,41 +896,21 @@ export async function createNegotiation(input: NegotiationInput): Promise<Negoti
     db.salesCustomers[customerIdx] = { ...db.salesCustomers[customerIdx], ...customerFields, updatedAt: now };
   }
 
-  // O carro dado como entrada (troca) passa a ser propriedade da loja —
-  // entra automaticamente no estoque interno (nunca no Mercado Livre, então
-  // nunca aparece no site público) como "Em preparação", já que specs como
-  // versão/carroceria/câmbio/combustível/cor não são coletadas na avaliação
-  // de troca e precisam ser conferidas/preenchidas por alguém antes de
-  // colocar o carro à venda.
   if (input.hasTradeIn && input.tradeIn) {
     const t = input.tradeIn;
-    const acquisitionValue = t.approvedValue ?? t.storeAppraisalValue ?? t.requestedValue;
-    const vehicleId = genId("veh");
-    db.vehicles.unshift({
-      id: vehicleId,
-      slug: uniqueSlug(db.vehicles, vehicleSlug({ brand: t.brand, model: t.model, version: "", modelYear: t.modelYear })),
-      brand: t.brand,
-      model: t.model,
-      version: "",
-      bodyType: "SEDAN",
-      manufactureYear: t.manufactureYear,
-      modelYear: t.modelYear,
-      mileageKm: t.mileageKm,
-      price: acquisitionValue,
-      costPrice: acquisitionValue,
-      transmission: "AUTOMATIC",
-      fuel: "FLEX",
-      color: "",
-      plate: t.plate,
-      doors: 4,
-      features: [],
-      status: "PREPARING",
-      enteredStockAt: now,
-      createdAt: now,
-      updatedAt: now,
-      photos: [],
-      source: "SITE",
-    });
+    pushTradeInVehicleToStock(
+      db,
+      {
+        brand: t.brand,
+        model: t.model,
+        manufactureYear: t.manufactureYear,
+        modelYear: t.modelYear,
+        mileageKm: t.mileageKm,
+        plate: t.plate,
+        value: t.approvedValue ?? t.storeAppraisalValue ?? t.requestedValue,
+      },
+      now
+    );
   }
 
   await writeDb(db);
@@ -1434,12 +1491,37 @@ function syncContractCustomer(db: DbShape, input: ContractInput, now: string) {
   }
 }
 
+// Contrato de Venda e Troca com a caixinha de troca marcada e o veículo
+// recebido preenchido também entra automaticamente no estoque — mesma
+// automação usada em Nova Venda (pushTradeInVehicleToStock cuida de não
+// duplicar por placa).
+function syncContractTradeIn(db: DbShape, input: ContractInput, now: string) {
+  const f = input.fields;
+  if (input.type !== "VENDA_TROCA" || f.hasTradeIn !== "true") return;
+  if (!f.tradeInBrand || !f.tradeInModel) return;
+
+  pushTradeInVehicleToStock(
+    db,
+    {
+      brand: f.tradeInBrand,
+      model: f.tradeInModel,
+      manufactureYear: Number(f.tradeInManufactureYear) || new Date().getFullYear(),
+      modelYear: Number(f.tradeInModelYear) || new Date().getFullYear(),
+      mileageKm: Number(f.tradeInMileage) || 0,
+      plate: f.tradeInPlate ?? "",
+      value: Number(f.tradeInValue) || 0,
+    },
+    now
+  );
+}
+
 export async function createContract(input: ContractInput): Promise<Contract> {
   const db = await readDb();
   const now = new Date().toISOString();
   const contract: Contract = { ...input, id: genId("contract"), createdAt: now, updatedAt: now };
   db.contracts.unshift(contract);
   syncContractCustomer(db, input, now);
+  syncContractTradeIn(db, input, now);
   await writeDb(db);
   return contract;
 }
@@ -1451,6 +1533,7 @@ export async function updateContract(id: string, input: ContractInput): Promise<
   const now = new Date().toISOString();
   db.contracts[idx] = { ...db.contracts[idx], ...input, updatedAt: now };
   syncContractCustomer(db, input, now);
+  syncContractTradeIn(db, input, now);
   await writeDb(db);
   return db.contracts[idx];
 }

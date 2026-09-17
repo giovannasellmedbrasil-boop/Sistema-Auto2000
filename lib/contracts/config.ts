@@ -20,6 +20,7 @@ export interface ContractFieldConfig {
   placeholder?: string;
   defaultValue?: string;
   large?: boolean; // textarea maior — para textos longos como forma de pagamento completa
+  showIf?: string; // só renderiza se o campo checkbox com essa key estiver marcado
 }
 
 export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
@@ -58,6 +59,13 @@ export const CONTRACT_FIELDS: Record<ContractType, ContractFieldConfig[]> = {
     { key: "saleValue", label: "Valor da venda", type: "money", required: true },
     { key: "paymentDescription", label: "Pago com (forma de pagamento completa)", type: "textarea", required: true, large: true, placeholder: "Ex: Um auto FIAT UNO... no valor de R$ 23.000,00 mais financiamento pelo banco Itaú no valor de R$ 49.990,00 em 60 parcelas de R$ 1.459,52." },
     { key: "hasTradeIn", label: "Houve veículo dado como parte de pagamento (troca)?", type: "checkbox" },
+    { key: "tradeInBrand", label: "Veículo em troca — marca", type: "text", showIf: "hasTradeIn" },
+    { key: "tradeInModel", label: "Veículo em troca — modelo", type: "text", showIf: "hasTradeIn" },
+    { key: "tradeInManufactureYear", label: "Ano fabricação (troca)", type: "number", showIf: "hasTradeIn" },
+    { key: "tradeInModelYear", label: "Ano modelo (troca)", type: "number", showIf: "hasTradeIn" },
+    { key: "tradeInPlate", label: "Placa (troca)", type: "text", showIf: "hasTradeIn" },
+    { key: "tradeInMileage", label: "Quilometragem (troca)", type: "number", showIf: "hasTradeIn" },
+    { key: "tradeInValue", label: "Valor de avaliação (troca)", type: "money", showIf: "hasTradeIn" },
     { key: "testDriveObs", label: "Observação sobre test-drive/garantia/km de entrega (opcional)", type: "textarea" },
     { key: "transferObs", label: "Observação sobre transferência/IPVA (opcional)", type: "textarea" },
     { key: "saleDate", label: "Data da venda", type: "date", required: true },

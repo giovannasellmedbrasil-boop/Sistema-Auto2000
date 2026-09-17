@@ -47,6 +47,7 @@ export function ContractForm({
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [prefill, setPrefill] = useState<Record<string, string>>(contract?.fields ?? {});
   const [prefillVersion, setPrefillVersion] = useState(0);
+  const [tradeInChecked, setTradeInChecked] = useState(contract?.fields?.hasTradeIn === "true");
 
   // Preenche todos os dados do veículo do estoque disponíveis no contrato
   // (marca/modelo, ano, cor, combustível, km, placa, chassi, renavam) — sem
@@ -197,7 +198,9 @@ export function ContractForm({
       </FormGroup>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {CONTRACT_FIELDS[type].map((f) => (
+        {CONTRACT_FIELDS[type]
+          .filter((f) => !f.showIf || tradeInChecked)
+          .map((f) => (
           <FormGroup key={f.key} className={f.type === "textarea" ? "sm:col-span-2" : undefined}>
             {f.type === "checkbox" ? (
               <label className="mt-6 flex items-center gap-2 text-sm text-white/85">
@@ -206,6 +209,7 @@ export function ContractForm({
                   type="checkbox"
                   name={f.key}
                   defaultChecked={(prefill[f.key] ?? f.defaultValue) === "true"}
+                  onChange={f.key === "hasTradeIn" ? (e) => setTradeInChecked(e.target.checked) : undefined}
                 />
                 {f.label}
               </label>
